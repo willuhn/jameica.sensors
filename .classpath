@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/jameica"/>
+	<classpathentry kind="lib" path="lib/jamod/jamod-1.2rc1.jar" sourcepath="lib.src/jamod-1.2rc1.src.zip"/>
+	<classpathentry kind="lib" path="lib/rxtx/RXTXcomm.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/jameica.webadmin"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/jameica.webtools"/>
+	<classpathentry kind="lib" path="lib/hibernate/ejb3-persistence.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
