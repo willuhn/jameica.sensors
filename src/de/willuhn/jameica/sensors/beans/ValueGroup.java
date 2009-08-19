@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/beans/Attic/ValueGroup.java,v $
- * $Revision: 1.1 $
- * $Date: 2009/08/19 10:34:43 $
+ * $Revision: 1.2 $
+ * $Date: 2009/08/19 23:46:28 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -15,6 +15,12 @@ package de.willuhn.jameica.sensors.beans;
 
 import java.util.List;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
 /**
  * Gruppiert eine Liste von Messwerten.
  * Hintergrund: Die Messwerte der Messgeraete sind meist thematisch
@@ -22,9 +28,15 @@ import java.util.List;
  * Damit die Messwerte in einer GUI strukturiert angezeigt werden
  * koennen, gruppiert sie diese Klasse thematisch.
  */
+@Entity
+@Table(name="valuegroup")
 public class ValueGroup
 {
+  @Id
   private String name        = null;
+
+  @OneToMany()
+  @JoinColumn(name="valuegroup_name")
   private List<Value> values = null;
   
   /**
@@ -68,6 +80,9 @@ public class ValueGroup
 
 /**********************************************************************
  * $Log: ValueGroup.java,v $
+ * Revision 1.2  2009/08/19 23:46:28  willuhn
+ * @N Erster Code fuer die JPA-Persistierung
+ *
  * Revision 1.1  2009/08/19 10:34:43  willuhn
  * @N initial import
  *

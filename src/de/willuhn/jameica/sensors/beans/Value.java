@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/beans/Value.java,v $
- * $Revision: 1.1 $
- * $Date: 2009/08/19 10:34:43 $
+ * $Revision: 1.2 $
+ * $Date: 2009/08/19 23:46:28 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -14,7 +14,9 @@
 package de.willuhn.jameica.sensors.beans;
 
 import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 /**
  * Bean fuer einen einzelnen Mess-Wert.
@@ -29,11 +31,18 @@ public class Value<T>
   public static enum Type
   {
     TEMPERATURE,
+    DATE,
   }
-  
-  private String name = null;
+
+  @Id
+  private Long id     = null;
   private T value     = null;
-  private Type type   = null;
+
+  // Brauchen wir nicht in der Datenbank
+  @Transient
+  private transient String name = null;
+  @Transient
+  private transient Type type   = null;
   
   /**
    * Liefert einen sprechenden Namen fuer den Messwert.
@@ -89,11 +98,40 @@ public class Value<T>
   {
     this.type = type;
   }
+  
+  /**
+   * Liefert die ID des Messwertes.
+   * @return ID des Messwertes.
+   */
+  public Long getId()
+  {
+    return this.id;
+  }
+
+  /**
+   * Speichert die ID des Messwertes.
+   * @param id ID des Messwertes.
+   */
+  public void setId(Long id)
+  {
+    this.id = id;
+  }
+
+  /**
+   * @see java.lang.Object#toString()
+   */
+  public String toString()
+  {
+    return this.value == null ? null : this.value.toString();
+  }
 }
 
 
 /**********************************************************************
  * $Log: Value.java,v $
+ * Revision 1.2  2009/08/19 23:46:28  willuhn
+ * @N Erster Code fuer die JPA-Persistierung
+ *
  * Revision 1.1  2009/08/19 10:34:43  willuhn
  * @N initial import
  *

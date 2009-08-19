@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/service/impl/SchedulerImpl.java,v $
- * $Revision: 1.1 $
- * $Date: 2009/08/19 10:34:43 $
+ * $Revision: 1.2 $
+ * $Date: 2009/08/19 23:46:29 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -15,6 +15,7 @@ package de.willuhn.jameica.sensors.service.impl;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
+import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -154,10 +155,10 @@ public class SchedulerImpl implements Scheduler
           
           try
           {
-            Logger.info("collecting data from device " + name);
             Measurement m = d.collect();
+            m.setDate(new Date());
             Application.getMessagingFactory().sendMessage(new MeasureMessage(d,m));
-            Logger.info("done");
+            Logger.info("collected data from device: " + name);
           }
           catch (IOException e)
           {
@@ -184,6 +185,9 @@ public class SchedulerImpl implements Scheduler
 
 /**********************************************************************
  * $Log: SchedulerImpl.java,v $
+ * Revision 1.2  2009/08/19 23:46:29  willuhn
+ * @N Erster Code fuer die JPA-Persistierung
+ *
  * Revision 1.1  2009/08/19 10:34:43  willuhn
  * @N initial import
  *

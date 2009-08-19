@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/devices/waterkotte/ai1/wpcu/DeviceImpl.java,v $
- * $Revision: 1.1 $
- * $Date: 2009/08/19 10:34:43 $
+ * $Revision: 1.2 $
+ * $Date: 2009/08/19 23:46:29 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -210,11 +210,22 @@ public class DeviceImpl implements Device
     return settings.getString("serialport.device",null) != null;
   }
 
+  /**
+   * @see de.willuhn.jameica.sensors.devices.Device#getId()
+   */
+  public String getId()
+  {
+    return this.getClass().getName();
+  }
+
 }
 
 
 /**********************************************************************
  * $Log: DeviceImpl.java,v $
+ * Revision 1.2  2009/08/19 23:46:29  willuhn
+ * @N Erster Code fuer die JPA-Persistierung
+ *
  * Revision 1.1  2009/08/19 10:34:43  willuhn
  * @N initial import
  *

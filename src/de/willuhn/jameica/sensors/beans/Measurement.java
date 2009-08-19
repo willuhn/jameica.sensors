@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/beans/Attic/Measurement.java,v $
- * $Revision: 1.1 $
- * $Date: 2009/08/19 10:34:43 $
+ * $Revision: 1.2 $
+ * $Date: 2009/08/19 23:46:28 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -16,13 +16,32 @@ package de.willuhn.jameica.sensors.beans;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
 /**
  * Container fuer eine Messung.
  */
+@Entity
+@Table(name="measurement")
 public class Measurement
 {
-  private Date date             = new Date();
-  private List<ValueGroup> list = null;
+  @Id
+  @GeneratedValue
+  private Long id                      = null;
+  
+  @Temporal(TemporalType.TIME)
+  private Date date                    = null;
+
+  @OneToMany()
+  @JoinColumn(name="measurement_id")
+  private List<ValueGroup> valueGroups = null;
   
   /**
    * Liefert die Liste der Werte-Gruppen.
@@ -30,7 +49,7 @@ public class Measurement
    */
   public List<ValueGroup> getValueGroups()
   {
-    return this.list;
+    return this.valueGroups;
   }
   
   /**
@@ -39,7 +58,7 @@ public class Measurement
    */
   public void setValueGroups(List<ValueGroup> list)
   {
-    this.list = list;
+    this.valueGroups = list;
   }
   
   /**
@@ -59,11 +78,34 @@ public class Measurement
   {
     this.date = date;
   }
+
+  /**
+   * Liefert die ID der Messung.
+   * @return ID der Messung.
+   */
+  public Long getId()
+  {
+    return this.id;
+  }
+
+  /**
+   * Speichert die ID der Messung.
+   * @param id ID der Messung.
+   */
+  public void setId(Long id)
+  {
+    this.id = id;
+  }
+  
+  
 }
 
 
 /**********************************************************************
  * $Log: Measurement.java,v $
+ * Revision 1.2  2009/08/19 23:46:28  willuhn
+ * @N Erster Code fuer die JPA-Persistierung
+ *
  * Revision 1.1  2009/08/19 10:34:43  willuhn
  * @N initial import
  *

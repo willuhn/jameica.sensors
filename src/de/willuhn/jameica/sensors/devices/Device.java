@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/devices/Device.java,v $
- * $Revision: 1.1 $
- * $Date: 2009/08/19 10:34:43 $
+ * $Revision: 1.2 $
+ * $Date: 2009/08/19 23:46:29 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -42,11 +42,28 @@ public interface Device
    * @return Bezeichnung des Geraetes.
    */
   public String getName();
+  
+  /**
+   * Liefert eine ID fuer dieses Device, die global (also ueber alle installierten)
+   * Devices eindeutig sein muss.
+   * Anhand dieser ID werden die Messwerte in der Datenbank dem Geraet zugeordnet.
+   * Die ID darf also niemals geaendert werden, sonst koennen die bisherigen
+   * Messwerte in der Datenbank nicht mehr diesem Geraet zugeordnet werden.
+   * Am sinnvollsten ist, hier einfach den kompletten Klassennamen der
+   * Implementierung samt Package (also "this.getClass().getName()") zu verwenden. Man
+   * kann aber auch einen beliebigen anderen String (max. 255 Zeichen) verwenden.
+   * Er darf anschliessend nur nicht mehr veraendert werden.
+   * @return eindeutige ID fuer das Device.
+   */
+  public String getId();
 }
 
 
 /**********************************************************************
  * $Log: Device.java,v $
+ * Revision 1.2  2009/08/19 23:46:29  willuhn
+ * @N Erster Code fuer die JPA-Persistierung
+ *
  * Revision 1.1  2009/08/19 10:34:43  willuhn
  * @N initial import
  *

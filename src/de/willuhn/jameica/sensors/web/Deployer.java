@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/web/Deployer.java,v $
- * $Revision: 1.1 $
- * $Date: 2009/08/19 10:34:43 $
+ * $Revision: 1.2 $
+ * $Date: 2009/08/19 23:46:29 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -15,10 +15,13 @@ package de.willuhn.jameica.sensors.web;
 
 import java.io.File;
 
+import org.mortbay.jetty.security.UserRealm;
+
 import de.willuhn.jameica.plugin.Manifest;
 import de.willuhn.jameica.sensors.Plugin;
 import de.willuhn.jameica.system.Application;
 import de.willuhn.jameica.webadmin.deploy.AbstractWebAppDeployer;
+import de.willuhn.jameica.webadmin.server.JameicaUserRealm;
 
 /**
  * Deployer fuer das Hibiscus-Webfrontend.
@@ -41,11 +44,31 @@ public class Deployer extends AbstractWebAppDeployer
     Manifest mf = Application.getPluginLoader().getManifest(Plugin.class);
     return mf.getPluginDir() + File.separator + "webapps" + getContext();
   }
+  
+  /**
+   * @see de.willuhn.jameica.webadmin.deploy.AbstractWebAppDeployer#getSecurityRoles()
+   */
+  protected String[] getSecurityRoles()
+  {
+    return new String[]{"admin"};
+  }
+
+  /**
+   * @see de.willuhn.jameica.webadmin.deploy.AbstractWebAppDeployer#getUserRealm()
+   */
+  protected UserRealm getUserRealm()
+  {
+    return new JameicaUserRealm();
+  }
+
 }
 
 
 /*********************************************************************
  * $Log: Deployer.java,v $
+ * Revision 1.2  2009/08/19 23:46:29  willuhn
+ * @N Erster Code fuer die JPA-Persistierung
+ *
  * Revision 1.1  2009/08/19 10:34:43  willuhn
  * @N initial import
  *
