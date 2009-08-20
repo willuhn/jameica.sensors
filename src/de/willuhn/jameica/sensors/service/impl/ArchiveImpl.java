@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/service/impl/ArchiveImpl.java,v $
- * $Revision: 1.4 $
- * $Date: 2009/08/20 23:26:14 $
+ * $Revision: 1.5 $
+ * $Date: 2009/08/20 23:26:25 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -13,7 +13,6 @@
 
 package de.willuhn.jameica.sensors.service.impl;
 
-import java.io.InputStream;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -265,6 +264,9 @@ public class ArchiveImpl implements Archive
 
 /**********************************************************************
  * $Log: ArchiveImpl.java,v $
+ * Revision 1.5  2009/08/20 23:26:25  willuhn
+ * *** empty log message ***
+ *
  * Revision 1.4  2009/08/20 23:26:14  willuhn
  * *** empty log message ***
  *
