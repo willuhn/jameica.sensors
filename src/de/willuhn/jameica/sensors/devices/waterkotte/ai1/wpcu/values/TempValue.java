@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/devices/waterkotte/ai1/wpcu/values/Attic/TempValue.java,v $
- * $Revision: 1.1 $
- * $Date: 2009/08/19 10:34:43 $
+ * $Revision: 1.2 $
+ * $Date: 2009/08/20 22:08:42 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -78,6 +78,14 @@ public class TempValue extends Value<Float>
   {
     return Type.TEMPERATURE;
   }
+
+  /**
+   * @see de.willuhn.jameica.sensors.beans.Value#unserialize()
+   */
+  public void unserialize()
+  {
+    setValue(Float.parseFloat(this.serialized));
+  }
   
   
 }
@@ -85,6 +93,9 @@ public class TempValue extends Value<Float>
 
 /**********************************************************************
  * $Log: TempValue.java,v $
+ * Revision 1.2  2009/08/20 22:08:42  willuhn
+ * @N Erste komplett funktionierende Version der Persistierung
+ *
  * Revision 1.1  2009/08/19 10:34:43  willuhn
  * @N initial import
  *

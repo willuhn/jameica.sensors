@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/devices/Device.java,v $
- * $Revision: 1.2 $
- * $Date: 2009/08/19 23:46:29 $
+ * $Revision: 1.3 $
+ * $Date: 2009/08/20 22:08:42 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -49,18 +49,18 @@ public interface Device
    * Anhand dieser ID werden die Messwerte in der Datenbank dem Geraet zugeordnet.
    * Die ID darf also niemals geaendert werden, sonst koennen die bisherigen
    * Messwerte in der Datenbank nicht mehr diesem Geraet zugeordnet werden.
-   * Am sinnvollsten ist, hier einfach den kompletten Klassennamen der
-   * Implementierung samt Package (also "this.getClass().getName()") zu verwenden. Man
-   * kann aber auch einen beliebigen anderen String (max. 255 Zeichen) verwenden.
-   * Er darf anschliessend nur nicht mehr veraendert werden.
+   * Am einfachsten ist es, hier UUIDUtil.create("eindeutiger String") aufzurufen.
    * @return eindeutige ID fuer das Device.
    */
-  public String getId();
+  public String getUuid();
 }
 
 
 /**********************************************************************
  * $Log: Device.java,v $
+ * Revision 1.3  2009/08/20 22:08:42  willuhn
+ * @N Erste komplett funktionierende Version der Persistierung
+ *
  * Revision 1.2  2009/08/19 23:46:29  willuhn
  * @N Erster Code fuer die JPA-Persistierung
  *

@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/beans/Value.java,v $
- * $Revision: 1.3 $
- * $Date: 2009/08/20 18:07:43 $
+ * $Revision: 1.4 $
+ * $Date: 2009/08/20 22:08:42 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -19,15 +19,14 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.PostLoad;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+
+import de.willuhn.logging.Logger;
 
 /**
  * Bean fuer einen einzelnen Mess-Wert.
@@ -41,6 +40,7 @@ public class Value<T extends Serializable>
    */
   public static enum Type
   {
+    STRING,
     TEMPERATURE,
     DATE,
   }
@@ -49,16 +49,9 @@ public class Value<T extends Serializable>
   @GeneratedValue
   private Long id = null;
   
-  @Transient
-  private transient T value = null;
-
   @Column(name="value")
-  private String serialized = null;
+  protected String serialized = null;
 
-  @ManyToOne(fetch=FetchType.LAZY)
-  @JoinColumn(name = "valuegroup_id", nullable=false)
-  private Valuegroup valuegroup = null;
-  
   @Enumerated(EnumType.STRING)
   private Type type = null;
 
@@ -66,6 +59,9 @@ public class Value<T extends Serializable>
   @Transient
   private transient String name = null;
   
+  @Transient
+  private transient T value = null;
+
   /**
    * Liefert einen sprechenden Namen fuer den Messwert.
    * @return Sprechender Name fuer den Messwert.
@@ -131,33 +127,6 @@ public class Value<T extends Serializable>
   }
 
   /**
-   * Speichert die ID des Messwertes.
-   * @param id ID des Messwertes.
-   */
-  public void setId(Long id)
-  {
-    this.id = id;
-  }
-  
-  /**
-   * Liefert die Wertegruppe.
-   * @return die Wertegruppe.
-   */
-  public Valuegroup getValuegroup()
-  {
-    return this.valuegroup;
-  }
-  
-  /**
-   * Speichert die Wertegruppe.
-   * @param g die Wertegruppe.
-   */
-  public void setValuegroup(Valuegroup g)
-  {
-    this.valuegroup = g;
-  }
-
-  /**
    * @see java.lang.Object#toString()
    */
   public String toString()
@@ -181,8 +150,12 @@ public class Value<T extends Serializable>
   @PostLoad
   public void unserialize()
   {
+    if (this.value == null)
+      return;
+    
     if (this.value instanceof String)
       this.value = (T) this.serialized;
+    Logger.warn("dont know how to unserialize type " + this.value.getClass().getName());
   }
   
 }
@@ -190,6 +163,9 @@ public class Value<T extends Serializable>
 
 /**********************************************************************
  * $Log: Value.java,v $
+ * Revision 1.4  2009/08/20 22:08:42  willuhn
+ * @N Erste komplett funktionierende Version der Persistierung
+ *
  * Revision 1.3  2009/08/20 18:07:43  willuhn
  * @N Persistierung funktioniert rudimentaer
  *

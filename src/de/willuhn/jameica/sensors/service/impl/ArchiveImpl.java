@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/service/impl/ArchiveImpl.java,v $
- * $Revision: 1.2 $
- * $Date: 2009/08/20 18:07:43 $
+ * $Revision: 1.3 $
+ * $Date: 2009/08/20 22:08:42 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -20,8 +20,10 @@ import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
+import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
 import javax.persistence.PersistenceException;
+import javax.persistence.Query;
 
 import de.willuhn.jameica.messaging.Message;
 import de.willuhn.jameica.messaging.MessageConsumer;
@@ -106,30 +108,38 @@ public class ArchiveImpl implements Archive
   
   /**
    * Archiviert neue Messwerte fuer ein Geraet.
-   * @param deviceId ID des Devices.
+   * @param uuid UUID des Devices.
    * @param m die neuen Messwerte.
    */
-  private void archive(String deviceId, Measurement m)
+  private void archive(String uuid, Measurement m)
   {
     EntityManager em = getEntityManager();
     
-    // Wir suchen erstmal das Device.
-    Device d = em.find(Device.class,deviceId);
-    if (d == null)
+    
+    Device d = null;
+    
+    try
     {
-      Logger.info("creating new device entry in archive");
+      // Wir suchen erstmal das Device.
+      Query q = em.createQuery("from Device where uuid = ?");
+      q.setParameter(1,uuid);
+      d = (Device) q.getSingleResult();
+    }
+    catch (NoResultException e)
+    {
+      Logger.info("adding new device [uuid: " + uuid + "] to archive");
       d = new Device();
-      d.setId(deviceId);
+      d.setUuid(uuid);
     }
     
-    m.setDevice(d);
+    d.getMeasurements().add(m);
 
     EntityTransaction tx = null;
     try
     {
       tx = em.getTransaction();
       tx.begin();
-      em.persist(m);
+      em.persist(d);
       tx.commit();
     }
     catch (PersistenceException pe)
@@ -146,19 +156,17 @@ public class ArchiveImpl implements Archive
    */
   private synchronized EntityManager getEntityManager()
   {
-    // TODO
     if (this.em == null)
     {
       Map params = new HashMap();
-      params.put(Persistence.PERSISTENCE_PROVIDER,"org.hibernate.ejb.HibernatePersistence");
       params.put("hibernate.connection.driver_class","com.mysql.jdbc.Driver");
       params.put("hibernate.connection.url","jdbc:mysql://server:3306/jameica_sensors?useUnicode=Yes&characterEncoding=ISO8859_1");
       params.put("hibernate.connection.username","jameica_sensors");
       params.put("hibernate.connection.password","jameica_sensors");
       params.put("hibernate.dialect","org.hibernate.dialect.MySQLDialect");
       params.put("hibernate.show_sql","true");
-      params.put("hibernate.hbm2ddl.auto","create,update,validate");
-      EntityManagerFactory ef = Persistence.createEntityManagerFactory("jameica.sensors",params);
+      // params.put("hibernate.hbm2ddl.auto","update"); // create,update,validate
+      EntityManagerFactory ef = Persistence.createEntityManagerFactory("jameica_sensors",params);
       this.em = ef.createEntityManager();
     }
     return this.em;
@@ -192,7 +200,7 @@ public class ArchiveImpl implements Archive
     public void handleMessage(Message message) throws Exception
     {
       MeasureMessage msg = (MeasureMessage) message;
-      archive(msg.getDevice().getId(),msg.getMeasurement());
+      archive(msg.getDevice().getUuid(),msg.getMeasurement());
     }
     
   }
@@ -202,6 +210,9 @@ public class ArchiveImpl implements Archive
 
 /**********************************************************************
  * $Log: ArchiveImpl.java,v $
+ * Revision 1.3  2009/08/20 22:08:42  willuhn
+ * @N Erste komplett funktionierende Version der Persistierung
+ *
  * Revision 1.2  2009/08/20 18:07:43  willuhn
  * @N Persistierung funktioniert rudimentaer
  *

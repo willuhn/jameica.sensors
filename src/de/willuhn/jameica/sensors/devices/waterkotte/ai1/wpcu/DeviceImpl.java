@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/devices/waterkotte/ai1/wpcu/DeviceImpl.java,v $
- * $Revision: 1.3 $
- * $Date: 2009/08/20 18:07:43 $
+ * $Revision: 1.4 $
+ * $Date: 2009/08/20 22:08:42 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -19,8 +19,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import net.wimpi.modbus.Modbus;
 import net.wimpi.modbus.io.ModbusSerialTransaction;
@@ -31,10 +29,10 @@ import net.wimpi.modbus.procimg.Register;
 import net.wimpi.modbus.util.SerialParameters;
 import de.willuhn.jameica.sensors.Plugin;
 import de.willuhn.jameica.sensors.beans.Measurement;
-import de.willuhn.jameica.sensors.beans.Value;
 import de.willuhn.jameica.sensors.beans.Valuegroup;
 import de.willuhn.jameica.sensors.devices.Device;
 import de.willuhn.jameica.sensors.devices.waterkotte.ai1.wpcu.values.TempValue;
+import de.willuhn.jameica.sensors.util.UUIDUtil;
 import de.willuhn.jameica.system.Application;
 import de.willuhn.jameica.system.Settings;
 import de.willuhn.logging.Logger;
@@ -67,7 +65,7 @@ public class DeviceImpl implements Device
     SerialConnection conn = null;
     try
     {
-      Logger.info("open connection to " + device);
+      Logger.debug("open connection to " + device);
       conn = new SerialConnection(params);
       conn.open();
       
@@ -100,72 +98,67 @@ public class DeviceImpl implements Device
       // Der folgende Code sollte spaeter mal noch modularisiert werden.
       // Lohnt sich fuer die paar Messwerte aber noch nicht.
       Measurement m = new Measurement();
-      List<Valuegroup> groups = new ArrayList<Valuegroup>();
-      m.setValueGroups(groups);
 
-      int valueCount = 0;
       //////////////////////////////////////////////////////////////////////////
       // Aussentemperatur
       {
-        List<Value> l = new ArrayList<Value>();
-        l.add(new TempValue(i18n.tr("Aktuell"),dis,56));
-        l.add(new TempValue(i18n.tr("Mittelwert 1h"),dis,60));
-        l.add(new TempValue(i18n.tr("Mittelwert 24h"),dis,64));
         Valuegroup g = new Valuegroup();
+        g.setUuid(UUIDUtil.create("jameica.sensors.waterkotte.ai1.wpcu.group.temp.outdoor"));
         g.setName(i18n.tr("Außentemperaturen"));
-        g.setValues(l);
-        groups.add(g);
-        valueCount += l.size();
+
+        g.getValues().add(new TempValue(i18n.tr("Aktuell"),dis,56));
+        g.getValues().add(new TempValue(i18n.tr("Mittelwert 1h"),dis,60));
+        g.getValues().add(new TempValue(i18n.tr("Mittelwert 24h"),dis,64));
+        
+        m.getValuegroups().add(g);
       }
       //////////////////////////////////////////////////////////////////////////
 
       //////////////////////////////////////////////////////////////////////////
       // Heizung
       {
-        List<Value> l = new ArrayList<Value>();
-        l.add(new TempValue(i18n.tr("Rücklauf Soll"),dis,68));
-        l.add(new TempValue(i18n.tr("Rücklauf Ist"),dis,72));
-        l.add(new TempValue(i18n.tr("Vorlauf Ist"),dis,76));
         Valuegroup g = new Valuegroup();
+        g.setUuid(UUIDUtil.create("jameica.sensors.waterkotte.ai1.wpcu.group.temp.heater"));
         g.setName(i18n.tr("Heizungstemperaturen"));
-        g.setValues(l);
-        groups.add(g);
-        valueCount += l.size();
+
+        g.getValues().add(new TempValue(i18n.tr("Rücklauf Soll"),dis,68));
+        g.getValues().add(new TempValue(i18n.tr("Rücklauf Ist"),dis,72));
+        g.getValues().add(new TempValue(i18n.tr("Vorlauf Ist"),dis,76));
+
+        m.getValuegroups().add(g);
       }
       //////////////////////////////////////////////////////////////////////////
       
       //////////////////////////////////////////////////////////////////////////
       // Warmwasser
       {
-        List<Value> l = new ArrayList<Value>();
-        l.add(new TempValue(i18n.tr("Soll"),dis,80));
-        l.add(new TempValue(i18n.tr("Ist"),dis,84));
         Valuegroup g = new Valuegroup();
+        g.setUuid(UUIDUtil.create("jameica.sensors.waterkotte.ai1.wpcu.group.temp.water"));
         g.setName(i18n.tr("Warmwassertemperaturen"));
-        g.setValues(l);
-        groups.add(g);
-        valueCount += l.size();
+        
+        g.getValues().add(new TempValue(i18n.tr("Soll"),dis,80));
+        g.getValues().add(new TempValue(i18n.tr("Ist"),dis,84));
+
+        m.getValuegroups().add(g);
       }
       //////////////////////////////////////////////////////////////////////////
 
       //////////////////////////////////////////////////////////////////////////
       // Waerme-Quelle (Sonde in der Tiefenbohrung)
       {
-        List<Value> l = new ArrayList<Value>();
-        l.add(new TempValue(i18n.tr("Wärmequelle Eingang"),dis,96));
-        l.add(new TempValue(i18n.tr("Wärmequelle Ausgang"),dis,100));
-        l.add(new TempValue(i18n.tr("Verdampfer"),dis,104));
-        l.add(new TempValue(i18n.tr("Kondensator"),dis,108));
-        l.add(new TempValue(i18n.tr("Saugleitung"),dis,112));
         Valuegroup g = new Valuegroup();
+        g.setUuid(UUIDUtil.create("jameica.sensors.waterkotte.ai1.wpcu.group.temp.system"));
         g.setName(i18n.tr("System-Temperaturen"));
-        g.setValues(l);
-        groups.add(g);
-        valueCount += l.size();
+
+        g.getValues().add(new TempValue(i18n.tr("Wärmequelle Eingang"),dis,96));
+        g.getValues().add(new TempValue(i18n.tr("Wärmequelle Ausgang"),dis,100));
+        g.getValues().add(new TempValue(i18n.tr("Verdampfer"),dis,104));
+        g.getValues().add(new TempValue(i18n.tr("Kondensator"),dis,108));
+        g.getValues().add(new TempValue(i18n.tr("Saugleitung"),dis,112));
+
+        m.getValuegroups().add(g);
       }
       //////////////////////////////////////////////////////////////////////////
-      
-      Logger.info("collected " + valueCount + " values in " + groups.size() + " groups");
       return m;
     }
     catch (IOException ioe)
@@ -202,6 +195,15 @@ public class DeviceImpl implements Device
   }
 
   /**
+   * @see de.willuhn.jameica.sensors.devices.Device#getUuid()
+   */
+  public String getUuid()
+  {
+    return UUIDUtil.create("jameica.sensors.waterkotte.ai1.wpcu.device");
+  }
+
+
+  /**
    * @see de.willuhn.jameica.sensors.devices.Device#isEnabled()
    */
   public boolean isEnabled()
@@ -209,20 +211,14 @@ public class DeviceImpl implements Device
     // Wir checken einfach, ob die Heizung konfiguriert ist
     return settings.getString("serialport.device",null) != null;
   }
-
-  /**
-   * @see de.willuhn.jameica.sensors.devices.Device#getId()
-   */
-  public String getId()
-  {
-    return this.getClass().getName();
-  }
-
 }
 
 
 /**********************************************************************
  * $Log: DeviceImpl.java,v $
+ * Revision 1.4  2009/08/20 22:08:42  willuhn
+ * @N Erste komplett funktionierende Version der Persistierung
+ *
  * Revision 1.3  2009/08/20 18:07:43  willuhn
  * @N Persistierung funktioniert rudimentaer
  *

@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/beans/Attic/Valuegroup.java,v $
- * $Revision: 1.1 $
- * $Date: 2009/08/20 18:07:43 $
+ * $Revision: 1.2 $
+ * $Date: 2009/08/20 22:08:42 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -13,16 +13,18 @@
 
 package de.willuhn.jameica.sensors.beans;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
 
 /**
  * Gruppiert eine Liste von Messwerten.
@@ -32,77 +34,87 @@ import javax.persistence.Table;
  * koennen, gruppiert sie diese Klasse thematisch.
  */
 @Entity
-@Table(name="valuegroup")
+@Table(name="valuegroup", uniqueConstraints = {
+    @UniqueConstraint(columnNames="uuid")
+})
 public class Valuegroup
 {
   @Id
-  private String name = null;
+  @GeneratedValue
+  private Long id = null;
   
-  @ManyToOne(fetch=FetchType.LAZY)
-  @JoinColumn(name = "measurement_id", nullable=false)
-  private Measurement measurement = null;
-
-  @OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY,mappedBy="valuegroup")
+  private String uuid = null;
+  
+  @OneToMany(cascade=CascadeType.ALL)
+  @JoinColumn(name="valuegroup_id")
   private List<Value> values = null;
   
-  /**
-   * Liefert einen sprechenden Namen fuer die Messwert-Gruppe.
-   * @return Sprechender Name fuer die Messwert-Gruppe.
-   */
-  public String getName()
-  {
-    return this.name;
-  }
-  
-  /**
-   * Speichert einen sprechenden Namen fuer die Messwert-Gruppe.
-   * @param name Sprechender Name fuer die Messwert-Gruppe.
-   */
-  public void setName(String name)
-  {
-    this.name = name;
-  }
-  
+  @Transient
+  private transient String name = null;
+
   /**
    * Liefert die Liste der Messwerte.
    * @return Liste der Messwerte.
    */
   public List<Value> getValues()
   {
+    if (this.values == null)
+      this.values = new ArrayList<Value>();
     return this.values;
   }
   
   /**
-   * Speichert die Liste der Messwerte.
-   * @param values Liste der Messwerte.
+   * Liefert die ID der Wertegruppe.
+   * @return ID der Wertegruppe.
    */
-  public void setValues(List<Value> values)
+  public Long getId()
   {
-    this.values = values;
-  }
-  
-  /**
-   * Liefert die Messung.
-   * @return die Messung.
-   */
-  public Measurement getMeasurement()
-  {
-    return this.measurement;
+    return this.id;
   }
 
   /**
-   * Speichert die Messung.
-   * @param m die Messung.
+   * Liefert einen sprechenden Namen.
+   * @return sprechender Name.
    */
-  public void setMeasurement(Measurement m)
+  public String getName()
   {
-    this.measurement = m;
+    return this.name;
+  }
+
+  /**
+   * Speichert den sprechenden Namen.
+   * @param name sprechender Name.
+   */
+  public void setName(String name)
+  {
+    this.name = name;
+  }
+
+  /**
+   * Liefert die eindeutige Kennung des Devices.
+   * @return UUID des Devices.
+   */
+  public String getUuid()
+  {
+    return this.uuid;
+  }
+
+  /**
+   * Speichert die eindeutige Kennung des Devices.
+   * @param uuid die UUID des Devices.
+   */
+  public void setUuid(String uuid)
+  {
+    this.uuid = uuid;
   }
 }
 
 
 /**********************************************************************
  * $Log: Valuegroup.java,v $
+ * Revision 1.2  2009/08/20 22:08:42  willuhn
+ * @N Erste komplett funktionierende Version der Persistierung
+ *
  * Revision 1.1  2009/08/20 18:07:43  willuhn
  * @N Persistierung funktioniert rudimentaer
  *

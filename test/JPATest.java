@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/test/JPATest.java,v $
- * $Revision: 1.1 $
- * $Date: 2009/08/20 18:07:43 $
+ * $Revision: 1.2 $
+ * $Date: 2009/08/20 22:08:42 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -11,10 +11,8 @@
  *
  **********************************************************************/
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
@@ -22,9 +20,11 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 import javax.persistence.PersistenceException;
+import javax.persistence.Query;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.willuhn.jameica.sensors.beans.Device;
@@ -32,6 +32,7 @@ import de.willuhn.jameica.sensors.beans.Measurement;
 import de.willuhn.jameica.sensors.beans.Value;
 import de.willuhn.jameica.sensors.beans.Valuegroup;
 import de.willuhn.jameica.sensors.beans.Value.Type;
+import de.willuhn.jameica.sensors.util.UUIDUtil;
 import de.willuhn.logging.Level;
 import de.willuhn.logging.Logger;
 
@@ -40,10 +41,10 @@ import de.willuhn.logging.Logger;
  */
 public class JPATest
 {
-  private EntityManager em = null;
+  private static EntityManager em = null;
   
-  @Before
-  public void setUp() throws Exception
+  @BeforeClass
+  public static void setUp() throws Exception
   {
     Logger.setLevel(Level.INFO);
 
@@ -57,14 +58,14 @@ public class JPATest
     params.put("hibernate.show_sql","true");
     params.put("hibernate.hbm2ddl.auto","create"); // ,update,validate");
     EntityManagerFactory ef = Persistence.createEntityManagerFactory("jameica_sensors",params);
-    this.em = ef.createEntityManager();
+    em = ef.createEntityManager();
   }
 
-  @After
-  public void tearDown() throws Exception
+  @AfterClass
+  public static void tearDown() throws Exception
   {
-    if (this.em != null)
-      this.em.close();
+    if (em != null)
+      em.close();
   }
   
   
@@ -74,31 +75,23 @@ public class JPATest
   @Test
   public void test001() throws Exception
   {
-    Value<Date> v = new Value<Date>();
-    v.setName("test");
-    v.setValue(new Date());
-    v.setType(Type.DATE);
+    Device d = new Device();
+    d.setUuid(UUIDUtil.create("unit.test.001"));
     
-    List<Value> lv = new ArrayList<Value>();
-    lv.add(v);
+    Measurement m = new Measurement();
+    m.setDate(new Date());
+    
     
     Valuegroup g = new Valuegroup();
-    g.setName("date");
-    g.setValues(lv);
+    g.setUuid(UUIDUtil.create("unit.test.001.group1"));
     
-    v.setValuegroup(g); // reverse
+    Value<String> v = new Value<String>();
+    v.setValue(new Date().toString());
+    v.setType(Type.STRING);
 
-    List<Valuegroup> lg = new ArrayList<Valuegroup>();
-    lg.add(g);
-    Measurement m = new Measurement();
-    m.setValueGroups(lg);
-    
-    g.setMeasurement(m); // reverse
-
-    Device d = new Device();
-    d.setId("test");
-    
-    m.setDevice(d);
+    g.getValues().add(v);
+    m.getValuegroups().add(g);
+    d.getMeasurements().add(m);
 
     EntityTransaction tx = null;
     try
@@ -106,8 +99,6 @@ public class JPATest
       tx = em.getTransaction();
       tx.begin();
       em.persist(d);
-
-      em.persist(m);
       tx.commit();
     }
     catch (PersistenceException pe)
@@ -120,11 +111,91 @@ public class JPATest
     
   }
 
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void test002() throws Exception
+  {
+    Query q = em.createQuery("from Device where uuid = ?");
+    q.setParameter(1,UUIDUtil.create("unit.test.001"));
+    Device d = (Device) q.getSingleResult();
+    Assert.assertEquals(d.getMeasurements().size(),1);
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void test003() throws Exception
+  {
+    Query q = em.createQuery("from Device where uuid = ?");
+    q.setParameter(1,UUIDUtil.create("unit.test.001"));
+    Device d = (Device) q.getSingleResult();
+
+    Measurement m = new Measurement();
+    m.setDate(new Date());
+    
+    q = em.createQuery("from Valuegroup where uuid = ?");
+    q.setParameter(1,UUIDUtil.create("unit.test.001.group1"));
+    Valuegroup g = (Valuegroup) q.getSingleResult();
+
+    Value<String> v = new Value<String>();
+    v.setValue(new Date().toString());
+    v.setType(Type.STRING);
+
+    g.getValues().add(v);
+    m.getValuegroups().add(g);
+    d.getMeasurements().add(m);
+
+    EntityTransaction tx = null;
+    try
+    {
+      tx = em.getTransaction();
+      tx.begin();
+      em.persist(d);
+      tx.commit();
+    }
+    catch (PersistenceException pe)
+    {
+      pe.printStackTrace();
+      if (tx != null && tx.isActive())
+        tx.rollback();
+      throw pe;
+    }
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void test004() throws Exception
+  {
+    Query q = em.createQuery("from Valuegroup where uuid = ?");
+    q.setParameter(1,UUIDUtil.create("unit.test.001.group1"));
+    q.getSingleResult(); // Wirft eine Exception, wenn die Gruppe doppelt existiert
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void test005() throws Exception
+  {
+    Query q = em.createQuery("from Device where uuid = ?");
+    q.setParameter(1,UUIDUtil.create("unit.test.001"));
+    Device d = (Device) q.getSingleResult();
+    Assert.assertEquals(d.getMeasurements().size(),2);
+  }
+
 }
 
 
 /**********************************************************************
  * $Log: JPATest.java,v $
+ * Revision 1.2  2009/08/20 22:08:42  willuhn
+ * @N Erste komplett funktionierende Version der Persistierung
+ *
  * Revision 1.1  2009/08/20 18:07:43  willuhn
  * @N Persistierung funktioniert rudimentaer
  *

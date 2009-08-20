@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/devices/test/Attic/DeviceImpl.java,v $
- * $Revision: 1.2 $
- * $Date: 2009/08/20 18:07:43 $
+ * $Revision: 1.3 $
+ * $Date: 2009/08/20 22:08:42 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -14,9 +14,7 @@
 package de.willuhn.jameica.sensors.devices.test;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import de.willuhn.jameica.sensors.Plugin;
 import de.willuhn.jameica.sensors.beans.Measurement;
@@ -24,6 +22,7 @@ import de.willuhn.jameica.sensors.beans.Value;
 import de.willuhn.jameica.sensors.beans.Valuegroup;
 import de.willuhn.jameica.sensors.beans.Value.Type;
 import de.willuhn.jameica.sensors.devices.Device;
+import de.willuhn.jameica.sensors.util.UUIDUtil;
 import de.willuhn.jameica.system.Application;
 import de.willuhn.jameica.system.Settings;
 import de.willuhn.util.I18N;
@@ -49,27 +48,23 @@ public class DeviceImpl implements Device
     v.setValue(new Date());
     v.setType(Type.DATE);
     
-    List<Value> lv = new ArrayList<Value>();
-    lv.add(v);
-    
     Valuegroup g = new Valuegroup();
     g.setName(i18n.tr("Datum und Uhrzeit"));
-    g.setValues(lv);
-
-    List<Valuegroup> lg = new ArrayList<Valuegroup>();
-    lg.add(g);
+    g.setUuid(UUIDUtil.create("jameica.sensors.test.group.date"));
+    g.getValues().add(v);
+    
     Measurement m = new Measurement();
-    m.setValueGroups(lg);
+    m.getValuegroups().add(g);
     
     return m;
   }
 
   /**
-   * @see de.willuhn.jameica.sensors.devices.Device#getId()
+   * @see de.willuhn.jameica.sensors.devices.Device#getUuid()
    */
-  public String getId()
+  public String getUuid()
   {
-    return this.getClass().getName();
+    return UUIDUtil.create("jameica.sensors.test.device");
   }
 
   /**
@@ -94,6 +89,9 @@ public class DeviceImpl implements Device
 
 /**********************************************************************
  * $Log: DeviceImpl.java,v $
+ * Revision 1.3  2009/08/20 22:08:42  willuhn
+ * @N Erste komplett funktionierende Version der Persistierung
+ *
  * Revision 1.2  2009/08/20 18:07:43  willuhn
  * @N Persistierung funktioniert rudimentaer
  *

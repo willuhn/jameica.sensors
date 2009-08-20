@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/beans/Attic/Measurement.java,v $
- * $Revision: 1.3 $
- * $Date: 2009/08/20 18:07:43 $
+ * $Revision: 1.4 $
+ * $Date: 2009/08/20 22:08:42 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -13,16 +13,15 @@
 
 package de.willuhn.jameica.sensors.beans;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -39,33 +38,24 @@ public class Measurement
   @GeneratedValue
   private Long id = null;
   
-  @ManyToOne(fetch=FetchType.LAZY)
-  @JoinColumn(name = "device_id", nullable=false)
-  private Device device = null;
-  
   @Temporal(TemporalType.TIME)
   private Date date = null;
 
-  @OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY,mappedBy="measurement")
-  private List<Valuegroup> valueGroups = null;
+  @OneToMany(cascade=CascadeType.ALL)
+  @JoinColumn(name="measurement_id")
+  private List<Valuegroup> valuegroups = null;
   
   /**
    * Liefert die Liste der Werte-Gruppen.
    * @return Liste der Werte-Gruppen.
    */
-  public List<Valuegroup> getValueGroups()
+  public List<Valuegroup> getValuegroups()
   {
-    return this.valueGroups;
+    if (this.valuegroups == null)
+      this.valuegroups = new ArrayList<Valuegroup>();
+    return this.valuegroups;
   }
   
-  /**
-   * Speichert die Liste der Werte-Gruppen.
-   * @param list Liste der Werte-Gruppen.
-   */
-  public void setValueGroups(List<Valuegroup> list)
-  {
-    this.valueGroups = list;
-  }
   
   /**
    * Liefert den Zeitpunkt der Messung.
@@ -93,40 +83,14 @@ public class Measurement
   {
     return this.id;
   }
-
-  /**
-   * Speichert die ID der Messung.
-   * @param id ID der Messung.
-   */
-  public void setId(Long id)
-  {
-    this.id = id;
-  }
-
-  /**
-   * Liefert das Device.
-   * @return das Device.
-   */
-  public Device getDevice()
-  {
-    return this.device;
-  }
-
-  /**
-   * Speichert das Device.
-   * @param device das Device.
-   */
-  public void setDevice(Device device)
-  {
-    this.device = device;
-  }
-  
-  
 }
 
 
 /**********************************************************************
  * $Log: Measurement.java,v $
+ * Revision 1.4  2009/08/20 22:08:42  willuhn
+ * @N Erste komplett funktionierende Version der Persistierung
+ *
  * Revision 1.3  2009/08/20 18:07:43  willuhn
  * @N Persistierung funktioniert rudimentaer
  *

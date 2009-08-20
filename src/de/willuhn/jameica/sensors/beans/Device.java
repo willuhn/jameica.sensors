@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/beans/Device.java,v $
- * $Revision: 1.2 $
- * $Date: 2009/08/20 18:07:43 $
+ * $Revision: 1.3 $
+ * $Date: 2009/08/20 22:08:42 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -13,45 +13,36 @@
 
 package de.willuhn.jameica.sensors.beans;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 /**
  * Bean fuer die Persistierung eines Devices (bzw. der Messwerte.
  */
 @Entity
-@Table(name="device")
+@Table(name="device", uniqueConstraints = {
+    @UniqueConstraint(columnNames="uuid")
+})
 public class Device
 {
   @Id
-  private String id = null;
-  
-  @OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY,mappedBy="device")
+  @GeneratedValue
+  private Long id = null;
+
+  private String uuid = null;
+
+  @OneToMany(cascade=CascadeType.ALL)
+  @JoinColumn(name="device_id")
   private List<Measurement> measurements = null;
-
-  /**
-   * Liefert die ID des Devices.
-   * @return ID des Devices.
-   */
-  public String getId()
-  {
-    return this.id;
-  }
-
-  /**
-   * Speichert die ID des Devices.
-   * @param id ID des Devices.
-   */
-  public void setId(String id)
-  {
-    this.id = id;
-  }
 
   /**
    * Liefert alle Messergebnisse.
@@ -59,14 +50,45 @@ public class Device
    */
   public List<Measurement> getMeasurements()
   {
+    if (this.measurements == null)
+      this.measurements = new ArrayList<Measurement>();
     return this.measurements;
   }
 
+  /**
+   * Liefert die ID des Devices.
+   * @return ID des Devices.
+   */
+  public Long getId()
+  {
+    return this.id;
+  }
+
+  /**
+   * Liefert die eindeutige Kennung des Devices.
+   * @return UUID des Devices.
+   */
+  public String getUuid()
+  {
+    return this.uuid;
+  }
+
+  /**
+   * Speichert die eindeutige Kennung des Devices.
+   * @param uuid die UUID des Devices.
+   */
+  public void setUuid(String uuid)
+  {
+    this.uuid = uuid;
+  }
 }
 
 
 /**********************************************************************
  * $Log: Device.java,v $
+ * Revision 1.3  2009/08/20 22:08:42  willuhn
+ * @N Erste komplett funktionierende Version der Persistierung
+ *
  * Revision 1.2  2009/08/20 18:07:43  willuhn
  * @N Persistierung funktioniert rudimentaer
  *
