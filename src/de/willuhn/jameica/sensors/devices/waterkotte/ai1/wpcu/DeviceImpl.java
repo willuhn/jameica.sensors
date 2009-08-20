@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/devices/waterkotte/ai1/wpcu/DeviceImpl.java,v $
- * $Revision: 1.2 $
- * $Date: 2009/08/19 23:46:29 $
+ * $Revision: 1.3 $
+ * $Date: 2009/08/20 18:07:43 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -32,7 +32,7 @@ import net.wimpi.modbus.util.SerialParameters;
 import de.willuhn.jameica.sensors.Plugin;
 import de.willuhn.jameica.sensors.beans.Measurement;
 import de.willuhn.jameica.sensors.beans.Value;
-import de.willuhn.jameica.sensors.beans.ValueGroup;
+import de.willuhn.jameica.sensors.beans.Valuegroup;
 import de.willuhn.jameica.sensors.devices.Device;
 import de.willuhn.jameica.sensors.devices.waterkotte.ai1.wpcu.values.TempValue;
 import de.willuhn.jameica.system.Application;
@@ -100,7 +100,7 @@ public class DeviceImpl implements Device
       // Der folgende Code sollte spaeter mal noch modularisiert werden.
       // Lohnt sich fuer die paar Messwerte aber noch nicht.
       Measurement m = new Measurement();
-      List<ValueGroup> groups = new ArrayList<ValueGroup>();
+      List<Valuegroup> groups = new ArrayList<Valuegroup>();
       m.setValueGroups(groups);
 
       int valueCount = 0;
@@ -111,7 +111,7 @@ public class DeviceImpl implements Device
         l.add(new TempValue(i18n.tr("Aktuell"),dis,56));
         l.add(new TempValue(i18n.tr("Mittelwert 1h"),dis,60));
         l.add(new TempValue(i18n.tr("Mittelwert 24h"),dis,64));
-        ValueGroup g = new ValueGroup();
+        Valuegroup g = new Valuegroup();
         g.setName(i18n.tr("Außentemperaturen"));
         g.setValues(l);
         groups.add(g);
@@ -126,7 +126,7 @@ public class DeviceImpl implements Device
         l.add(new TempValue(i18n.tr("Rücklauf Soll"),dis,68));
         l.add(new TempValue(i18n.tr("Rücklauf Ist"),dis,72));
         l.add(new TempValue(i18n.tr("Vorlauf Ist"),dis,76));
-        ValueGroup g = new ValueGroup();
+        Valuegroup g = new Valuegroup();
         g.setName(i18n.tr("Heizungstemperaturen"));
         g.setValues(l);
         groups.add(g);
@@ -140,7 +140,7 @@ public class DeviceImpl implements Device
         List<Value> l = new ArrayList<Value>();
         l.add(new TempValue(i18n.tr("Soll"),dis,80));
         l.add(new TempValue(i18n.tr("Ist"),dis,84));
-        ValueGroup g = new ValueGroup();
+        Valuegroup g = new Valuegroup();
         g.setName(i18n.tr("Warmwassertemperaturen"));
         g.setValues(l);
         groups.add(g);
@@ -157,7 +157,7 @@ public class DeviceImpl implements Device
         l.add(new TempValue(i18n.tr("Verdampfer"),dis,104));
         l.add(new TempValue(i18n.tr("Kondensator"),dis,108));
         l.add(new TempValue(i18n.tr("Saugleitung"),dis,112));
-        ValueGroup g = new ValueGroup();
+        Valuegroup g = new Valuegroup();
         g.setName(i18n.tr("System-Temperaturen"));
         g.setValues(l);
         groups.add(g);
@@ -223,6 +223,9 @@ public class DeviceImpl implements Device
 
 /**********************************************************************
  * $Log: DeviceImpl.java,v $
+ * Revision 1.3  2009/08/20 18:07:43  willuhn
+ * @N Persistierung funktioniert rudimentaer
+ *
  * Revision 1.2  2009/08/19 23:46:29  willuhn
  * @N Erster Code fuer die JPA-Persistierung
  *

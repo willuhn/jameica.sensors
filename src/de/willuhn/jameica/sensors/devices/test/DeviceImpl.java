@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/devices/test/Attic/DeviceImpl.java,v $
- * $Revision: 1.1 $
- * $Date: 2009/08/19 23:46:29 $
+ * $Revision: 1.2 $
+ * $Date: 2009/08/20 18:07:43 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -21,7 +21,7 @@ import java.util.List;
 import de.willuhn.jameica.sensors.Plugin;
 import de.willuhn.jameica.sensors.beans.Measurement;
 import de.willuhn.jameica.sensors.beans.Value;
-import de.willuhn.jameica.sensors.beans.ValueGroup;
+import de.willuhn.jameica.sensors.beans.Valuegroup;
 import de.willuhn.jameica.sensors.beans.Value.Type;
 import de.willuhn.jameica.sensors.devices.Device;
 import de.willuhn.jameica.system.Application;
@@ -52,11 +52,11 @@ public class DeviceImpl implements Device
     List<Value> lv = new ArrayList<Value>();
     lv.add(v);
     
-    ValueGroup g = new ValueGroup();
+    Valuegroup g = new Valuegroup();
     g.setName(i18n.tr("Datum und Uhrzeit"));
     g.setValues(lv);
 
-    List<ValueGroup> lg = new ArrayList<ValueGroup>();
+    List<Valuegroup> lg = new ArrayList<Valuegroup>();
     lg.add(g);
     Measurement m = new Measurement();
     m.setValueGroups(lg);
@@ -94,6 +94,9 @@ public class DeviceImpl implements Device
 
 /**********************************************************************
  * $Log: DeviceImpl.java,v $
+ * Revision 1.2  2009/08/20 18:07:43  willuhn
+ * @N Persistierung funktioniert rudimentaer
+ *
  * Revision 1.1  2009/08/19 23:46:29  willuhn
  * @N Erster Code fuer die JPA-Persistierung
  *

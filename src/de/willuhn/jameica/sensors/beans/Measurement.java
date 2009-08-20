@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/beans/Attic/Measurement.java,v $
- * $Revision: 1.2 $
- * $Date: 2009/08/19 23:46:28 $
+ * $Revision: 1.3 $
+ * $Date: 2009/08/20 18:07:43 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -16,10 +16,13 @@ package de.willuhn.jameica.sensors.beans;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -34,20 +37,23 @@ public class Measurement
 {
   @Id
   @GeneratedValue
-  private Long id                      = null;
+  private Long id = null;
+  
+  @ManyToOne(fetch=FetchType.LAZY)
+  @JoinColumn(name = "device_id", nullable=false)
+  private Device device = null;
   
   @Temporal(TemporalType.TIME)
-  private Date date                    = null;
+  private Date date = null;
 
-  @OneToMany()
-  @JoinColumn(name="measurement_id")
-  private List<ValueGroup> valueGroups = null;
+  @OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY,mappedBy="measurement")
+  private List<Valuegroup> valueGroups = null;
   
   /**
    * Liefert die Liste der Werte-Gruppen.
    * @return Liste der Werte-Gruppen.
    */
-  public List<ValueGroup> getValueGroups()
+  public List<Valuegroup> getValueGroups()
   {
     return this.valueGroups;
   }
@@ -56,7 +62,7 @@ public class Measurement
    * Speichert die Liste der Werte-Gruppen.
    * @param list Liste der Werte-Gruppen.
    */
-  public void setValueGroups(List<ValueGroup> list)
+  public void setValueGroups(List<Valuegroup> list)
   {
     this.valueGroups = list;
   }
@@ -96,6 +102,24 @@ public class Measurement
   {
     this.id = id;
   }
+
+  /**
+   * Liefert das Device.
+   * @return das Device.
+   */
+  public Device getDevice()
+  {
+    return this.device;
+  }
+
+  /**
+   * Speichert das Device.
+   * @param device das Device.
+   */
+  public void setDevice(Device device)
+  {
+    this.device = device;
+  }
   
   
 }
@@ -103,6 +127,9 @@ public class Measurement
 
 /**********************************************************************
  * $Log: Measurement.java,v $
+ * Revision 1.3  2009/08/20 18:07:43  willuhn
+ * @N Persistierung funktioniert rudimentaer
+ *
  * Revision 1.2  2009/08/19 23:46:28  willuhn
  * @N Erster Code fuer die JPA-Persistierung
  *

@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/service/impl/ArchiveImpl.java,v $
- * $Revision: 1.1 $
- * $Date: 2009/08/19 23:46:29 $
+ * $Revision: 1.2 $
+ * $Date: 2009/08/20 18:07:43 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -122,14 +122,14 @@ public class ArchiveImpl implements Archive
       d.setId(deviceId);
     }
     
-    d.addMeasurement(m);
+    m.setDevice(d);
 
     EntityTransaction tx = null;
     try
     {
       tx = em.getTransaction();
       tx.begin();
-      em.persist(d);
+      em.persist(m);
       tx.commit();
     }
     catch (PersistenceException pe)
@@ -155,7 +155,7 @@ public class ArchiveImpl implements Archive
       params.put("hibernate.connection.url","jdbc:mysql://server:3306/jameica_sensors?useUnicode=Yes&characterEncoding=ISO8859_1");
       params.put("hibernate.connection.username","jameica_sensors");
       params.put("hibernate.connection.password","jameica_sensors");
-      params.put("hibernate.dialect","org.hibernate.dialect.MySqlDialect");
+      params.put("hibernate.dialect","org.hibernate.dialect.MySQLDialect");
       params.put("hibernate.show_sql","true");
       params.put("hibernate.hbm2ddl.auto","create,update,validate");
       EntityManagerFactory ef = Persistence.createEntityManagerFactory("jameica.sensors",params);
@@ -202,6 +202,9 @@ public class ArchiveImpl implements Archive
 
 /**********************************************************************
  * $Log: ArchiveImpl.java,v $
+ * Revision 1.2  2009/08/20 18:07:43  willuhn
+ * @N Persistierung funktioniert rudimentaer
+ *
  * Revision 1.1  2009/08/19 23:46:29  willuhn
  * @N Erster Code fuer die JPA-Persistierung
  *

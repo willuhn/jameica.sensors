@@ -1,7 +1,7 @@
 /**********************************************************************
- * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/beans/Attic/ValueGroup.java,v $
- * $Revision: 1.2 $
- * $Date: 2009/08/19 23:46:28 $
+ * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/beans/Attic/Valuegroup.java,v $
+ * $Revision: 1.1 $
+ * $Date: 2009/08/20 18:07:43 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -15,9 +15,12 @@ package de.willuhn.jameica.sensors.beans;
 
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -30,13 +33,16 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name="valuegroup")
-public class ValueGroup
+public class Valuegroup
 {
   @Id
-  private String name        = null;
+  private String name = null;
+  
+  @ManyToOne(fetch=FetchType.LAZY)
+  @JoinColumn(name = "measurement_id", nullable=false)
+  private Measurement measurement = null;
 
-  @OneToMany()
-  @JoinColumn(name="valuegroup_name")
+  @OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY,mappedBy="valuegroup")
   private List<Value> values = null;
   
   /**
@@ -74,12 +80,32 @@ public class ValueGroup
   {
     this.values = values;
   }
+  
+  /**
+   * Liefert die Messung.
+   * @return die Messung.
+   */
+  public Measurement getMeasurement()
+  {
+    return this.measurement;
+  }
 
+  /**
+   * Speichert die Messung.
+   * @param m die Messung.
+   */
+  public void setMeasurement(Measurement m)
+  {
+    this.measurement = m;
+  }
 }
 
 
 /**********************************************************************
- * $Log: ValueGroup.java,v $
+ * $Log: Valuegroup.java,v $
+ * Revision 1.1  2009/08/20 18:07:43  willuhn
+ * @N Persistierung funktioniert rudimentaer
+ *
  * Revision 1.2  2009/08/19 23:46:28  willuhn
  * @N Erster Code fuer die JPA-Persistierung
  *
