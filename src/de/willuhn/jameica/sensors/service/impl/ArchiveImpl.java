@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/service/impl/ArchiveImpl.java,v $
- * $Revision: 1.3 $
- * $Date: 2009/08/20 22:08:42 $
+ * $Revision: 1.4 $
+ * $Date: 2009/08/20 23:26:14 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -13,8 +13,11 @@
 
 package de.willuhn.jameica.sensors.service.impl;
 
+import java.io.InputStream;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
@@ -29,6 +32,8 @@ import de.willuhn.jameica.messaging.Message;
 import de.willuhn.jameica.messaging.MessageConsumer;
 import de.willuhn.jameica.sensors.beans.Device;
 import de.willuhn.jameica.sensors.beans.Measurement;
+import de.willuhn.jameica.sensors.beans.Value;
+import de.willuhn.jameica.sensors.beans.Valuegroup;
 import de.willuhn.jameica.sensors.messaging.MeasureMessage;
 import de.willuhn.jameica.sensors.service.Archive;
 import de.willuhn.jameica.system.Application;
@@ -39,8 +44,8 @@ import de.willuhn.logging.Logger;
  */
 public class ArchiveImpl implements Archive
 {
-  private EntityManager em           = null;
-  private MyMessageConsumer consumer = null;
+  private EntityManager entityManager = null;
+  private MyMessageConsumer consumer  = null;
 
   /**
    * @see de.willuhn.datasource.Service#getName()
@@ -96,13 +101,13 @@ public class ArchiveImpl implements Archive
     {
       Application.getMessagingFactory().unRegisterMessageConsumer(this.consumer);
       
-      if (this.em != null)
-        this.em.close();
+      if (this.entityManager != null)
+        this.entityManager.close();
     }
     finally
     {
       this.consumer = null;
-      this.em = null;
+      this.entityManager = null;
     }
   }
   
@@ -132,6 +137,34 @@ public class ArchiveImpl implements Archive
       d.setUuid(uuid);
     }
     
+    // Bevor wir die Messergebnisse speichern, muessen wir noch schauen,
+    // ob wir die Valuegroups schon im Archiv haben
+    List<Valuegroup> groups = m.getValuegroups();
+    List<Valuegroup> newList = new ArrayList<Valuegroup>();
+    for (Valuegroup group:groups)
+    {
+      Valuegroup fromArchive = find(group.getUuid());
+      if (fromArchive != null)
+      {
+        // jepp, die Gruppe haben wir schon. Wir haengen die Messwerte dort dran
+        List<Value> values = group.getValues();
+        List<Value> existing = fromArchive.getValues();
+        for (Value value:values)
+        {
+          existing.add(value);
+        }
+        newList.add(fromArchive);
+      }
+      else
+      {
+        Logger.info("adding new value group [uuid: " + group.getUuid() + "] to archive");
+        newList.add(group);
+      }
+    }
+    
+    groups.clear();
+    groups.addAll(newList);
+    
     d.getMeasurements().add(m);
 
     EntityTransaction tx = null;
@@ -151,14 +184,36 @@ public class ArchiveImpl implements Archive
   }
   
   /**
+   * Sucht die angegebene Valuegroup im Archiv.
+   * @param uuid die UUID der Valuegroup.
+   * @return die Valuegroup aus dem Archiv oder NULL, wenn sie da noch nicht existiert.
+   */
+  private Valuegroup find(String uuid)
+  {
+    try
+    {
+      EntityManager em = getEntityManager();
+      Query q = em.createQuery("from Valuegroup where uuid = ?");
+      q.setParameter(1,uuid);
+      return (Valuegroup) q.getSingleResult();
+    }
+    catch (NoResultException e)
+    {
+      // ignore
+    }
+    return null;
+  }
+  
+  /**
    * Liefert den EntityManager oder erstellt bei Bedarf einen neuen.
    * @return der EntityManager.
    */
   private synchronized EntityManager getEntityManager()
   {
-    if (this.em == null)
+    if (this.entityManager == null)
     {
       Map params = new HashMap();
+      System.out.println("PROVIDER:" + org.hibernate.ejb.HibernatePersistence.PROVIDER);
       params.put("hibernate.connection.driver_class","com.mysql.jdbc.Driver");
       params.put("hibernate.connection.url","jdbc:mysql://server:3306/jameica_sensors?useUnicode=Yes&characterEncoding=ISO8859_1");
       params.put("hibernate.connection.username","jameica_sensors");
@@ -167,9 +222,9 @@ public class ArchiveImpl implements Archive
       params.put("hibernate.show_sql","true");
       // params.put("hibernate.hbm2ddl.auto","update"); // create,update,validate
       EntityManagerFactory ef = Persistence.createEntityManagerFactory("jameica_sensors",params);
-      this.em = ef.createEntityManager();
+      this.entityManager = ef.createEntityManager();
     }
-    return this.em;
+    return this.entityManager;
   }
   
   /**
@@ -210,6 +265,9 @@ public class ArchiveImpl implements Archive
 
 /**********************************************************************
  * $Log: ArchiveImpl.java,v $
+ * Revision 1.4  2009/08/20 23:26:14  willuhn
+ * *** empty log message ***
+ *
  * Revision 1.3  2009/08/20 22:08:42  willuhn
  * @N Erste komplett funktionierende Version der Persistierung
  *
