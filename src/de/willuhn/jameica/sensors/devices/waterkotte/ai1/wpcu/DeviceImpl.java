@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/devices/waterkotte/ai1/wpcu/DeviceImpl.java,v $
- * $Revision: 1.5 $
- * $Date: 2009/08/21 13:34:17 $
+ * $Revision: 1.6 $
+ * $Date: 2009/08/21 14:26:00 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -51,6 +51,11 @@ public class DeviceImpl implements Device
   public Measurement collect() throws IOException
   {
     String device = settings.getString("serialport.device",null);
+    if (device == null)
+    {
+      Logger.warn("device " + this.getName() + "[uuid: " + this.getUuid() + "] not configured");
+      return null;
+    }
 
     SerialParameters params = new SerialParameters();
     params.setPortName(device);
@@ -70,12 +75,12 @@ public class DeviceImpl implements Device
       
       ReadMultipleRegistersRequest request = new ReadMultipleRegistersRequest(1,60);
       request.setHeadless();
-      request.setUnitID(settings.getInt("device.waterkotte.ai1.wpcu.unitid",1));
+      request.setUnitID(settings.getInt("modbus.unitid",1));
       
       ModbusSerialTransaction tr = new ModbusSerialTransaction(conn);
       tr.setRequest(request);
-      tr.setRetries(settings.getInt("device.waterkotte.ai1.wpcu.retries",3));
-      tr.setTransDelayMS(settings.getInt("device.waterkotte.ai1.wpcu.delay.millis",2000));
+      tr.setRetries(settings.getInt("modbus.retries",3));
+      tr.setTransDelayMS(settings.getInt("modbus.delay.millis",2000));
       tr.execute();
       
       ReadMultipleRegistersResponse response = (ReadMultipleRegistersResponse) tr.getResponse();
@@ -235,6 +240,9 @@ public class DeviceImpl implements Device
 
 /**********************************************************************
  * $Log: DeviceImpl.java,v $
+ * Revision 1.6  2009/08/21 14:26:00  willuhn
+ * @N null als Rueckgabewert tolerieren
+ *
  * Revision 1.5  2009/08/21 13:34:17  willuhn
  * @N Redesign der Device-API
  * @N Cleanup in Persistierung

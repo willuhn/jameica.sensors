@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/service/impl/SchedulerImpl.java,v $
- * $Revision: 1.3 $
- * $Date: 2009/08/21 13:34:17 $
+ * $Revision: 1.4 $
+ * $Date: 2009/08/21 14:26:00 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -156,8 +156,14 @@ public class SchedulerImpl implements Scheduler
           try
           {
             Measurement m = d.collect();
-            if (m.getDate() == null)
-              m.setDate(new Date());
+            if (m == null)
+            {
+              Logger.debug("skipping device " + name + " - returned no data");
+              continue;
+            }
+            
+            if (m.getDate() == null) m.setDate(new Date());
+            
             Logger.info("collected data from device: " + name);
             Application.getMessagingFactory().sendMessage(new MeasureMessage(d,m));
           }
@@ -186,6 +192,9 @@ public class SchedulerImpl implements Scheduler
 
 /**********************************************************************
  * $Log: SchedulerImpl.java,v $
+ * Revision 1.4  2009/08/21 14:26:00  willuhn
+ * @N null als Rueckgabewert tolerieren
+ *
  * Revision 1.3  2009/08/21 13:34:17  willuhn
  * @N Redesign der Device-API
  * @N Cleanup in Persistierung
