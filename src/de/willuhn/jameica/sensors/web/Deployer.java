@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/web/Deployer.java,v $
- * $Revision: 1.2 $
- * $Date: 2009/08/19 23:46:29 $
+ * $Revision: 1.3 $
+ * $Date: 2009/08/21 14:10:35 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -20,6 +20,7 @@ import org.mortbay.jetty.security.UserRealm;
 import de.willuhn.jameica.plugin.Manifest;
 import de.willuhn.jameica.sensors.Plugin;
 import de.willuhn.jameica.system.Application;
+import de.willuhn.jameica.system.Settings;
 import de.willuhn.jameica.webadmin.deploy.AbstractWebAppDeployer;
 import de.willuhn.jameica.webadmin.server.JameicaUserRealm;
 
@@ -50,6 +51,9 @@ public class Deployer extends AbstractWebAppDeployer
    */
   protected String[] getSecurityRoles()
   {
+    Settings settings = Application.getPluginLoader().getPlugin(Plugin.class).getResources().getSettings();
+    if (!settings.getBoolean("auth",false))
+      return null;
     return new String[]{"admin"};
   }
 
@@ -58,6 +62,9 @@ public class Deployer extends AbstractWebAppDeployer
    */
   protected UserRealm getUserRealm()
   {
+    Settings settings = Application.getPluginLoader().getPlugin(Plugin.class).getResources().getSettings();
+    if (!settings.getBoolean("auth",false))
+      return null;
     return new JameicaUserRealm();
   }
 
@@ -66,6 +73,9 @@ public class Deployer extends AbstractWebAppDeployer
 
 /*********************************************************************
  * $Log: Deployer.java,v $
+ * Revision 1.3  2009/08/21 14:10:35  willuhn
+ * @N Authentifizierung optional
+ *
  * Revision 1.2  2009/08/19 23:46:29  willuhn
  * @N Erster Code fuer die JPA-Persistierung
  *
