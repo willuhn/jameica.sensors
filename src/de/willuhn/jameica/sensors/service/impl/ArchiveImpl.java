@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/service/impl/ArchiveImpl.java,v $
- * $Revision: 1.7 $
- * $Date: 2009/08/21 13:34:17 $
+ * $Revision: 1.8 $
+ * $Date: 2009/08/21 13:40:44 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -35,6 +35,7 @@ import de.willuhn.jameica.sensors.devices.Sensorgroup;
 import de.willuhn.jameica.sensors.devices.Serializer;
 import de.willuhn.jameica.sensors.service.Archive;
 import de.willuhn.jameica.system.Application;
+import de.willuhn.jameica.system.Settings;
 import de.willuhn.logging.Logger;
 
 /**
@@ -81,14 +82,15 @@ public class ArchiveImpl implements Archive
 
     try
     {
+      Settings settings = Application.getPluginLoader().getPlugin(Plugin.class).getResources().getSettings();
       Map params = new HashMap();
-      params.put("hibernate.connection.driver_class","com.mysql.jdbc.Driver");
-      params.put("hibernate.connection.url","jdbc:mysql://server:3306/jameica_sensors?useUnicode=Yes&characterEncoding=ISO8859_1");
-      params.put("hibernate.connection.username","jameica_sensors");
-      params.put("hibernate.connection.password","jameica_sensors");
-      params.put("hibernate.dialect","org.hibernate.dialect.MySQLDialect");
-      params.put("hibernate.show_sql","false");
-      params.put("hibernate.hbm2ddl.auto","update"); // create,update,validate
+      params.put("hibernate.connection.driver_class",settings.getString("hibernate.connection.driver_class","com.mysql.jdbc.Driver"));
+      params.put("hibernate.connection.url",settings.getString("hibernate.connection.url","jdbc:mysql://localhost:3306/jameica_sensors?useUnicode=Yes&characterEncoding=ISO8859_1"));
+      params.put("hibernate.connection.username",settings.getString("hibernate.connection.username","jameica_sensors"));
+      params.put("hibernate.connection.password",settings.getString("hibernate.connection.password","jameica_sensors"));
+      params.put("hibernate.dialect",settings.getString("hibernate.dialect","org.hibernate.dialect.MySQLDialect"));
+      params.put("hibernate.show_sql",settings.getString("hibernate.show_sql","false"));
+      params.put("hibernate.hbm2ddl.auto",settings.getString("hibernate.hbm2ddl.auto","update")); // create,update,validate
 
       EntityManagerFactory ef = Persistence.createEntityManagerFactory("jameica_sensors",params);
       this.em = ef.createEntityManager();
@@ -235,6 +237,9 @@ public class ArchiveImpl implements Archive
 
 /**********************************************************************
  * $Log: ArchiveImpl.java,v $
+ * Revision 1.8  2009/08/21 13:40:44  willuhn
+ * @N DB-Zugangsdaten konfigurierbar
+ *
  * Revision 1.7  2009/08/21 13:34:17  willuhn
  * @N Redesign der Device-API
  * @N Cleanup in Persistierung
