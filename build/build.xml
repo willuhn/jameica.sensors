@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!--
- $Revision: 1.1 $
- $Date: 2009/08/19 10:34:43 $
+ $Revision: 1.2 $
+ $Date: 2009/08/21 14:00:42 $
  $Author: willuhn $
  
  Copyright (c) by willuhn software & services
@@ -91,6 +91,7 @@
     <copy todir="${class.dir}">
       <fileset dir="${src.dir}">
         <include name="webtools.xml" />
+        <include name="META-INF/**" />
       </fileset>
     </copy>
 </target>
