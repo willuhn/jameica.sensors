@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/web/controller/Status.java,v $
- * $Revision: 1.1 $
- * $Date: 2009/08/19 10:34:43 $
+ * $Revision: 1.2 $
+ * $Date: 2009/08/21 13:34:17 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -13,17 +13,24 @@
 
 package de.willuhn.jameica.sensors.web.controller;
 
+import java.util.HashMap;
 import java.util.Map;
 
-import de.willuhn.jameica.sensors.beans.Measurement;
 import de.willuhn.jameica.sensors.devices.Device;
+import de.willuhn.jameica.sensors.devices.Measurement;
+import de.willuhn.jameica.sensors.devices.Sensor;
+import de.willuhn.jameica.sensors.devices.Serializer;
+import de.willuhn.jameica.sensors.devices.StringSerializer;
 import de.willuhn.jameica.sensors.messaging.LiveMeasurement;
 import de.willuhn.jameica.webadmin.annotation.Lifecycle;
 import de.willuhn.jameica.webadmin.annotation.Lifecycle.Type;
+import de.willuhn.logging.Logger;
 
-@Lifecycle(Type.SESSION)
+@Lifecycle(Type.REQUEST)
 public class Status
 {
+  private Map<Class<? extends Serializer>,Serializer> cache = new HashMap<Class<? extends Serializer>,Serializer>();
+  
   /**
    * Liefert die Live-Messwerte.
    * @return die Live-Messwerte.
@@ -32,11 +39,43 @@ public class Status
   {
     return LiveMeasurement.getValues();
   }
+  
+  /**
+   * Formatiert den Messwert des Sensors.
+   * @param s Sensor.
+   * @return Format des Sensors.
+   */
+  public String format(Sensor s)
+  {
+    Object value = s.getValue();
+    try
+    {
+      Class c = s.getSerializer();
+      // Mal schauen, ob wir den Serializer schon instanziiert haben
+      Serializer si = cache.get(c);
+      if (si == null)
+      {
+        si = (Serializer) c.newInstance();
+        cache.put(c,si);
+      }
+      return si.format(value);
+    }
+    catch (Exception e)
+    {
+      Logger.error("unable to format value " + value + " for sensor " + s.getName() + " [" + s.getUuid() + "]",e);
+    }
+    return new StringSerializer().format(value);
+  }
 }
 
 
 /**********************************************************************
  * $Log: Status.java,v $
+ * Revision 1.2  2009/08/21 13:34:17  willuhn
+ * @N Redesign der Device-API
+ * @N Cleanup in Persistierung
+ * @B Bugfixing beim Initialisieren des EntityManagers
+ *
  * Revision 1.1  2009/08/19 10:34:43  willuhn
  * @N initial import
  *

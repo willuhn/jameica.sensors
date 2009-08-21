@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/test/JPATest.java,v $
- * $Revision: 1.2 $
- * $Date: 2009/08/20 22:08:42 $
+ * $Revision: 1.3 $
+ * $Date: 2009/08/21 13:34:17 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -28,11 +28,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.willuhn.jameica.sensors.beans.Device;
-import de.willuhn.jameica.sensors.beans.Measurement;
+import de.willuhn.jameica.sensors.beans.Sensor;
 import de.willuhn.jameica.sensors.beans.Value;
-import de.willuhn.jameica.sensors.beans.Valuegroup;
-import de.willuhn.jameica.sensors.beans.Value.Type;
-import de.willuhn.jameica.sensors.util.UUIDUtil;
+import de.willuhn.jameica.sensors.devices.StringSerializer;
 import de.willuhn.logging.Level;
 import de.willuhn.logging.Logger;
 
@@ -70,35 +68,36 @@ public class JPATest
   
   
   /**
+   * Legt ein Device und dazu jeweils einen Sensor sowie einen Messwert an.
    * @throws Exception
    */
   @Test
   public void test001() throws Exception
   {
-    Device d = new Device();
-    d.setUuid(UUIDUtil.create("unit.test.001"));
-    
-    Measurement m = new Measurement();
-    m.setDate(new Date());
-    
-    
-    Valuegroup g = new Valuegroup();
-    g.setUuid(UUIDUtil.create("unit.test.001.group1"));
-    
-    Value<String> v = new Value<String>();
-    v.setValue(new Date().toString());
-    v.setType(Type.STRING);
-
-    g.getValues().add(v);
-    m.getValuegroups().add(g);
-    d.getMeasurements().add(m);
-
     EntityTransaction tx = null;
+
     try
     {
       tx = em.getTransaction();
       tx.begin();
+
+      System.out.println(",---- TEST 1");
+      Device d = new Device();
+      d.setUuid("unit.test.device");
       em.persist(d);
+      
+      Sensor s = new Sensor();
+      s.setUuid("unit.test.sensor.1");
+      s.setSerializer(StringSerializer.class.getName());
+      d.getSensors().add(s);
+      em.persist(s);
+      
+      Value v = new Value();
+      v.setDate(new Date());
+      v.setValue("foo");
+      s.getValues().add(v);
+      em.persist(v);
+      
       tx.commit();
     }
     catch (PersistenceException pe)
@@ -108,52 +107,47 @@ public class JPATest
         tx.rollback();
       throw pe;
     }
-    
+    System.out.println("`----");
   }
 
   /**
+   * Prueft, ob das Device existiert und einen Sensor besitzt.
    * @throws Exception
    */
   @Test
   public void test002() throws Exception
   {
+    System.out.println(",---- TEST 2");
     Query q = em.createQuery("from Device where uuid = ?");
-    q.setParameter(1,UUIDUtil.create("unit.test.001"));
+    q.setParameter(1,"unit.test.device");
     Device d = (Device) q.getSingleResult();
-    Assert.assertEquals(d.getMeasurements().size(),1);
+    Assert.assertEquals(d.getSensors().size(),1);
+    System.out.println("`----");
   }
 
   /**
+   * Fuegt einen neuen Messwert hinzu.
    * @throws Exception
    */
   @Test
   public void test003() throws Exception
   {
-    Query q = em.createQuery("from Device where uuid = ?");
-    q.setParameter(1,UUIDUtil.create("unit.test.001"));
-    Device d = (Device) q.getSingleResult();
+    System.out.println(",---- TEST 3");
+    Query q = em.createQuery("from Sensor where uuid = ?");
+    q.setParameter(1,"unit.test.sensor.1");
+    Sensor s = (Sensor) q.getSingleResult();
 
-    Measurement m = new Measurement();
-    m.setDate(new Date());
+    Value v = new Value();
+    v.setDate(new Date());
+    v.setValue("bar");
+    s.getValues().add(v);
     
-    q = em.createQuery("from Valuegroup where uuid = ?");
-    q.setParameter(1,UUIDUtil.create("unit.test.001.group1"));
-    Valuegroup g = (Valuegroup) q.getSingleResult();
-
-    Value<String> v = new Value<String>();
-    v.setValue(new Date().toString());
-    v.setType(Type.STRING);
-
-    g.getValues().add(v);
-    m.getValuegroups().add(g);
-    d.getMeasurements().add(m);
-
     EntityTransaction tx = null;
     try
     {
       tx = em.getTransaction();
       tx.begin();
-      em.persist(d);
+      em.persist(v);
       tx.commit();
     }
     catch (PersistenceException pe)
@@ -163,36 +157,33 @@ public class JPATest
         tx.rollback();
       throw pe;
     }
+    System.out.println("`----");
   }
 
   /**
+   * Prueft, ob der Sensor jetzt zwei Messwerte hat.
    * @throws Exception
    */
   @Test
   public void test004() throws Exception
   {
-    Query q = em.createQuery("from Valuegroup where uuid = ?");
-    q.setParameter(1,UUIDUtil.create("unit.test.001.group1"));
-    q.getSingleResult(); // Wirft eine Exception, wenn die Gruppe doppelt existiert
+    System.out.println(",---- TEST 4");
+    Query q = em.createQuery("from Sensor where uuid = ?");
+    q.setParameter(1,"unit.test.sensor.1");
+    Sensor s = (Sensor) q.getSingleResult();
+    Assert.assertEquals(s.getValues().size(),2);
+    System.out.println("`----");
   }
-
-  /**
-   * @throws Exception
-   */
-  @Test
-  public void test005() throws Exception
-  {
-    Query q = em.createQuery("from Device where uuid = ?");
-    q.setParameter(1,UUIDUtil.create("unit.test.001"));
-    Device d = (Device) q.getSingleResult();
-    Assert.assertEquals(d.getMeasurements().size(),2);
-  }
-
 }
 
 
 /**********************************************************************
  * $Log: JPATest.java,v $
+ * Revision 1.3  2009/08/21 13:34:17  willuhn
+ * @N Redesign der Device-API
+ * @N Cleanup in Persistierung
+ * @B Bugfixing beim Initialisieren des EntityManagers
+ *
  * Revision 1.2  2009/08/20 22:08:42  willuhn
  * @N Erste komplett funktionierende Version der Persistierung
  *

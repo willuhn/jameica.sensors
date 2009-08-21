@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/devices/waterkotte/ai1/wpcu/DeviceImpl.java,v $
- * $Revision: 1.4 $
- * $Date: 2009/08/20 22:08:42 $
+ * $Revision: 1.5 $
+ * $Date: 2009/08/21 13:34:17 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -28,11 +28,10 @@ import net.wimpi.modbus.net.SerialConnection;
 import net.wimpi.modbus.procimg.Register;
 import net.wimpi.modbus.util.SerialParameters;
 import de.willuhn.jameica.sensors.Plugin;
-import de.willuhn.jameica.sensors.beans.Measurement;
-import de.willuhn.jameica.sensors.beans.Valuegroup;
 import de.willuhn.jameica.sensors.devices.Device;
-import de.willuhn.jameica.sensors.devices.waterkotte.ai1.wpcu.values.TempValue;
-import de.willuhn.jameica.sensors.util.UUIDUtil;
+import de.willuhn.jameica.sensors.devices.Measurement;
+import de.willuhn.jameica.sensors.devices.Sensor;
+import de.willuhn.jameica.sensors.devices.Sensorgroup;
 import de.willuhn.jameica.system.Application;
 import de.willuhn.jameica.system.Settings;
 import de.willuhn.logging.Logger;
@@ -102,61 +101,49 @@ public class DeviceImpl implements Device
       //////////////////////////////////////////////////////////////////////////
       // Aussentemperatur
       {
-        Valuegroup g = new Valuegroup();
-        g.setUuid(UUIDUtil.create("jameica.sensors.waterkotte.ai1.wpcu.group.temp.outdoor"));
+        Sensorgroup g = new Sensorgroup();
         g.setName(i18n.tr("Außentemperaturen"));
-
-        g.getValues().add(new TempValue(i18n.tr("Aktuell"),dis,56));
-        g.getValues().add(new TempValue(i18n.tr("Mittelwert 1h"),dis,60));
-        g.getValues().add(new TempValue(i18n.tr("Mittelwert 24h"),dis,64));
-        
-        m.getValuegroups().add(g);
+        g.getSensors().add(createSensor(dis,56,"temp.outdoor.current",i18n.tr("Aktuell")));
+        g.getSensors().add(createSensor(dis,60,"temp.outdoor.1h",i18n.tr("Mittelwert 1h")));
+        g.getSensors().add(createSensor(dis,64,"temp.outdoor.24h",i18n.tr("Mittelwert 24h")));
+        m.getSensorgroups().add(g);
       }
       //////////////////////////////////////////////////////////////////////////
 
       //////////////////////////////////////////////////////////////////////////
       // Heizung
       {
-        Valuegroup g = new Valuegroup();
-        g.setUuid(UUIDUtil.create("jameica.sensors.waterkotte.ai1.wpcu.group.temp.heater"));
+        Sensorgroup g = new Sensorgroup();
         g.setName(i18n.tr("Heizungstemperaturen"));
-
-        g.getValues().add(new TempValue(i18n.tr("Rücklauf Soll"),dis,68));
-        g.getValues().add(new TempValue(i18n.tr("Rücklauf Ist"),dis,72));
-        g.getValues().add(new TempValue(i18n.tr("Vorlauf Ist"),dis,76));
-
-        m.getValuegroups().add(g);
+        g.getSensors().add(createSensor(dis,68,"temp.heater.return.target",i18n.tr("Rücklauf Soll")));
+        g.getSensors().add(createSensor(dis,72,"temp.heater.return.real",i18n.tr("Rücklauf Ist")));
+        g.getSensors().add(createSensor(dis,76,"temp.heater.out.real",i18n.tr("Vorlauf Ist")));
+        m.getSensorgroups().add(g);
       }
       //////////////////////////////////////////////////////////////////////////
       
       //////////////////////////////////////////////////////////////////////////
       // Warmwasser
       {
-        Valuegroup g = new Valuegroup();
-        g.setUuid(UUIDUtil.create("jameica.sensors.waterkotte.ai1.wpcu.group.temp.water"));
+        Sensorgroup g = new Sensorgroup();
         g.setName(i18n.tr("Warmwassertemperaturen"));
-        
-        g.getValues().add(new TempValue(i18n.tr("Soll"),dis,80));
-        g.getValues().add(new TempValue(i18n.tr("Ist"),dis,84));
-
-        m.getValuegroups().add(g);
+        g.getSensors().add(createSensor(dis,80,"temp.water.target",i18n.tr("Soll")));
+        g.getSensors().add(createSensor(dis,84,"temp.water.real",i18n.tr("Ist")));
+        m.getSensorgroups().add(g);
       }
       //////////////////////////////////////////////////////////////////////////
 
       //////////////////////////////////////////////////////////////////////////
       // Waerme-Quelle (Sonde in der Tiefenbohrung)
       {
-        Valuegroup g = new Valuegroup();
-        g.setUuid(UUIDUtil.create("jameica.sensors.waterkotte.ai1.wpcu.group.temp.system"));
+        Sensorgroup g = new Sensorgroup();
         g.setName(i18n.tr("System-Temperaturen"));
-
-        g.getValues().add(new TempValue(i18n.tr("Wärmequelle Eingang"),dis,96));
-        g.getValues().add(new TempValue(i18n.tr("Wärmequelle Ausgang"),dis,100));
-        g.getValues().add(new TempValue(i18n.tr("Verdampfer"),dis,104));
-        g.getValues().add(new TempValue(i18n.tr("Kondensator"),dis,108));
-        g.getValues().add(new TempValue(i18n.tr("Saugleitung"),dis,112));
-
-        m.getValuegroups().add(g);
+        g.getSensors().add(createSensor(dis,96,"temp.system.source.in",i18n.tr("Wärmequelle Eingang")));
+        g.getSensors().add(createSensor(dis,100,"temp.system.source.out",i18n.tr("Wärmequelle Ausgang")));
+        g.getSensors().add(createSensor(dis,104,"temp.system.evaporator",i18n.tr("Verdampfer")));
+        g.getSensors().add(createSensor(dis,108,"temp.system.condenser",i18n.tr("Kondensator")));
+        g.getSensors().add(createSensor(dis,112,"temp.system.suction",i18n.tr("Saugleitung")));
+        m.getSensorgroups().add(g);
       }
       //////////////////////////////////////////////////////////////////////////
       return m;
@@ -187,6 +174,39 @@ public class DeviceImpl implements Device
   }
 
   /**
+   * Erstellt einen neuen Sensor.
+   * @param data der Stream.
+   * @param offset Offset, ab dem gelesen werden soll.
+   * @param id ID.
+   * @param name sprechender Name des Sensors.
+   * @return der erzeugte Sensor.
+   * @throws IOException
+   */
+  private Sensor createSensor(DataInputStream data, int offset, String id, String name) throws IOException
+  {
+    try
+    {
+      // Wir markieren den Startpunkt - auf den springen wir dann wieder zurueck
+      data.mark(-1); // ist unten ein ByteArrayInputStream - da wird das eh ignoriert ;)
+
+      // Wir springen an die gewuenschte Position
+      data.skipBytes(offset);
+      
+      Sensor<Float> s = new Sensor<Float>();
+      s.setName(name);
+      s.setUuid(this.getUuid() + "." + id); // wir haengen noch die Device-UUID davor, damit es global eindeutig ist
+      s.setSerializer(TempSerializer.class);
+      s.setValue(data.readFloat());
+      return s;
+    }
+    finally
+    {
+      // An den Anfang zurueckspringen
+      data.reset();
+    }
+  }
+  
+  /**
    * @see de.willuhn.jameica.sensors.devices.Device#getName()
    */
   public String getName()
@@ -195,13 +215,12 @@ public class DeviceImpl implements Device
   }
 
   /**
-   * @see de.willuhn.jameica.sensors.devices.Device#getUuid()
+   * @see de.willuhn.jameica.sensors.devices.UniqueItem#getUuid()
    */
   public String getUuid()
   {
-    return UUIDUtil.create("jameica.sensors.waterkotte.ai1.wpcu.device");
+    return "waterkotte.ai1.wpcu.device";
   }
-
 
   /**
    * @see de.willuhn.jameica.sensors.devices.Device#isEnabled()
@@ -216,6 +235,11 @@ public class DeviceImpl implements Device
 
 /**********************************************************************
  * $Log: DeviceImpl.java,v $
+ * Revision 1.5  2009/08/21 13:34:17  willuhn
+ * @N Redesign der Device-API
+ * @N Cleanup in Persistierung
+ * @B Bugfixing beim Initialisieren des EntityManagers
+ *
  * Revision 1.4  2009/08/20 22:08:42  willuhn
  * @N Erste komplett funktionierende Version der Persistierung
  *

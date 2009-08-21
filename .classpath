@@ -10,13 +10,5 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/jameica.webtools"/>
 	<classpathentry kind="lib" path="lib/hibernate/ejb3-persistence.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="lib" path="lib/hibernate/antlr-2.7.6.jar"/>
-	<classpathentry kind="lib" path="lib/hibernate/dom4j-1.6.1.jar"/>
-	<classpathentry kind="lib" path="lib/hibernate/hibernate-annotations-3.4.0.GA.jar"/>
-	<classpathentry kind="lib" path="lib/hibernate/hibernate-commons-annotations-3.4.0.GA.jar"/>
-	<classpathentry kind="lib" path="lib/hibernate/hibernate-core-3.3.2.GA.jar"/>
-	<classpathentry kind="lib" path="lib/hibernate/hibernate-entitymanager-3.4.0.GA.jar" sourcepath="lib.src/hibernate-entitymanager-3.4.0.GA.src.zip"/>
-	<classpathentry kind="lib" path="lib/hibernate/javassist-3.9.0.GA.jar"/>
-	<classpathentry kind="lib" path="lib/hibernate/jta-1.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -1,7 +1,7 @@
 /**********************************************************************
- * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/beans/Attic/Valuegroup.java,v $
- * $Revision: 1.2 $
- * $Date: 2009/08/20 22:08:42 $
+ * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/beans/Sensor.java,v $
+ * $Revision: 1.1 $
+ * $Date: 2009/08/21 13:34:17 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -23,21 +23,16 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 /**
- * Gruppiert eine Liste von Messwerten.
- * Hintergrund: Die Messwerte der Messgeraete sind meist thematisch
- * gruppiert (Heizung, Warmwasser, Kuehlung, Kompressor, etc).
- * Damit die Messwerte in einer GUI strukturiert angezeigt werden
- * koennen, gruppiert sie diese Klasse thematisch.
+ * Bean fuer einen Sensor.
  */
 @Entity
-@Table(name="valuegroup", uniqueConstraints = {
+@Table(name="sensor", uniqueConstraints = {
     @UniqueConstraint(columnNames="uuid")
 })
-public class Valuegroup
+public class Sensor
 {
   @Id
   @GeneratedValue
@@ -45,16 +40,15 @@ public class Valuegroup
   
   private String uuid = null;
   
+  private String serializer = null;
+
   @OneToMany(cascade=CascadeType.ALL)
-  @JoinColumn(name="valuegroup_id")
+  @JoinColumn(name="sensor_id")
   private List<Value> values = null;
-  
-  @Transient
-  private transient String name = null;
 
   /**
-   * Liefert die Liste der Messwerte.
-   * @return Liste der Messwerte.
+   * Liefert alle Messergebnisse.
+   * @return alle Messergebnisse.
    */
   public List<Value> getValues()
   {
@@ -62,32 +56,14 @@ public class Valuegroup
       this.values = new ArrayList<Value>();
     return this.values;
   }
-  
+
   /**
-   * Liefert die ID der Wertegruppe.
-   * @return ID der Wertegruppe.
+   * Liefert die ID des Sensors.
+   * @return ID des Sensors.
    */
   public Long getId()
   {
     return this.id;
-  }
-
-  /**
-   * Liefert einen sprechenden Namen.
-   * @return sprechender Name.
-   */
-  public String getName()
-  {
-    return this.name;
-  }
-
-  /**
-   * Speichert den sprechenden Namen.
-   * @param name sprechender Name.
-   */
-  public void setName(String name)
-  {
-    this.name = name;
   }
 
   /**
@@ -107,15 +83,41 @@ public class Valuegroup
   {
     this.uuid = uuid;
   }
+
+  /**
+   * Liefert den Klassennamen des Serializers fuer die Messwerte.
+   * @return Klassenname des Serializers fuer die Messwerte.
+   */
+  public String getSerializer()
+  {
+    return this.serializer;
+  }
+
+  /**
+   * Speichert den Klassennamen des Serializers fuer die Messwerte.
+   * @param serializer Klassenname des Serializers fuer die Messwerte.
+   */
+  public void setSerializer(String serializer)
+  {
+    this.serializer = serializer;
+  }
+  
+  
+  
 }
 
 
 /**********************************************************************
- * $Log: Valuegroup.java,v $
- * Revision 1.2  2009/08/20 22:08:42  willuhn
+ * $Log: Sensor.java,v $
+ * Revision 1.1  2009/08/21 13:34:17  willuhn
+ * @N Redesign der Device-API
+ * @N Cleanup in Persistierung
+ * @B Bugfixing beim Initialisieren des EntityManagers
+ *
+ * Revision 1.4  2009/08/20 22:08:42  willuhn
  * @N Erste komplett funktionierende Version der Persistierung
  *
- * Revision 1.1  2009/08/20 18:07:43  willuhn
+ * Revision 1.3  2009/08/20 18:07:43  willuhn
  * @N Persistierung funktioniert rudimentaer
  *
  * Revision 1.2  2009/08/19 23:46:28  willuhn
@@ -123,6 +125,9 @@ public class Valuegroup
  *
  * Revision 1.1  2009/08/19 10:34:43  willuhn
  * @N initial import
+ *
+ * Revision 1.2  2009/08/19 00:43:06  willuhn
+ * @N hibernate fuer Persistierung
  *
  * Revision 1.1  2009/08/18 23:00:25  willuhn
  * @N Erste Version mit Web-Frontend

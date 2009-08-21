@@ -8,14 +8,14 @@
 
 #foreach($device in $map.keySet())
   #set($measure = $map.get($device))
-  #set($groups = $measure.valueGroups)
+  #set($groups = $measure.sensorgroups)
 
   <div>
     <h2>$device.name</h2>
     <h3>$measure.date</h3>
     
     #foreach($group in $groups)
-      #set($values = $group.values)
+      #set($sensors = $group.sensors)
       <fieldset>
         <legend>$group.name</legend>
   
@@ -24,10 +24,10 @@
             <th>Name</th>
             <th style="text-align: right">Wert</th>
           </tr>
-          #foreach($value in $values)
+          #foreach($sensor in $sensors)
             <tr>
-              <td>$value.name</td>
-              <td style="text-align: right">$value</td>
+              <td>$sensor.name</td>
+              <td style="text-align: right">$c.format($sensor)</td>
             </tr>
           #end
         </table>

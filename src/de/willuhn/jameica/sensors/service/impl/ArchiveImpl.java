@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/service/impl/ArchiveImpl.java,v $
- * $Revision: 1.6 $
- * $Date: 2009/08/21 00:43:03 $
+ * $Revision: 1.7 $
+ * $Date: 2009/08/21 13:34:17 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -14,7 +14,6 @@
 package de.willuhn.jameica.sensors.service.impl;
 
 import java.rmi.RemoteException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,18 +22,17 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
+import javax.persistence.Persistence;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
-import org.hibernate.ejb.HibernatePersistence;
-
-import de.willuhn.jameica.messaging.Message;
-import de.willuhn.jameica.messaging.MessageConsumer;
+import de.willuhn.jameica.sensors.Plugin;
 import de.willuhn.jameica.sensors.beans.Device;
-import de.willuhn.jameica.sensors.beans.Measurement;
 import de.willuhn.jameica.sensors.beans.Value;
-import de.willuhn.jameica.sensors.beans.Valuegroup;
-import de.willuhn.jameica.sensors.messaging.MeasureMessage;
+import de.willuhn.jameica.sensors.devices.Measurement;
+import de.willuhn.jameica.sensors.devices.Sensor;
+import de.willuhn.jameica.sensors.devices.Sensorgroup;
+import de.willuhn.jameica.sensors.devices.Serializer;
 import de.willuhn.jameica.sensors.service.Archive;
 import de.willuhn.jameica.system.Application;
 import de.willuhn.logging.Logger;
@@ -44,8 +42,7 @@ import de.willuhn.logging.Logger;
  */
 public class ArchiveImpl implements Archive
 {
-  private EntityManager entityManager = null;
-  private MyMessageConsumer consumer  = null;
+  private EntityManager em = null;
 
   /**
    * @see de.willuhn.datasource.Service#getName()
@@ -68,7 +65,7 @@ public class ArchiveImpl implements Archive
    */
   public boolean isStarted() throws RemoteException
   {
-    return this.consumer != null;
+    return this.em != null;
   }
 
   /**
@@ -81,9 +78,25 @@ public class ArchiveImpl implements Archive
       Logger.warn("service allready started, skipping request");
       return;
     }
-    
-    this.consumer = new MyMessageConsumer();
-    Application.getMessagingFactory().registerMessageConsumer(this.consumer);
+
+    try
+    {
+      Map params = new HashMap();
+      params.put("hibernate.connection.driver_class","com.mysql.jdbc.Driver");
+      params.put("hibernate.connection.url","jdbc:mysql://server:3306/jameica_sensors?useUnicode=Yes&characterEncoding=ISO8859_1");
+      params.put("hibernate.connection.username","jameica_sensors");
+      params.put("hibernate.connection.password","jameica_sensors");
+      params.put("hibernate.dialect","org.hibernate.dialect.MySQLDialect");
+      params.put("hibernate.show_sql","false");
+      params.put("hibernate.hbm2ddl.auto","update"); // create,update,validate
+
+      EntityManagerFactory ef = Persistence.createEntityManagerFactory("jameica_sensors",params);
+      this.em = ef.createEntityManager();
+    }
+    catch (Exception e)
+    {
+      throw new RemoteException("unable to create entity manager",e);
+    }
   }
 
   /**
@@ -99,103 +112,117 @@ public class ArchiveImpl implements Archive
     
     try
     {
-      Application.getMessagingFactory().unRegisterMessageConsumer(this.consumer);
-      
-      if (this.entityManager != null)
-        this.entityManager.close();
+      if (this.em != null)
+        this.em.close();
     }
     finally
     {
-      this.consumer = null;
-      this.entityManager = null;
+      this.em = null;
     }
   }
   
   /**
-   * Archiviert neue Messwerte fuer ein Geraet.
-   * @param uuid UUID des Devices.
-   * @param m die neuen Messwerte.
+   * @see de.willuhn.jameica.sensors.service.Archive#archive(de.willuhn.jameica.sensors.devices.Device, de.willuhn.jameica.sensors.devices.Measurement)
    */
-  private void archive(String uuid, Measurement m)
+  public void archive(de.willuhn.jameica.sensors.devices.Device device, Measurement m)
   {
-    EntityManager em = getEntityManager();
+    ClassLoader cl = Application.getPluginLoader().getPlugin(Plugin.class).getResources().getClassLoader();
     
-    
-    Device d = null;
-    
-    try
-    {
-      // Wir suchen erstmal das Device.
-      Query q = em.createQuery("from Device where uuid = ?");
-      q.setParameter(1,uuid);
-      d = (Device) q.getSingleResult();
-    }
-    catch (NoResultException e)
-    {
-      Logger.info("adding new device [uuid: " + uuid + "] to archive");
-      d = new Device();
-      d.setUuid(uuid);
-    }
-    
-    // Bevor wir die Messergebnisse speichern, muessen wir noch schauen,
-    // ob wir die Valuegroups schon im Archiv haben
-    List<Valuegroup> groups = m.getValuegroups();
-    List<Valuegroup> newList = new ArrayList<Valuegroup>();
-    for (Valuegroup group:groups)
-    {
-      Valuegroup fromArchive = find(group.getUuid());
-      if (fromArchive != null)
-      {
-        // jepp, die Gruppe haben wir schon. Wir haengen die Messwerte dort dran
-        List<Value> values = group.getValues();
-        List<Value> existing = fromArchive.getValues();
-        for (Value value:values)
-        {
-          existing.add(value);
-        }
-        newList.add(fromArchive);
-      }
-      else
-      {
-        Logger.info("adding new value group [uuid: " + group.getUuid() + "] to archive");
-        newList.add(group);
-      }
-    }
-    
-    groups.clear();
-    groups.addAll(newList);
-    
-    d.getMeasurements().add(m);
-
     EntityTransaction tx = null;
     try
     {
-      tx = em.getTransaction();
+      int count = 0;
+      tx = this.em.getTransaction();
       tx.begin();
-      em.persist(d);
+      
+      
+      //////////////////////////////////////////////////////////////////////////
+      // Device
+      Device d = (Device) findObject("Device",device.getUuid());
+      if (d == null)
+      {
+        Logger.info("adding new device [uuid: " + device.getUuid() + "] to archive");
+        d = new Device();
+        d.setUuid(device.getUuid());
+        
+        em.persist(d);
+      }
+      //////////////////////////////////////////////////////////////////////////
+      
+
+      //////////////////////////////////////////////////////////////////////////
+      // jetzt holen wir alle Sensoren und speichern die Messergebnisse
+      // Vor jedem Sensor pruefen wir noch, ob wir ihn schon in der Datenbank haben
+      List<Sensorgroup> groups = m.getSensorgroups();
+      for (Sensorgroup group:groups)
+      {
+        // Die Sensor-Gruppe selbst muss nicht archiviert werden. Sie dient
+        // nur der strukturierten Ausgabe auf einer GUI
+        List<Sensor> sensors = group.getSensors();
+        for (Sensor sensor:sensors)
+        {
+          de.willuhn.jameica.sensors.beans.Sensor archiveSensor = (de.willuhn.jameica.sensors.beans.Sensor) findObject("Sensor",sensor.getUuid());
+          if (archiveSensor == null)
+          {
+            Logger.info("adding new sensor [uuid: " + sensor.getUuid() + "] to archive");
+            archiveSensor = new de.willuhn.jameica.sensors.beans.Sensor();
+            archiveSensor.setUuid(sensor.getUuid());
+
+            // Serializer nicht vergessen
+            Class serializer = sensor.getSerializer();
+            archiveSensor.setSerializer(serializer != null ? serializer.getName() : null);
+            
+            // Sensor zum Device hinzufuegen
+            d.getSensors().add(archiveSensor);
+            em.persist(archiveSensor);
+          }
+          
+          // Messwerte speichern
+          try
+          {
+            Serializer s = (Serializer) cl.loadClass(archiveSensor.getSerializer()).newInstance();
+            Value value = new Value();
+            value.setDate(m.getDate()); // Datum aus Messung uebernehmen
+            value.setValue(s.serialize(sensor.getValue()));
+            archiveSensor.getValues().add(value);
+
+            em.persist(value);
+            count++;
+          }
+          catch (Exception e)
+          {
+            // Wegen einem einzelnen Messwert brechen wir nicht ab.
+            Logger.error("unable to serialize sensor value",e);
+          }
+        }
+      }
+
+      
+      // OK, alles speichern
       tx.commit();
+      Logger.info("added " + count + " values to archive");
     }
     catch (PersistenceException pe)
     {
-      if (tx != null)
+      if (tx != null && tx.isActive())
         tx.rollback();
       throw pe;
     }
   }
   
   /**
-   * Sucht die angegebene Valuegroup im Archiv.
-   * @param uuid die UUID der Valuegroup.
-   * @return die Valuegroup aus dem Archiv oder NULL, wenn sie da noch nicht existiert.
+   * Sucht das angegebene Objekt im Archiv.
+   * @param table Tabellenname.
+   * @param uuid die UUID des Objekts.
+   * @return der Sensor aus dem Archiv oder NULL, wenn er da noch nicht existiert.
    */
-  private Valuegroup find(String uuid)
+  private Object findObject(String table, String uuid)
   {
     try
     {
-      EntityManager em = getEntityManager();
-      Query q = em.createQuery("from Valuegroup where uuid = ?");
+      Query q = this.em.createQuery("from " + table + " where uuid = ?");
       q.setParameter(1,uuid);
-      return (Valuegroup) q.getSingleResult();
+      return q.getSingleResult();
     }
     catch (NoResultException e)
     {
@@ -203,71 +230,16 @@ public class ArchiveImpl implements Archive
     }
     return null;
   }
-  
-  /**
-   * Liefert den EntityManager oder erstellt bei Bedarf einen neuen.
-   * @return der EntityManager.
-   */
-  private synchronized EntityManager getEntityManager()
-  {
-    if (this.entityManager == null)
-    {
-      Map params = new HashMap();
-      params.put("hibernate.connection.driver_class","com.mysql.jdbc.Driver");
-      params.put("hibernate.connection.url","jdbc:mysql://server:3306/jameica_sensors?useUnicode=Yes&characterEncoding=ISO8859_1");
-      params.put("hibernate.connection.username","jameica_sensors");
-      params.put("hibernate.connection.password","jameica_sensors");
-      params.put("hibernate.dialect","org.hibernate.dialect.MySQLDialect");
-      params.put("hibernate.show_sql","true");
-      //params.put(HibernatePersistence.PERSISTENCE_UNIT_NAME,"jameica_sensors");
-      // params.put("hibernate.hbm2ddl.auto","update"); // create,update,validate
-      
-      HibernatePersistence ep = new HibernatePersistence();
-      EntityManagerFactory ef = ep.createEntityManagerFactory(params);
-//      EntityManagerFactory ef = Persistence.createEntityManagerFactory("jameica_sensors",params);
-      this.entityManager = ef.createEntityManager();
-    }
-    return this.entityManager;
-  }
-  
-  /**
-   * Mit dem Message-Consumer abonnieren wir die aktuellen Messwerte fuer die Archivierung.
-   */
-  private class MyMessageConsumer implements MessageConsumer
-  {
-
-    /**
-     * @see de.willuhn.jameica.messaging.MessageConsumer#autoRegister()
-     */
-    public boolean autoRegister()
-    {
-      return false;
-    }
-
-    /**
-     * @see de.willuhn.jameica.messaging.MessageConsumer#getExpectedMessageTypes()
-     */
-    public Class[] getExpectedMessageTypes()
-    {
-      return new Class[]{MeasureMessage.class};
-    }
-
-    /**
-     * @see de.willuhn.jameica.messaging.MessageConsumer#handleMessage(de.willuhn.jameica.messaging.Message)
-     */
-    public void handleMessage(Message message) throws Exception
-    {
-      MeasureMessage msg = (MeasureMessage) message;
-      archive(msg.getDevice().getUuid(),msg.getMeasurement());
-    }
-    
-  }
-
 }
 
 
 /**********************************************************************
  * $Log: ArchiveImpl.java,v $
+ * Revision 1.7  2009/08/21 13:34:17  willuhn
+ * @N Redesign der Device-API
+ * @N Cleanup in Persistierung
+ * @B Bugfixing beim Initialisieren des EntityManagers
+ *
  * Revision 1.6  2009/08/21 00:43:03  willuhn
  * *** empty log message ***
  *

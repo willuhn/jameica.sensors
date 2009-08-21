@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/devices/test/Attic/DeviceImpl.java,v $
- * $Revision: 1.3 $
- * $Date: 2009/08/20 22:08:42 $
+ * $Revision: 1.4 $
+ * $Date: 2009/08/21 13:34:17 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -17,12 +17,11 @@ import java.io.IOException;
 import java.util.Date;
 
 import de.willuhn.jameica.sensors.Plugin;
-import de.willuhn.jameica.sensors.beans.Measurement;
-import de.willuhn.jameica.sensors.beans.Value;
-import de.willuhn.jameica.sensors.beans.Valuegroup;
-import de.willuhn.jameica.sensors.beans.Value.Type;
+import de.willuhn.jameica.sensors.devices.DateSerializer;
 import de.willuhn.jameica.sensors.devices.Device;
-import de.willuhn.jameica.sensors.util.UUIDUtil;
+import de.willuhn.jameica.sensors.devices.Measurement;
+import de.willuhn.jameica.sensors.devices.Sensor;
+import de.willuhn.jameica.sensors.devices.Sensorgroup;
 import de.willuhn.jameica.system.Application;
 import de.willuhn.jameica.system.Settings;
 import de.willuhn.util.I18N;
@@ -42,29 +41,29 @@ public class DeviceImpl implements Device
    */
   public Measurement collect() throws IOException
   {
-    
-    Value<Date> v = new Value<Date>();
-    v.setName(i18n.tr("Aktuelles Datum"));
-    v.setValue(new Date());
-    v.setType(Type.DATE);
-    
-    Valuegroup g = new Valuegroup();
-    g.setName(i18n.tr("Datum und Uhrzeit"));
-    g.setUuid(UUIDUtil.create("jameica.sensors.test.group.date"));
-    g.getValues().add(v);
-    
     Measurement m = new Measurement();
-    m.getValuegroups().add(g);
+
+    Sensorgroup group = new Sensorgroup();
+    group.setName(i18n.tr("Datum und Uhrzeit"));
+
+    Sensor<Date> s = new Sensor<Date>();
+    s.setUuid(this.getUuid() + "." + "date.current");
+    s.setName(i18n.tr("Aktuelles Datum"));
+    s.setValue(new Date());
+    s.setSerializer(DateSerializer.class);
+
+    group.getSensors().add(s);
+    m.getSensorgroups().add(group);
     
     return m;
   }
 
   /**
-   * @see de.willuhn.jameica.sensors.devices.Device#getUuid()
+   * @see de.willuhn.jameica.sensors.devices.UniqueItem#getUuid()
    */
   public String getUuid()
   {
-    return UUIDUtil.create("jameica.sensors.test.device");
+    return "jameica.sensors.test.device";
   }
 
   /**
@@ -89,6 +88,11 @@ public class DeviceImpl implements Device
 
 /**********************************************************************
  * $Log: DeviceImpl.java,v $
+ * Revision 1.4  2009/08/21 13:34:17  willuhn
+ * @N Redesign der Device-API
+ * @N Cleanup in Persistierung
+ * @B Bugfixing beim Initialisieren des EntityManagers
+ *
  * Revision 1.3  2009/08/20 22:08:42  willuhn
  * @N Erste komplett funktionierende Version der Persistierung
  *

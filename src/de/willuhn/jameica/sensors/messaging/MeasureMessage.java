@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/messaging/MeasureMessage.java,v $
- * $Revision: 1.1 $
- * $Date: 2009/08/19 10:34:43 $
+ * $Revision: 1.2 $
+ * $Date: 2009/08/21 13:34:17 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -14,8 +14,8 @@
 package de.willuhn.jameica.sensors.messaging;
 
 import de.willuhn.jameica.messaging.Message;
-import de.willuhn.jameica.sensors.beans.Measurement;
 import de.willuhn.jameica.sensors.devices.Device;
+import de.willuhn.jameica.sensors.devices.Measurement;
 
 /**
  * Message, die vom Scheduler-Service verschickt wird, wenn er neue Messwerte geholt hat.
@@ -60,6 +60,11 @@ public class MeasureMessage implements Message
 
 /**********************************************************************
  * $Log: MeasureMessage.java,v $
+ * Revision 1.2  2009/08/21 13:34:17  willuhn
+ * @N Redesign der Device-API
+ * @N Cleanup in Persistierung
+ * @B Bugfixing beim Initialisieren des EntityManagers
+ *
  * Revision 1.1  2009/08/19 10:34:43  willuhn
  * @N initial import
  *

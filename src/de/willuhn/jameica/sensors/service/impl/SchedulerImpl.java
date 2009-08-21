@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/service/impl/SchedulerImpl.java,v $
- * $Revision: 1.2 $
- * $Date: 2009/08/19 23:46:29 $
+ * $Revision: 1.3 $
+ * $Date: 2009/08/21 13:34:17 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -21,9 +21,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import de.willuhn.jameica.sensors.Plugin;
-import de.willuhn.jameica.sensors.beans.Measurement;
 import de.willuhn.jameica.sensors.devices.Device;
 import de.willuhn.jameica.sensors.devices.DeviceRegistry;
+import de.willuhn.jameica.sensors.devices.Measurement;
 import de.willuhn.jameica.sensors.messaging.MeasureMessage;
 import de.willuhn.jameica.sensors.service.Scheduler;
 import de.willuhn.jameica.system.Application;
@@ -81,9 +81,9 @@ public class SchedulerImpl implements Scheduler
     this.worker = new Worker();
 
     Logger.info("starting scheduler worker thread");
-    // Wir fangen erst nach 10 Sekunden mit dem ersten Durchlauf an. Dann
+    // Wir fangen erst nach 5 Sekunden mit dem ersten Durchlauf an. Dann
     // hat das System genug Zeit zu Ende zu starten.
-    this.timer.schedule(this.worker,10 * 1000L, minutes * 60 * 1000L);
+    this.timer.schedule(this.worker,5 * 1000L, minutes * 60 * 1000L);
   }
 
   /**
@@ -156,9 +156,10 @@ public class SchedulerImpl implements Scheduler
           try
           {
             Measurement m = d.collect();
-            m.setDate(new Date());
-            Application.getMessagingFactory().sendMessage(new MeasureMessage(d,m));
+            if (m.getDate() == null)
+              m.setDate(new Date());
             Logger.info("collected data from device: " + name);
+            Application.getMessagingFactory().sendMessage(new MeasureMessage(d,m));
           }
           catch (IOException e)
           {
@@ -185,6 +186,11 @@ public class SchedulerImpl implements Scheduler
 
 /**********************************************************************
  * $Log: SchedulerImpl.java,v $
+ * Revision 1.3  2009/08/21 13:34:17  willuhn
+ * @N Redesign der Device-API
+ * @N Cleanup in Persistierung
+ * @B Bugfixing beim Initialisieren des EntityManagers
+ *
  * Revision 1.2  2009/08/19 23:46:29  willuhn
  * @N Erster Code fuer die JPA-Persistierung
  *

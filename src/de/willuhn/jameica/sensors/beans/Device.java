@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/beans/Device.java,v $
- * $Revision: 1.3 $
- * $Date: 2009/08/20 22:08:42 $
+ * $Revision: 1.4 $
+ * $Date: 2009/08/21 13:34:17 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -42,17 +42,17 @@ public class Device
 
   @OneToMany(cascade=CascadeType.ALL)
   @JoinColumn(name="device_id")
-  private List<Measurement> measurements = null;
+  private List<Sensor> sensors = null;
 
   /**
-   * Liefert alle Messergebnisse.
-   * @return alle Messergebnisse.
+   * Liefert die Sensoren des Devices.
+   * @return die Sensoren des Devices.
    */
-  public List<Measurement> getMeasurements()
+  public List<Sensor> getSensors()
   {
-    if (this.measurements == null)
-      this.measurements = new ArrayList<Measurement>();
-    return this.measurements;
+    if (this.sensors == null)
+      this.sensors = new ArrayList<Sensor>();
+    return this.sensors;
   }
 
   /**
@@ -86,6 +86,11 @@ public class Device
 
 /**********************************************************************
  * $Log: Device.java,v $
+ * Revision 1.4  2009/08/21 13:34:17  willuhn
+ * @N Redesign der Device-API
+ * @N Cleanup in Persistierung
+ * @B Bugfixing beim Initialisieren des EntityManagers
+ *
  * Revision 1.3  2009/08/20 22:08:42  willuhn
  * @N Erste komplett funktionierende Version der Persistierung
  *

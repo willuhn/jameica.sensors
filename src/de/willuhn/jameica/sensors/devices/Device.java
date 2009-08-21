@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/devices/Device.java,v $
- * $Revision: 1.3 $
- * $Date: 2009/08/20 22:08:42 $
+ * $Revision: 1.4 $
+ * $Date: 2009/08/21 13:34:17 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -15,14 +15,12 @@ package de.willuhn.jameica.sensors.devices;
 
 import java.io.IOException;
 
-import de.willuhn.jameica.sensors.beans.Measurement;
-
 /**
  * Basis-Interface, welches von einem Messgeraet implementiert werden muss.
  * Implementierungen muessen der Bean-Konvention entsprechen und einen
  * parameterlosen Konstruktor mit public-Modifier besitzen.
  */
-public interface Device
+public interface Device extends UniqueItem
 {
   /**
    * Fuehrt eine Messung auf dem Geraet durch und liefert die Messwerte.
@@ -38,26 +36,20 @@ public interface Device
   public boolean isEnabled();
   
   /**
-   * Liefert eine Bezeichung fuer das Geraet.
-   * @return Bezeichnung des Geraetes.
+   * Liefert einen sprechenden Namen fuer das Device.
+   * @return sprechender Namen fuer das Device.
    */
   public String getName();
-  
-  /**
-   * Liefert eine ID fuer dieses Device, die global (also ueber alle installierten)
-   * Devices eindeutig sein muss.
-   * Anhand dieser ID werden die Messwerte in der Datenbank dem Geraet zugeordnet.
-   * Die ID darf also niemals geaendert werden, sonst koennen die bisherigen
-   * Messwerte in der Datenbank nicht mehr diesem Geraet zugeordnet werden.
-   * Am einfachsten ist es, hier UUIDUtil.create("eindeutiger String") aufzurufen.
-   * @return eindeutige ID fuer das Device.
-   */
-  public String getUuid();
 }
 
 
 /**********************************************************************
  * $Log: Device.java,v $
+ * Revision 1.4  2009/08/21 13:34:17  willuhn
+ * @N Redesign der Device-API
+ * @N Cleanup in Persistierung
+ * @B Bugfixing beim Initialisieren des EntityManagers
+ *
  * Revision 1.3  2009/08/20 22:08:42  willuhn
  * @N Erste komplett funktionierende Version der Persistierung
  *
