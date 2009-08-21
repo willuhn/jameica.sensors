@@ -1,6 +1,6 @@
 /**********************************************************************
- * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/service/Archive.java,v $
- * $Revision: 1.3 $
+ * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/service/RRD.java,v $
+ * $Revision: 1.1 $
  * $Date: 2009/08/21 17:27:37 $
  * $Author: willuhn $
  * $Locker:  $
@@ -16,24 +16,17 @@ package de.willuhn.jameica.sensors.service;
 import de.willuhn.datasource.Service;
 
 /**
- * Der Archiv-Service.
+ * Service, der die RRD-Charts erzeugt.
  */
-public interface Archive extends Service
+public interface RRD extends Service
 {
+
 }
 
 
 /**********************************************************************
- * $Log: Archive.java,v $
- * Revision 1.3  2009/08/21 17:27:37  willuhn
+ * $Log: RRD.java,v $
+ * Revision 1.1  2009/08/21 17:27:37  willuhn
  * @N RRD-Service
- *
- * Revision 1.2  2009/08/21 13:34:17  willuhn
- * @N Redesign der Device-API
- * @N Cleanup in Persistierung
- * @B Bugfixing beim Initialisieren des EntityManagers
- *
- * Revision 1.1  2009/08/19 23:46:29  willuhn
- * @N Erster Code fuer die JPA-Persistierung
  *
  **********************************************************************/

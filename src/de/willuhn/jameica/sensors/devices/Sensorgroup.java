@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/devices/Sensorgroup.java,v $
- * $Revision: 1.1 $
- * $Date: 2009/08/21 13:34:17 $
+ * $Revision: 1.2 $
+ * $Date: 2009/08/21 17:27:37 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -19,9 +19,10 @@ import java.util.List;
 /**
  * Interface fuer eine Sensor-Gruppe.
  */
-public class Sensorgroup
+public class Sensorgroup implements UniqueItem
 {
   private String name = null;
+  private String uuid = null;
   
   private List<Sensor> sensors = null;
   
@@ -53,11 +54,33 @@ public class Sensorgroup
       this.sensors = new ArrayList<Sensor>();
     return this.sensors;
   }
+
+  /**
+   * @see de.willuhn.jameica.sensors.devices.UniqueItem#getUuid()
+   */
+  public String getUuid()
+  {
+    return this.uuid;
+  }
+  
+  /**
+   * Speichert die eindeutige ID fuer das Objekt.
+   * Diese ID sollte sich niemals aendern, da sich sonst bereits
+   * archivierte Messwerte nicht mehr diesem Objekt zuordnen lassen.
+   * @return eindeutige ID des Objektes.
+   */
+  public void setUuid(String uuid)
+  {
+    this.uuid = uuid;
+  }
 }
 
 
 /**********************************************************************
  * $Log: Sensorgroup.java,v $
+ * Revision 1.2  2009/08/21 17:27:37  willuhn
+ * @N RRD-Service
+ *
  * Revision 1.1  2009/08/21 13:34:17  willuhn
  * @N Redesign der Device-API
  * @N Cleanup in Persistierung

@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/devices/waterkotte/ai1/wpcu/DeviceImpl.java,v $
- * $Revision: 1.6 $
- * $Date: 2009/08/21 14:26:00 $
+ * $Revision: 1.7 $
+ * $Date: 2009/08/21 17:27:37 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -107,6 +107,7 @@ public class DeviceImpl implements Device
       // Aussentemperatur
       {
         Sensorgroup g = new Sensorgroup();
+        g.setUuid(this.getUuid() + ".temp.outdoor");
         g.setName(i18n.tr("Außentemperaturen"));
         g.getSensors().add(createSensor(dis,56,"temp.outdoor.current",i18n.tr("Aktuell")));
         g.getSensors().add(createSensor(dis,60,"temp.outdoor.1h",i18n.tr("Mittelwert 1h")));
@@ -119,6 +120,7 @@ public class DeviceImpl implements Device
       // Heizung
       {
         Sensorgroup g = new Sensorgroup();
+        g.setUuid(this.getUuid() + ".temp.heater");
         g.setName(i18n.tr("Heizungstemperaturen"));
         g.getSensors().add(createSensor(dis,68,"temp.heater.return.target",i18n.tr("Rücklauf Soll")));
         g.getSensors().add(createSensor(dis,72,"temp.heater.return.real",i18n.tr("Rücklauf Ist")));
@@ -131,6 +133,7 @@ public class DeviceImpl implements Device
       // Warmwasser
       {
         Sensorgroup g = new Sensorgroup();
+        g.setUuid(this.getUuid() + ".temp.water");
         g.setName(i18n.tr("Warmwassertemperaturen"));
         g.getSensors().add(createSensor(dis,80,"temp.water.target",i18n.tr("Soll")));
         g.getSensors().add(createSensor(dis,84,"temp.water.real",i18n.tr("Ist")));
@@ -142,6 +145,7 @@ public class DeviceImpl implements Device
       // Waerme-Quelle (Sonde in der Tiefenbohrung)
       {
         Sensorgroup g = new Sensorgroup();
+        g.setUuid(this.getUuid() + ".temp.system");
         g.setName(i18n.tr("System-Temperaturen"));
         g.getSensors().add(createSensor(dis,96,"temp.system.source.in",i18n.tr("Wärmequelle Eingang")));
         g.getSensors().add(createSensor(dis,100,"temp.system.source.out",i18n.tr("Wärmequelle Ausgang")));
@@ -240,6 +244,9 @@ public class DeviceImpl implements Device
 
 /**********************************************************************
  * $Log: DeviceImpl.java,v $
+ * Revision 1.7  2009/08/21 17:27:37  willuhn
+ * @N RRD-Service
+ *
  * Revision 1.6  2009/08/21 14:26:00  willuhn
  * @N null als Rueckgabewert tolerieren
  *
