@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/devices/test/Attic/DeviceImpl.java,v $
- * $Revision: 1.4 $
- * $Date: 2009/08/21 13:34:17 $
+ * $Revision: 1.5 $
+ * $Date: 2009/08/21 18:07:55 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -14,10 +14,12 @@
 package de.willuhn.jameica.sensors.devices.test;
 
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Date;
 
 import de.willuhn.jameica.sensors.Plugin;
 import de.willuhn.jameica.sensors.devices.DateSerializer;
+import de.willuhn.jameica.sensors.devices.DecimalSerializer;
 import de.willuhn.jameica.sensors.devices.Device;
 import de.willuhn.jameica.sensors.devices.Measurement;
 import de.willuhn.jameica.sensors.devices.Sensor;
@@ -43,17 +45,32 @@ public class DeviceImpl implements Device
   {
     Measurement m = new Measurement();
 
-    Sensorgroup group = new Sensorgroup();
-    group.setName(i18n.tr("Datum und Uhrzeit"));
+    {
+      Sensorgroup group = new Sensorgroup();
+      group.setName(i18n.tr("Datum und Uhrzeit"));
 
-    Sensor<Date> s = new Sensor<Date>();
-    s.setUuid(this.getUuid() + "." + "date.current");
-    s.setName(i18n.tr("Aktuelles Datum"));
-    s.setValue(new Date());
-    s.setSerializer(DateSerializer.class);
+      Sensor<Date> s = new Sensor<Date>();
+      s.setUuid(this.getUuid() + ".date.current");
+      s.setName(i18n.tr("Aktuelles Datum"));
+      s.setValue(new Date());
+      s.setSerializer(DateSerializer.class);
 
-    group.getSensors().add(s);
-    m.getSensorgroups().add(group);
+      group.getSensors().add(s);
+      m.getSensorgroups().add(group);
+    }
+
+    {
+      Sensorgroup group = new Sensorgroup();
+      group.setName(i18n.tr("Dummy-Value"));
+      Sensor<Integer> s = new Sensor<Integer>();
+      s.setUuid(this.getUuid() + ".dummy");
+      s.setName("Dummy-Value");
+      s.setSerializer(DecimalSerializer.class);
+      s.setValue(Calendar.getInstance().get(Calendar.HOUR_OF_DAY));
+      
+      group.getSensors().add(s);
+      m.getSensorgroups().add(group);
+    }
     
     return m;
   }
@@ -88,6 +105,9 @@ public class DeviceImpl implements Device
 
 /**********************************************************************
  * $Log: DeviceImpl.java,v $
+ * Revision 1.5  2009/08/21 18:07:55  willuhn
+ * *** empty log message ***
+ *
  * Revision 1.4  2009/08/21 13:34:17  willuhn
  * @N Redesign der Device-API
  * @N Cleanup in Persistierung

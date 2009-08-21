@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/service/impl/RRDImpl.java,v $
- * $Revision: 1.1 $
- * $Date: 2009/08/21 17:27:36 $
+ * $Revision: 1.2 $
+ * $Date: 2009/08/21 18:07:55 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -13,7 +13,10 @@
 
 package de.willuhn.jameica.sensors.service.impl;
 
+import java.awt.Color;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.Date;
 import java.util.List;
@@ -23,6 +26,8 @@ import org.rrd4j.DsType;
 import org.rrd4j.core.RrdDb;
 import org.rrd4j.core.RrdDef;
 import org.rrd4j.core.Sample;
+import org.rrd4j.graph.RrdGraph;
+import org.rrd4j.graph.RrdGraphDef;
 
 import de.willuhn.jameica.messaging.Message;
 import de.willuhn.jameica.messaging.MessageConsumer;
@@ -97,6 +102,62 @@ public class RRDImpl implements RRD
   }
   
   /**
+   * @see de.willuhn.jameica.sensors.service.RRD#renderGroup(java.lang.String, java.lang.String, java.util.Date, java.util.Date)
+   */
+  public byte[] renderGroup(String deviceId, String groupId, Date start, Date end) throws RemoteException
+  {
+    String basedir = Application.getPluginLoader().getPlugin(Plugin.class).getResources().getWorkPath();
+    File deviceDir = new File(basedir,deviceId);
+    File rrd = new File(deviceDir,groupId + ".rrd");
+    if (!rrd.exists())
+      throw new RemoteException("no rrd data found for device [uuid: " + deviceId + "], sensor group [uuid: " + groupId + "]");
+    
+    RrdGraphDef gd = new RrdGraphDef();
+    gd.setFilename(rrd.getAbsolutePath());
+    if (start != null) gd.setStartTime(start.getTime() / 1000L); // RRD verwendet nicht millis sondern Epochensekunden
+    if (end != null) gd.setEndTime(end.getTime() / 1000L);
+
+    // TODO:
+    try
+    {
+      RrdDb db = new RrdDb(rrd.getAbsolutePath());
+      String[] names = db.getDsNames();
+      for (String name:names)
+      {
+        gd.datasource(name,rrd.getAbsolutePath(),name,ConsolFun.AVERAGE);
+        gd.line("room",new Color(255,0,0),"Raum-Temperatur",2);
+      }
+
+      gd.setFilename("/tmp/install/temp.png");
+      gd.setImageFormat("PNG");
+      gd.setMaxValue(0d);
+      gd.setMaxValue(60d);
+      gd.setTitle("Temperaturen");
+      gd.setVerticalLabel("°C");
+
+      RrdGraph gr = new RrdGraph(gd);
+      BufferedImage bi = new BufferedImage(100,100,BufferedImage.TYPE_INT_ARGB); // Die Groessenangabe wird irgendwie ignoriert
+      gr.render(bi.getGraphics());
+      return null; 
+    
+    }
+    catch (IOException e)
+    {
+      throw new RemoteException("unable to load rdd file",e);
+    }
+  }
+
+  /**
+   * @see de.willuhn.jameica.sensors.service.RRD#renderSensor(java.lang.String, java.lang.String, java.util.Date, java.util.Date)
+   */
+  public byte[] renderSensor(String deviceId, String sensorId, Date start, Date end) throws RemoteException
+  {
+    String basedir = Application.getPluginLoader().getPlugin(Plugin.class).getResources().getWorkPath();
+    File deviceDir = new File(basedir,deviceId);
+    return null; // TODO
+  }
+
+  /**
    * Archiviert die Messergebnisse fuer ein Device.
    * @param uuid UUID des Devices.
    * @param m die Messung.
@@ -122,23 +183,22 @@ public class RRDImpl implements RRD
         continue;
       }
 
-      // Checken, ob die Sensorgruppe eine UUID hat. Falls ja, werden alle
-      // enthaltenen Sensoren in eine RRD-Datei geschrieben. Andernfalls
-      // kriegt jeder Sensor seine eigene Datei.
+      // Checken, ob die Sensorgruppe eine UUID hat. Falls ja, wird zusaetzlich
+      // zur RRD-Datei pro Sensor nochmal eine erstellt, in der alle Sensoren
+      // der Gruppe enthalten sind. Das ermoglicht, dass in einem Chart mehrere
+      // Messwerte (die der Gruppe) gemeinsam angezeigt werden koennen.
       if (group.getUuid() != null)
       {
-        // Jepp, wir haben eine
+        // Jepp, wir haben eine. Dann erstellen wir eine RRD-Datei fuer die Gruppe.
         File rrdFile = new File(deviceDir,group.getUuid() + ".rrd");
         store(rrdFile,sensors.toArray(new Sensor[sensors.size()]));
       }
-      else
+
+      // Und jetzt noch die fuer jeden Sensor einzeln.
+      for (Sensor s:sensors)
       {
-        // Jeder Sensor kriegt seine eigene Datei
-        for (Sensor s:sensors)
-        {
-          File rrdFile = new File(deviceDir,s.getUuid() + ".rrd");
-          store(rrdFile,s);
-        }
+        File rrdFile = new File(deviceDir,s.getUuid() + ".rrd");
+        store(rrdFile,s);
       }
     }
   }
@@ -158,7 +218,6 @@ public class RRDImpl implements RRD
     {
       Logger.info("creating new rrd file " + rrdFile.getAbsolutePath());
       RrdDef def = new RrdDef(rrdFile.getAbsolutePath());
-      def.setStartTime(new Date());
       
       // Ich weiss nicht, ob es sinnvoll ist, diese Werte konfigurierbar zu machen
       def.addArchive(ConsolFun.AVERAGE,0.5,1,288);  // letzte 24h (24h = 1440min -> 5min-Intervall -> 288 Werte
@@ -172,7 +231,7 @@ public class RRDImpl implements RRD
       for (Sensor sensor:sensors)
       {
         // Fuer jeden Sensor eine Datasource mit der UUID als Name.
-        def.addDatasource(sensor.getUuid(),DsType.GAUGE,minutes * 60,Double.NaN,Double.NaN);
+        def.addDatasource(createRrdName(sensor.getUuid()),DsType.GAUGE,minutes * 60,Double.NaN,Double.NaN);
       }
       db = new RrdDb(def);
     }
@@ -201,7 +260,7 @@ public class RRDImpl implements RRD
             continue;
           }
         }
-        s.setValue(sensor.getUuid(),d);
+        s.setValue(createRrdName(sensor.getUuid()),d);
       }
       s.update();
     }
@@ -209,6 +268,27 @@ public class RRDImpl implements RRD
     {
       db.close();
     }
+  }
+  
+  /**
+   * Liefert eine auf 20 Zeichen gekuerzte Version der UUID, damit RRD sie akzeptiert.
+   * @param uuid die UUID.
+   * @return gekuerzte Version.
+   */
+  private String createRrdName(String uuid)
+  {
+    if (uuid == null)
+      return "";
+    
+    int len = uuid.length();
+    
+    if (len <= 20)
+      return uuid;
+    
+    // Wenn der String laenger als 20 Zeichen ist, nehmen wir nur
+    // die ersten und letzten 10 Zeichen. Sollte dann immer noch
+    // eindeutig sein.
+    return (uuid.substring(0,10) + uuid.substring(len-10));
   }
   
   /**
@@ -247,6 +327,9 @@ public class RRDImpl implements RRD
 
 /**********************************************************************
  * $Log: RRDImpl.java,v $
+ * Revision 1.2  2009/08/21 18:07:55  willuhn
+ * *** empty log message ***
+ *
  * Revision 1.1  2009/08/21 17:27:36  willuhn
  * @N RRD-Service
  *
