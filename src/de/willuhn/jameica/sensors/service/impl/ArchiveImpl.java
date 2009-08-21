@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/service/impl/ArchiveImpl.java,v $
- * $Revision: 1.5 $
- * $Date: 2009/08/20 23:26:25 $
+ * $Revision: 1.6 $
+ * $Date: 2009/08/21 00:43:03 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -23,9 +23,10 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
-import javax.persistence.Persistence;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
+
+import org.hibernate.ejb.HibernatePersistence;
 
 import de.willuhn.jameica.messaging.Message;
 import de.willuhn.jameica.messaging.MessageConsumer;
@@ -212,15 +213,18 @@ public class ArchiveImpl implements Archive
     if (this.entityManager == null)
     {
       Map params = new HashMap();
-      System.out.println("PROVIDER:" + org.hibernate.ejb.HibernatePersistence.PROVIDER);
       params.put("hibernate.connection.driver_class","com.mysql.jdbc.Driver");
       params.put("hibernate.connection.url","jdbc:mysql://server:3306/jameica_sensors?useUnicode=Yes&characterEncoding=ISO8859_1");
       params.put("hibernate.connection.username","jameica_sensors");
       params.put("hibernate.connection.password","jameica_sensors");
       params.put("hibernate.dialect","org.hibernate.dialect.MySQLDialect");
       params.put("hibernate.show_sql","true");
+      //params.put(HibernatePersistence.PERSISTENCE_UNIT_NAME,"jameica_sensors");
       // params.put("hibernate.hbm2ddl.auto","update"); // create,update,validate
-      EntityManagerFactory ef = Persistence.createEntityManagerFactory("jameica_sensors",params);
+      
+      HibernatePersistence ep = new HibernatePersistence();
+      EntityManagerFactory ef = ep.createEntityManagerFactory(params);
+//      EntityManagerFactory ef = Persistence.createEntityManagerFactory("jameica_sensors",params);
       this.entityManager = ef.createEntityManager();
     }
     return this.entityManager;
@@ -264,6 +268,9 @@ public class ArchiveImpl implements Archive
 
 /**********************************************************************
  * $Log: ArchiveImpl.java,v $
+ * Revision 1.6  2009/08/21 00:43:03  willuhn
+ * *** empty log message ***
+ *
  * Revision 1.5  2009/08/20 23:26:25  willuhn
  * *** empty log message ***
  *
