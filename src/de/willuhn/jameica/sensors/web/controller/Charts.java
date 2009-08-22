@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/web/controller/Charts.java,v $
- * $Revision: 1.1 $
- * $Date: 2009/08/22 00:03:42 $
+ * $Revision: 1.2 $
+ * $Date: 2009/08/22 00:15:18 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -26,7 +26,7 @@ public class Charts
   public String getHour()
   {
     long now = System.currentTimeMillis() / 1000L;
-    now =- (60 * 60);
+    now -= (60 * 60);
     return String.valueOf(now);
   }
   
@@ -37,7 +37,7 @@ public class Charts
   public String getDay()
   {
     long now = System.currentTimeMillis() / 1000L;
-    now =- (60 * 60 * 24);
+    now -= (60 * 60 * 24);
     return String.valueOf(now);
   }
   
@@ -48,7 +48,7 @@ public class Charts
   public String getWeek()
   {
     long now = System.currentTimeMillis() / 1000L;
-    now =- (60 * 60 * 24 * 7);
+    now -= (60 * 60 * 24 * 7);
     return String.valueOf(now);
   }
   
@@ -59,7 +59,7 @@ public class Charts
   public String getMonth()
   {
     long now = System.currentTimeMillis() / 1000L;
-    now =- (60 * 60 * 24 * 30);
+    now -= (60 * 60 * 24 * 30);
     return String.valueOf(now);
     
   }
@@ -71,7 +71,7 @@ public class Charts
   public String getYear()
   {
     long now = System.currentTimeMillis() / 1000L;
-    now =- (60 * 60 * 24 * 365);
+    now -= (60 * 60 * 24 * 365);
     return String.valueOf(now);
   }
 }
@@ -79,6 +79,9 @@ public class Charts
 
 /**********************************************************************
  * $Log: Charts.java,v $
+ * Revision 1.2  2009/08/22 00:15:18  willuhn
+ * @B daemlich ;)
+ *
  * Revision 1.1  2009/08/22 00:03:42  willuhn
  * @N Das Zeichnen der Charts funktioniert! ;)
  *
