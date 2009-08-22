@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/service/impl/RRDImpl.java,v $
- * $Revision: 1.2 $
- * $Date: 2009/08/21 18:07:55 $
+ * $Revision: 1.3 $
+ * $Date: 2009/08/22 00:03:42 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -16,10 +16,11 @@ package de.willuhn.jameica.sensors.service.impl;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.rrd4j.ConsolFun;
 import org.rrd4j.DsType;
@@ -28,10 +29,12 @@ import org.rrd4j.core.RrdDef;
 import org.rrd4j.core.Sample;
 import org.rrd4j.graph.RrdGraph;
 import org.rrd4j.graph.RrdGraphDef;
+import org.rrd4j.graph.RrdGraphInfo;
 
 import de.willuhn.jameica.messaging.Message;
 import de.willuhn.jameica.messaging.MessageConsumer;
 import de.willuhn.jameica.sensors.Plugin;
+import de.willuhn.jameica.sensors.devices.Device;
 import de.willuhn.jameica.sensors.devices.Measurement;
 import de.willuhn.jameica.sensors.devices.Sensor;
 import de.willuhn.jameica.sensors.devices.Sensorgroup;
@@ -40,14 +43,15 @@ import de.willuhn.jameica.sensors.service.RRD;
 import de.willuhn.jameica.system.Application;
 import de.willuhn.jameica.system.Settings;
 import de.willuhn.logging.Logger;
+import de.willuhn.util.ColorGenerator;
 
 /**
  * Implementierung des RRD-Services.
  */
 public class RRDImpl implements RRD
 {
-  private MessageConsumer consumer    = null;
-
+  private MessageConsumer consumer = null;
+  
   /**
    * @see de.willuhn.datasource.Service#getName()
    */
@@ -102,59 +106,82 @@ public class RRDImpl implements RRD
   }
   
   /**
-   * @see de.willuhn.jameica.sensors.service.RRD#renderGroup(java.lang.String, java.lang.String, java.util.Date, java.util.Date)
+   * @see de.willuhn.jameica.sensors.service.RRD#renderGroup(de.willuhn.jameica.sensors.devices.Device, de.willuhn.jameica.sensors.devices.Sensorgroup, java.util.Date, java.util.Date)
    */
-  public byte[] renderGroup(String deviceId, String groupId, Date start, Date end) throws RemoteException
+  public byte[] renderGroup(Device device, Sensorgroup group, Date start, Date end) throws RemoteException
   {
     String basedir = Application.getPluginLoader().getPlugin(Plugin.class).getResources().getWorkPath();
-    File deviceDir = new File(basedir,deviceId);
-    File rrd = new File(deviceDir,groupId + ".rrd");
+    File deviceDir = new File(basedir,device.getUuid());
+    File rrd = new File(deviceDir,group.getUuid() + ".rrd");
     if (!rrd.exists())
-      throw new RemoteException("no rrd data found for device [uuid: " + deviceId + "], sensor group [uuid: " + groupId + "]");
+      throw new RemoteException("no rrd data found for device " + device.getName() + " [uuid: " + device.getUuid() + "], sensor group " + group.getName() + "[uuid: " + group.getUuid() + "]");
+
+    // In RRD werden ja die UUIDs der Sensoren als Datasource-Name
+    // verwendet - jedoch verkuerzt, wenn sie mehr als 20 Zeichen
+    // haben. Damit wir das rueckwaerts wieder aufloesen zu koennen,
+    // um in der Chartgrafik ordentliche Labels anzuzeigen, bauen
+    // wir uns hier eine Map fuers Reverse-Lookup
+    Map<String,Sensor> sensorMap = new HashMap<String,Sensor>();
+    List<Sensor> sensors = group.getSensors();
+    for (Sensor sensor:sensors)
+    {
+      sensorMap.put(createRrdName(sensor.getUuid()),sensor);
+    }
+    
     
     RrdGraphDef gd = new RrdGraphDef();
-    gd.setFilename(rrd.getAbsolutePath());
-    if (start != null) gd.setStartTime(start.getTime() / 1000L); // RRD verwendet nicht millis sondern Epochensekunden
-    if (end != null) gd.setEndTime(end.getTime() / 1000L);
 
-    // TODO:
     try
     {
-      RrdDb db = new RrdDb(rrd.getAbsolutePath());
-      String[] names = db.getDsNames();
-      for (String name:names)
+      //////////////////////////////////////////////////////////////////////////
+      // Wir holen uns aus der RRD-Datei die Datasources, um die Plotter
+      // zum Chart hizuzufuegen
+      RrdDb db = null;
+      try
       {
-        gd.datasource(name,rrd.getAbsolutePath(),name,ConsolFun.AVERAGE);
-        gd.line("room",new Color(255,0,0),"Raum-Temperatur",2);
+        db = new RrdDb(rrd.getAbsolutePath());
+        String[] names = db.getDsNames();
+        for (int i=0;i<names.length;++i)
+        {
+          Sensor sensor = sensorMap.get(names[i]); // Das sollte jetzt der zugehoerige Sensor sein.
+          if (sensor == null)
+          {
+            Logger.warn(rrd.getAbsolutePath() + " contains datasource " + names[i] + ", but according sensor no longer exists, skipping");
+            continue;
+          }
+          int[] color = ColorGenerator.create(i);
+          gd.datasource(names[i],rrd.getAbsolutePath(),names[i],ConsolFun.AVERAGE);
+          gd.line(names[i],new Color(color[0],color[1],color[2]),sensor.getName(),2);
+        }
       }
-
-      gd.setFilename("/tmp/install/temp.png");
+      finally
+      {
+        db.close();
+      }
+      //////////////////////////////////////////////////////////////////////////
+      
       gd.setImageFormat("PNG");
-      gd.setMaxValue(0d);
-      gd.setMaxValue(60d);
-      gd.setTitle("Temperaturen");
-      gd.setVerticalLabel("°C");
+      gd.setTitle(group.getName());
+      if (start != null) gd.setStartTime(start.getTime() / 1000L); // RRD verwendet nicht millis sondern Epochensekunden
+      if (end != null) gd.setEndTime(end.getTime() / 1000L);
 
       RrdGraph gr = new RrdGraph(gd);
-      BufferedImage bi = new BufferedImage(100,100,BufferedImage.TYPE_INT_ARGB); // Die Groessenangabe wird irgendwie ignoriert
+      BufferedImage bi = new BufferedImage(100,100,BufferedImage.TYPE_INT_ARGB); // Die Groessenangabe wird ignoriert - es muss aber etwas angegeben sein
       gr.render(bi.getGraphics());
-      return null; 
-    
+      
+      RrdGraphInfo result = gr.getRrdGraphInfo();
+      if (result == null)
+        throw new RemoteException("unable to create image, RrdGraphInfo was null, don't know why");
+      return result.getBytes();
     }
-    catch (IOException e)
+    catch (RemoteException re)
     {
-      throw new RemoteException("unable to load rdd file",e);
+      throw re;
     }
-  }
-
-  /**
-   * @see de.willuhn.jameica.sensors.service.RRD#renderSensor(java.lang.String, java.lang.String, java.util.Date, java.util.Date)
-   */
-  public byte[] renderSensor(String deviceId, String sensorId, Date start, Date end) throws RemoteException
-  {
-    String basedir = Application.getPluginLoader().getPlugin(Plugin.class).getResources().getWorkPath();
-    File deviceDir = new File(basedir,deviceId);
-    return null; // TODO
+    catch (Exception e)
+    {
+      throw new RemoteException("unable to create image",e);
+    }
   }
 
   /**
@@ -219,14 +246,33 @@ public class RRDImpl implements RRD
       Logger.info("creating new rrd file " + rrdFile.getAbsolutePath());
       RrdDef def = new RrdDef(rrdFile.getAbsolutePath());
       
-      // Ich weiss nicht, ob es sinnvoll ist, diese Werte konfigurierbar zu machen
-      def.addArchive(ConsolFun.AVERAGE,0.5,1,288);  // letzte 24h (24h = 1440min -> 5min-Intervall -> 288 Werte
-      def.addArchive(ConsolFun.AVERAGE,0.5,12,168); // letzte Woche (7 Tage = 168h), Stundenmittel (60min/5)
-      def.addArchive(ConsolFun.AVERAGE,0.5,288,365); // letztes Jahr (365 Tage), Tagesmittel (24*60m/5)
-
       // Wir holen uns den Heartbeat-Wert basierend auf dem Scheduler-Intervall
       Settings settings = Application.getPluginLoader().getPlugin(Plugin.class).getResources().getSettings();
       int minutes = settings.getInt("scheduler.interval.minutes",5);
+
+      // Absolute Werte (also nicht bereits als Durchschnittswert gemittelt) bewahren wir
+      // einen Monat lang auf. Damit haben wir ueber die letzten 30 Tage die volle Messwert-
+      // Aufloesung. Per Default sind das Werte alle 5 Minuten.
+      int rows = 60 / minutes; // Anzahl der Messwerte in einer Stunde (12)
+      rows *= 24; // Anzahl der Messwerte an einem Tag (288)
+      rows *= 30; // Messwerte in 30 Tagen (8640)
+      def.addArchive(ConsolFun.AVERAGE,0.5,1,rows);  // letzte 30 Tage in voller Aufloesung
+
+      // Alles was aelter ist, wird auf einen Stunden-Mittelwert gebracht. Heisst:
+      // Wenn Werte, die aelter als 30 Tage sind, werden die 12 Messungen (von 1 Stunde)
+      // zu einem zusammengefasst. Die werden dann 1 Jahr aufgehoben. "60 / minutes"
+      // ergibt "12" und sagt RDD, dass es aus 12 Werten 1 machen soll.
+      // Der letzte Parameter gibt an, wie viele von denen aufgehoben werden
+      // sollen. Konkret.
+      rows = 24 * 365; // 24h (1 pro Stunde) * 365 Tage 
+      def.addArchive(ConsolFun.AVERAGE,0.5,(60 / minutes),rows);
+      
+      // Alles, was noch aelter ist (also aelter als ein Jahr), wird nur noch
+      // mit taggenauer Aufloesung gespeichert. Ein Tag hat 288 5-Minutenhaeppchen,
+      // (24 * 60 / 5).
+      // Wir heben sie fuer 20 Jahre auf ;) Solange gibts Java wahrscheinlich gar nicht mehr ;)
+      rows = 20 * 365;
+      def.addArchive(ConsolFun.AVERAGE,0.5,(24 * 60 / minutes),rows);
 
       for (Sensor sensor:sensors)
       {
@@ -247,12 +293,15 @@ public class RRDImpl implements RRD
       for (Sensor sensor:sensors)
       {
         Object value = sensor.getValue();
-        double d = 0.0d;
         if (value != null)
         {
           try
           {
-            d = Double.parseDouble(value.toString());
+            // TODO: setValue() wirft eine IllegalArgumentException, wenn der RRD-Name
+            // nicht existiert. Sprich: Kommt zu einer Sensor-Gruppe spaeter noch
+            // ein Sensor hinzu, wird er nicht mehr im Chart dieser Gruppe erscheinen.
+            // Mal schauen, ob das irgendwie loesbar ist
+            s.setValue(createRrdName(sensor.getUuid()),Double.parseDouble(value.toString()));
           }
           catch (Exception e)
           {
@@ -260,7 +309,6 @@ public class RRDImpl implements RRD
             continue;
           }
         }
-        s.setValue(createRrdName(sensor.getUuid()),d);
       }
       s.update();
     }
@@ -327,6 +375,9 @@ public class RRDImpl implements RRD
 
 /**********************************************************************
  * $Log: RRDImpl.java,v $
+ * Revision 1.3  2009/08/22 00:03:42  willuhn
+ * @N Das Zeichnen der Charts funktioniert! ;)
+ *
  * Revision 1.2  2009/08/21 18:07:55  willuhn
  * *** empty log message ***
  *

@@ -17,7 +17,7 @@
     #foreach($group in $groups)
       #set($sensors = $group.sensors)
       <fieldset>
-        <legend>$group.name</legend>
+        <legend>$group.name [<a href="charts?device=$device.uuid&group=$group.uuid">charts</a>]</legend>
   
         <table class="data">
           <tr>

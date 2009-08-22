@@ -1,0 +1,44 @@
+#parse("includes/header.vm")
+
+<div id="breadcrumbs">
+  <a href="/sensors/">Home</a>
+</div>
+
+<h2>Charts</h2>
+
+<table>
+  <tr>
+    <td>
+      <h3>60 Minuten</h3>
+      <img src="/sensors/chart?device=${request.getParameter("device")}&group=${request.getParameter("group")}&from=$c.hour"/>
+    </td>
+    <td>
+      <h3>24 Stunden</h3>
+      <img src="/sensors/chart?device=${request.getParameter("device")}&group=${request.getParameter("group")}&from=$c.day"/>
+    </td>
+  </tr>
+  <tr><td colspan="2">&nbsp;</td></tr>
+  <tr>
+    <td>
+      <h3>1 Woche</h3>
+      <img src="/sensors/chart?device=${request.getParameter("device")}&group=${request.getParameter("group")}&from=$c.week"/>
+    </td>
+    <td>
+      <h3>1 Monat</h3>
+      <img src="/sensors/chart?device=${request.getParameter("device")}&group=${request.getParameter("group")}&from=$c.month"/>
+    </td>
+  </tr>
+  <tr><td colspan="2">&nbsp;</td></tr>
+  <tr>
+    <td>
+      <h3>1 Jahr</h3>
+      <img src="/sensors/chart?device=${request.getParameter("device")}&group=${request.getParameter("group")}&from=$c.year"/>
+    </td>
+    <td>
+      <h3>Alle Daten</h3>
+      <img src="/sensors/chart?device=${request.getParameter("device")}&group=${request.getParameter("group")}"/>
+    </td>
+  </tr>
+</table>
+
+#parse("includes/footer.vm")

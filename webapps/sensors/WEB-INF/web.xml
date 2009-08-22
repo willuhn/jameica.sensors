@@ -15,6 +15,17 @@
     <load-on-startup>1</load-on-startup>
   </servlet>
 
+  <servlet>
+    <servlet-name>chart</servlet-name>
+    <servlet-class>de.willuhn.jameica.sensors.web.servlet.ChartServlet</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>chart</servlet-name>
+    <url-pattern>/chart</url-pattern>
+  </servlet-mapping>
+
   <servlet-mapping>
     <servlet-name>webtools</servlet-name>
     <url-pattern>/*</url-pattern>

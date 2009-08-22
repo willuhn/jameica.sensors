@@ -5,6 +5,7 @@
           xsi:schemaLocation="http://www.willuhn.de/schema/jameica-webtools http://www.willuhn.de/schema/jameica-webtools-1.0.xsd ">
 
   <pages>
-    <page pattern=".*" template="index.html" controller="de.willuhn.jameica.sensors.web.controller.Status" />
+    <page pattern="^/charts" template="charts.html" controller="de.willuhn.jameica.sensors.web.controller.Charts" />
+    <page pattern=".*"       template="index.html"  controller="de.willuhn.jameica.sensors.web.controller.Status" />
   </pages>
 </webtools>

@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/devices/test/Attic/DeviceImpl.java,v $
- * $Revision: 1.5 $
- * $Date: 2009/08/21 18:07:55 $
+ * $Revision: 1.6 $
+ * $Date: 2009/08/22 00:03:42 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -62,8 +62,9 @@ public class DeviceImpl implements Device
     {
       Sensorgroup group = new Sensorgroup();
       group.setName(i18n.tr("Dummy-Value"));
+      group.setUuid(this.getUuid() + ".dummy");
       Sensor<Integer> s = new Sensor<Integer>();
-      s.setUuid(this.getUuid() + ".dummy");
+      s.setUuid(this.getUuid() + ".dummy.value");
       s.setName("Dummy-Value");
       s.setSerializer(DecimalSerializer.class);
       s.setValue(Calendar.getInstance().get(Calendar.HOUR_OF_DAY));
@@ -105,6 +106,9 @@ public class DeviceImpl implements Device
 
 /**********************************************************************
  * $Log: DeviceImpl.java,v $
+ * Revision 1.6  2009/08/22 00:03:42  willuhn
+ * @N Das Zeichnen der Charts funktioniert! ;)
+ *
  * Revision 1.5  2009/08/21 18:07:55  willuhn
  * *** empty log message ***
  *
