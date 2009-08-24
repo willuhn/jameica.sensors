@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/service/impl/RRDImpl.java,v $
- * $Revision: 1.4 $
- * $Date: 2009/08/24 17:22:30 $
+ * $Revision: 1.5 $
+ * $Date: 2009/08/24 23:49:17 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -149,7 +149,7 @@ public class RRDImpl implements RRD
             Logger.warn(rrd.getAbsolutePath() + " contains datasource " + names[i] + ", but according sensor no longer exists, skipping");
             continue;
           }
-          int[] color = ColorGenerator.create(i);
+          int[] color = ColorGenerator.create(ColorGenerator.PALETTE_OFFICE + i);
           gd.datasource(names[i],rrd.getAbsolutePath(),names[i],ConsolFun.AVERAGE);
           gd.line(names[i],new Color(color[0],color[1],color[2]),sensor.getName(),2);
         }
@@ -379,6 +379,9 @@ public class RRDImpl implements RRD
 
 /**********************************************************************
  * $Log: RRDImpl.java,v $
+ * Revision 1.5  2009/08/24 23:49:17  willuhn
+ * @N Bei der Office-Farbpalette beginnen
+ *
  * Revision 1.4  2009/08/24 17:22:30  willuhn
  * @N Archiv-Zeitraum verkuerzt
  *
