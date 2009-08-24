@@ -12,6 +12,10 @@
      <param-name>plugin</param-name>
      <param-value>de.willuhn.jameica.sensors.Plugin</param-value>
     </init-param>
+    <init-param>
+     <param-name>config</param-name>
+     <param-value>webtools-sensors.xml</param-value>
+    </init-param>
     <load-on-startup>1</load-on-startup>
   </servlet>
 
