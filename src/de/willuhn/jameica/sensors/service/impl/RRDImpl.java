@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/service/impl/RRDImpl.java,v $
- * $Revision: 1.3 $
- * $Date: 2009/08/22 00:03:42 $
+ * $Revision: 1.4 $
+ * $Date: 2009/08/24 17:22:30 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -251,23 +251,27 @@ public class RRDImpl implements RRD
       int minutes = settings.getInt("scheduler.interval.minutes",5);
 
       // Absolute Werte (also nicht bereits als Durchschnittswert gemittelt) bewahren wir
-      // einen Monat lang auf. Damit haben wir ueber die letzten 30 Tage die volle Messwert-
+      // einen Tag lang auf. Damit haben wir ueber die letzten 24h die volle Messwert-
       // Aufloesung. Per Default sind das Werte alle 5 Minuten.
       int rows = 60 / minutes; // Anzahl der Messwerte in einer Stunde (12)
       rows *= 24; // Anzahl der Messwerte an einem Tag (288)
-      rows *= 30; // Messwerte in 30 Tagen (8640)
-      def.addArchive(ConsolFun.AVERAGE,0.5,1,rows);  // letzte 30 Tage in voller Aufloesung
+      def.addArchive(ConsolFun.AVERAGE,0.5,1,rows);
 
-      // Alles was aelter ist, wird auf einen Stunden-Mittelwert gebracht. Heisst:
-      // Wenn Werte, die aelter als 30 Tage sind, werden die 12 Messungen (von 1 Stunde)
-      // zu einem zusammengefasst. Die werden dann 1 Jahr aufgehoben. "60 / minutes"
-      // ergibt "12" und sagt RDD, dass es aus 12 Werten 1 machen soll.
+      // Bis maximal eine Woche nehmen wir Stunden-Mittelwerte. Heisst:
+      // Bei Werten, die max. 7 Tage alte sind, werden die 12 Messungen (von 1 Stunde)
+      // zu einem zusammengefasst.
+      // "60 / minutes" ergibt "12" und sagt RDD, dass es aus 12 Werten 1 machen soll.
       // Der letzte Parameter gibt an, wie viele von denen aufgehoben werden
       // sollen. Konkret.
-      rows = 24 * 365; // 24h (1 pro Stunde) * 365 Tage 
+      rows = 24 * 7; // 24h (1 pro Stunde) * 7 Tage
       def.addArchive(ConsolFun.AVERAGE,0.5,(60 / minutes),rows);
       
-      // Alles, was noch aelter ist (also aelter als ein Jahr), wird nur noch
+      // Bis maximal einen Monat nehmen wir 12h-Mittelwerte. Heisst:
+      // Ein Tag besteht dann noch aus 2 Messwerten
+      rows = 2 * 30; // 24h (2 pro Tag) * 30 Tage
+      def.addArchive(ConsolFun.AVERAGE,0.5,(12 * 60) / minutes,rows);
+
+      // Alles, was noch aelter ist (also aelter als eine Woche), wird nur noch
       // mit taggenauer Aufloesung gespeichert. Ein Tag hat 288 5-Minutenhaeppchen,
       // (24 * 60 / 5).
       // Wir heben sie fuer 20 Jahre auf ;) Solange gibts Java wahrscheinlich gar nicht mehr ;)
@@ -277,7 +281,7 @@ public class RRDImpl implements RRD
       for (Sensor sensor:sensors)
       {
         // Fuer jeden Sensor eine Datasource mit der UUID als Name.
-        def.addDatasource(createRrdName(sensor.getUuid()),DsType.GAUGE,minutes * 60,Double.NaN,Double.NaN);
+        def.addDatasource(createRrdName(sensor.getUuid()),DsType.GAUGE, 2 * minutes * 60,Double.NaN,Double.NaN);
       }
       db = new RrdDb(def);
     }
@@ -375,6 +379,9 @@ public class RRDImpl implements RRD
 
 /**********************************************************************
  * $Log: RRDImpl.java,v $
+ * Revision 1.4  2009/08/24 17:22:30  willuhn
+ * @N Archiv-Zeitraum verkuerzt
+ *
  * Revision 1.3  2009/08/22 00:03:42  willuhn
  * @N Das Zeichnen der Charts funktioniert! ;)
  *
