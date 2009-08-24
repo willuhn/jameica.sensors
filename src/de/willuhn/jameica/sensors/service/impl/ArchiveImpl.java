@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/service/impl/ArchiveImpl.java,v $
- * $Revision: 1.9 $
- * $Date: 2009/08/21 17:27:37 $
+ * $Revision: 1.10 $
+ * $Date: 2009/08/24 10:34:44 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -81,6 +81,13 @@ public class ArchiveImpl implements Archive
     if (this.isStarted())
     {
       Logger.warn("service allready started, skipping request");
+      return;
+    }
+
+    Settings settings = Application.getPluginLoader().getPlugin(Plugin.class).getResources().getSettings();
+    if (settings.getString("hibernate.connection.url",null) == null)
+    {
+      Logger.info("no connection url configured, skipping database archive");
       return;
     }
 
@@ -294,6 +301,9 @@ public class ArchiveImpl implements Archive
 
 /**********************************************************************
  * $Log: ArchiveImpl.java,v $
+ * Revision 1.10  2009/08/24 10:34:44  willuhn
+ * @N Archiv-Service nur starten, wenn konfiguriert
+ *
  * Revision 1.9  2009/08/21 17:27:37  willuhn
  * @N RRD-Service
  *
