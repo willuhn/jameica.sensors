@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!--
- $Revision: 1.4 $
- $Date: 2009/08/24 17:30:07 $
+ $Revision: 1.5 $
+ $Date: 2009/08/24 17:31:57 $
  $Author: willuhn $
  
  Copyright (c) by willuhn software & services
@@ -138,19 +138,6 @@
       </manifest>
 			<fileset dir="${class.dir}" />
 		</jar>
-
-    <jar destfile="${project.zipdir}/${define.apifilename}}">
-      <manifest>
-        <attribute name="Built-By" value="${user.name}" />
-        <attribute name="Built-Date" value="${DSTAMP}" />
-        <attribute name="Implementation-Title" value="${define.pluginname}" />
-        <attribute name="Implementation-Version" value="${appversion}" />
-        <attribute name="Implementation-Buildnumber" value="${build.number}" />
-      </manifest>
-      <fileset dir="${class.dir}">
-        <include name="de/willuhn/jameica/sensors/devices/*.class" />
-      </fileset>
-    </jar>
 
 	  <antcall target="addlib"/>
 		<antcall target="addwebapps"/>
