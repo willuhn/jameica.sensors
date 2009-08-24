@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!--
- $Revision: 1.2 $
- $Date: 2009/08/21 14:00:42 $
+ $Revision: 1.3 $
+ $Date: 2009/08/24 10:17:10 $
  $Author: willuhn $
  
  Copyright (c) by willuhn software & services
@@ -46,6 +46,7 @@
 		<echo message="JAVA   : ${java.version}" />
 
 		<property name="define.jarfilename" 		value="${define.pluginname}.jar" />
+    <property name="define.apifilename"     value="${define.pluginname}-${appversion}-api.jar" />
 		<property name="define.zipfilename" 		value="${define.pluginname}.zip" />
 		<property name="define.srcfilename" 		value="${define.pluginname}.src.zip" />
 		<property name="define.javadocfilename" value="${define.pluginname}.javadoc.zip" />
@@ -138,7 +139,20 @@
 			<fileset dir="${class.dir}" />
 		</jar>
 
-		<antcall target="addlib"/>
+    <jar destfile="${project.zipdir}/${define.apifilename}}">
+      <manifest>
+        <attribute name="Built-By" value="${user.name}" />
+        <attribute name="Built-Date" value="${DSTAMP}" />
+        <attribute name="Implementation-Title" value="${define.pluginname}" />
+        <attribute name="Implementation-Version" value="${appversion}" />
+        <attribute name="Implementation-Buildnumber" value="${build.number}" />
+      </manifest>
+      <fileset dir="${class.dir}">
+        <include name="de/willuhn/jameica/sensors/devices/*.class" />
+      </fileset>
+    </jar>
+
+	  <antcall target="addlib"/>
 		<antcall target="addwebapps"/>
 			
     <copy file="plugin.xml" todir="${project.zipdir}" />
@@ -154,7 +168,24 @@
 
 	</target>
 
+  <target depends="compile" name="api" description="generates the api jar file">
 
+    <mkdir dir="${project.release}" />
+
+    <tstamp/>
+    <jar destfile="${project.release}/${define.apifilename}">
+      <manifest>
+        <attribute name="Built-By" value="${user.name}" />
+        <attribute name="Built-Date" value="${DSTAMP}" />
+        <attribute name="Implementation-Title" value="${define.pluginname}" />
+        <attribute name="Implementation-Version" value="${appversion}" />
+        <attribute name="Implementation-Buildnumber" value="${build.number}" />
+      </manifest>
+      <fileset dir="${class.dir}">
+        <include name="de/willuhn/jameica/sensors/devices/*.class" />
+      </fileset>
+    </jar>
+  </target>
 
 	<target depends="init" name="src" description="build source package, depends compile target to make sure, the code has no errors">
 		<mkdir dir="${project.release}" />
@@ -218,9 +249,9 @@
 		</exec>
 	</target>
 
-	<target depends="init,compile,cvstag,jar,javadoc,src,sign,clean" description="build an official release" name="all" />
+	<target depends="init,compile,cvstag,jar,api,javadoc,src,sign,clean" description="build an official release" name="all" />
 
-	<target depends="init,compile,jar,clean" description="build inofficial release" name="fast" />
+	<target depends="init,compile,jar,api,clean" description="build inofficial release" name="fast" />
 
 	<target depends="init,cvs,compile,jar,javadoc,src" description="build nightly build" name="nightly">
 		<mkdir dir="${project.nightly}" />
