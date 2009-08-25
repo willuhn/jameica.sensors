@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/service/impl/RRDImpl.java,v $
- * $Revision: 1.5 $
- * $Date: 2009/08/24 23:49:17 $
+ * $Revision: 1.6 $
+ * $Date: 2009/08/25 00:05:22 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -162,6 +162,7 @@ public class RRDImpl implements RRD
       
       gd.setImageFormat("PNG");
       gd.setTitle(group.getName());
+      gd.setAntiAliasing(true);
       if (start != null) gd.setStartTime(start.getTime() / 1000L); // RRD verwendet nicht millis sondern Epochensekunden
       if (end != null) gd.setEndTime(end.getTime() / 1000L);
 
@@ -379,6 +380,9 @@ public class RRDImpl implements RRD
 
 /**********************************************************************
  * $Log: RRDImpl.java,v $
+ * Revision 1.6  2009/08/25 00:05:22  willuhn
+ * *** empty log message ***
+ *
  * Revision 1.5  2009/08/24 23:49:17  willuhn
  * @N Bei der Office-Farbpalette beginnen
  *
