@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/service/impl/SchedulerImpl.java,v $
- * $Revision: 1.4 $
- * $Date: 2009/08/21 14:26:00 $
+ * $Revision: 1.5 $
+ * $Date: 2009/08/25 11:47:44 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -81,9 +81,9 @@ public class SchedulerImpl implements Scheduler
     this.worker = new Worker();
 
     Logger.info("starting scheduler worker thread");
-    // Wir fangen erst nach 5 Sekunden mit dem ersten Durchlauf an. Dann
+    // Wir fangen erst nach 10 Sekunden mit dem ersten Durchlauf an. Dann
     // hat das System genug Zeit zu Ende zu starten.
-    this.timer.schedule(this.worker,5 * 1000L, minutes * 60 * 1000L);
+    this.timer.schedule(this.worker,10 * 1000L, minutes * 60 * 1000L);
   }
 
   /**
@@ -192,6 +192,9 @@ public class SchedulerImpl implements Scheduler
 
 /**********************************************************************
  * $Log: SchedulerImpl.java,v $
+ * Revision 1.5  2009/08/25 11:47:44  willuhn
+ * *** empty log message ***
+ *
  * Revision 1.4  2009/08/21 14:26:00  willuhn
  * @N null als Rueckgabewert tolerieren
  *
