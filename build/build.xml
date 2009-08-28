@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!--
- $Revision: 1.5 $
- $Date: 2009/08/24 17:31:57 $
+ $Revision: 1.6 $
+ $Date: 2009/08/28 15:00:19 $
  $Author: willuhn $
  
  Copyright (c) by willuhn software & services
@@ -11,7 +11,9 @@
 
 <project basedir=".." default="all" name="All">
 
-	<target name="init" description="inits the build">
+
+  
+  <target name="init" description="inits the build">
 
 		<property environment="env" />
 
@@ -75,27 +77,34 @@
 
 	</target>
 
+  
+  
 	<target depends="init" name="cvs" description="performs cvs update">
 		<exec executable="cvs" failonerror="true" dir="${basedir}">
 			<arg line="update -dP" />
 		</exec>
 	</target>
 
+  
+  
 	<target depends="init" name="compile" description="compiles everything">
 
 		<mkdir dir="${class.dir}" />
 
-		<javac debug="true" debuglevel="lines,vars,source" source="1.5" target="1.5" encoding="ISO-8859-1" deprecation="true" destdir="${class.dir}" srcdir="${src.dir}">
+		<javac debug="true" debuglevel="lines,vars,source" deprecation="true"
+		       source="${define.java.version}" target="${define.java.version}"
+		       encoding="${define.encoding}"
+		       srcdir="${src.dir}"
+		       destdir="${class.dir}">
 			<classpath refid="compilepath" />
 		</javac>
 
     <copy todir="${class.dir}">
       <fileset dir="${src.dir}">
-        <include name="webtools-sensors.xml" />
         <include name="META-INF/**" />
       </fileset>
     </copy>
-</target>
+  </target>
 
 
 
@@ -107,6 +116,8 @@
 
 	</target>
 
+  
+  
 	<!-- Libs nur dann hinzufuegen, wenn sie existieren -->
 	<target name="addlib" if="havelib">
 		<mkdir dir="${project.zipdir}/lib" />
@@ -121,6 +132,8 @@
 		</copy>
 	</target>
 
+  
+  
 	<target depends="compile" name="jar" description="generates the jar file">
 
 		<mkdir dir="${project.release}" />
@@ -155,6 +168,8 @@
 
 	</target>
 
+  
+  
   <target depends="compile" name="api" description="generates the api jar file">
 
     <mkdir dir="${project.release}" />
@@ -174,6 +189,8 @@
     </jar>
   </target>
 
+  
+  
 	<target depends="init" name="src" description="build source package, depends compile target to make sure, the code has no errors">
 		<mkdir dir="${project.release}" />
 		<mkdir dir="${project.tmp}/${define.pluginname}" />
@@ -201,7 +218,10 @@
 
 		<mkdir dir="${project.javadoc}" />
 
-		<javadoc destdir="${project.javadoc}" packagenames="${define.javadoc.package}.*" source="1.5">
+		<javadoc destdir="${project.javadoc}"
+		         packagenames="${define.javadoc.package}.*"
+		         source="${define.java.version}"
+		         encoding="${define.encoding}">
 			<classpath refid="compilepath" />
 			<sourcepath>
 				<pathelement location="${src.dir}" />
@@ -216,6 +236,7 @@
 
 	</target>
 
+  
 
 	<target name="clean" description="cleanup">
 		<delete dir="${project.tmp}" />
@@ -224,7 +245,8 @@
 	</target>
 
 
-	<target name="sign" description="signs the jar/zip file">
+	
+  <target name="sign" description="signs the jar/zip file">
 		<checksum file="${project.release}/${define.zipfilename}" />
 		<checksum file="${project.release}/${define.srcfilename}" />
 		<echo message="Creating PGP signatures" />
@@ -236,10 +258,16 @@
 		</exec>
 	</target>
 
+  
+  
 	<target depends="init,compile,cvstag,jar,api,javadoc,src,sign,clean" description="build an official release" name="all" />
 
+  
+  
 	<target depends="init,compile,jar,api,clean" description="build inofficial release" name="fast" />
 
+  
+  
 	<target depends="init,cvs,compile,jar,javadoc,src" description="build nightly build" name="nightly">
 		<mkdir dir="${project.nightly}" />
 
