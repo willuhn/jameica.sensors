@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/devices/Sensor.java,v $
- * $Revision: 1.1 $
- * $Date: 2009/08/21 13:34:17 $
+ * $Revision: 1.2 $
+ * $Date: 2009/09/08 10:38:00 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -89,7 +89,6 @@ public class Sensor<T> implements UniqueItem
    * Speichert die eindeutige ID fuer das Objekt.
    * Diese ID sollte sich niemals aendern, da sich sonst bereits
    * archivierte Messwerte nicht mehr diesem Objekt zuordnen lassen.
-   * @return eindeutige ID des Objektes.
    */
   public void setUuid(String uuid)
   {
@@ -101,6 +100,9 @@ public class Sensor<T> implements UniqueItem
 
 /**********************************************************************
  * $Log: Sensor.java,v $
+ * Revision 1.2  2009/09/08 10:38:00  willuhn
+ * *** empty log message ***
+ *
  * Revision 1.1  2009/08/21 13:34:17  willuhn
  * @N Redesign der Device-API
  * @N Cleanup in Persistierung
