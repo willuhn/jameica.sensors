@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/devices/waterkotte/ai1/wpcu/DeviceImpl.java,v $
- * $Revision: 1.7 $
- * $Date: 2009/08/21 17:27:37 $
+ * $Revision: 1.8 $
+ * $Date: 2009/09/15 17:00:17 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -19,6 +19,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import net.wimpi.modbus.Modbus;
 import net.wimpi.modbus.io.ModbusSerialTransaction;
@@ -28,6 +30,8 @@ import net.wimpi.modbus.net.SerialConnection;
 import net.wimpi.modbus.procimg.Register;
 import net.wimpi.modbus.util.SerialParameters;
 import de.willuhn.jameica.sensors.Plugin;
+import de.willuhn.jameica.sensors.config.Configurable;
+import de.willuhn.jameica.sensors.config.Parameter;
 import de.willuhn.jameica.sensors.devices.Device;
 import de.willuhn.jameica.sensors.devices.Measurement;
 import de.willuhn.jameica.sensors.devices.Sensor;
@@ -40,7 +44,7 @@ import de.willuhn.util.I18N;
 /**
  * Implementierung der Waterkotte Ai1 mit dem WPCU-Steuergeraet.
  */
-public class DeviceImpl implements Device
+public class DeviceImpl implements Device, Configurable
 {
   private final static I18N i18n         = Application.getPluginLoader().getPlugin(Plugin.class).getResources().getI18N();
   private final static Settings settings = new Settings(DeviceImpl.class);
@@ -239,11 +243,56 @@ public class DeviceImpl implements Device
     // Wir checken einfach, ob die Heizung konfiguriert ist
     return settings.getString("serialport.device",null) != null;
   }
+
+  /**
+   * @see de.willuhn.jameica.sensors.config.Configurable#getParameters()
+   */
+  public List<Parameter> getParameters()
+  {
+    List<Parameter> params = new ArrayList<Parameter>();
+    
+    // Wir haengen an die ID des Parameters immer noch unsere Device-UUID dran,
+    // damit er eindeutig wird.
+    params.add(new Parameter(i18n.tr("Serieller Port"),i18n.tr("Für Linux meist /dev/ttyS0, für Windows COM1"),settings.getString("serialport.device",null),this.getUuid() + ".serialport.device"));
+    params.add(new Parameter(i18n.tr("Baud-Rate"),i18n.tr("Serielle Übertragungsgeschwindigkeit (meist 9600)"),settings.getString("serialport.baudrate","9600"),this.getUuid() + ".serialport.baudrate"));
+    params.add(new Parameter(i18n.tr("Modbus-Adresse"),i18n.tr("Modbus-Adresse der Anlage (meist 1)"),settings.getString("modbus.unitid","1"),this.getUuid() + ".modbus.unitid"));
+    return params;
+  }
+
+  /**
+   * @see de.willuhn.jameica.sensors.config.Configurable#setParameters(java.util.List)
+   */
+  public void setParameters(List<Parameter> parameters)
+  {
+    for (Parameter p:parameters)
+    {
+      String id = p.getUuid();
+      
+      // Wir schneiden unsere Device-UUID wieder ab
+      id = id.substring(this.getUuid().length()+1); // das "+1" ist fuer den "." als Trennzeichen
+
+      String oldValue = settings.getString(id,null);
+      String newValue = p.getValue();
+      
+      String s1 = oldValue == null ? "" : oldValue;
+      String s2 = newValue == null ? "" : newValue;
+      if (!s1.equals(s2))
+      {
+        Logger.info("parameter \"" + p.getName() + "\" [" + id + "] changed. old value: " + oldValue + ", new value: " + newValue);
+        settings.setAttribute(id,newValue);
+      }
+    }
+  }
+  
+  
 }
 
 
 /**********************************************************************
  * $Log: DeviceImpl.java,v $
+ * Revision 1.8  2009/09/15 17:00:17  willuhn
+ * @N Konfigurierbarkeit aller Module ueber das Webfrontend
+ *
  * Revision 1.7  2009/08/21 17:27:37  willuhn
  * @N RRD-Service
  *

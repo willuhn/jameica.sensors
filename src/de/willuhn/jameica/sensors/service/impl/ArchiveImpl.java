@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/service/impl/ArchiveImpl.java,v $
- * $Revision: 1.10 $
- * $Date: 2009/08/24 10:34:44 $
+ * $Revision: 1.11 $
+ * $Date: 2009/09/15 17:00:17 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -14,6 +14,7 @@
 package de.willuhn.jameica.sensors.service.impl;
 
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,8 @@ import de.willuhn.jameica.messaging.MessageConsumer;
 import de.willuhn.jameica.sensors.Plugin;
 import de.willuhn.jameica.sensors.beans.Device;
 import de.willuhn.jameica.sensors.beans.Value;
+import de.willuhn.jameica.sensors.config.Configurable;
+import de.willuhn.jameica.sensors.config.Parameter;
 import de.willuhn.jameica.sensors.devices.Measurement;
 import de.willuhn.jameica.sensors.devices.Sensor;
 import de.willuhn.jameica.sensors.devices.Sensorgroup;
@@ -40,11 +43,12 @@ import de.willuhn.jameica.sensors.service.Archive;
 import de.willuhn.jameica.system.Application;
 import de.willuhn.jameica.system.Settings;
 import de.willuhn.logging.Logger;
+import de.willuhn.util.I18N;
 
 /**
  * Implementierung des Archiv-Services.
  */
-public class ArchiveImpl implements Archive
+public class ArchiveImpl implements Archive, Configurable
 {
   private EntityManager entityManager = null;
   private MessageConsumer consumer    = null;
@@ -52,7 +56,7 @@ public class ArchiveImpl implements Archive
   /**
    * @see de.willuhn.datasource.Service#getName()
    */
-  public String getName() throws RemoteException
+  public String getName()
   {
     return "archive service";
   }
@@ -85,14 +89,15 @@ public class ArchiveImpl implements Archive
     }
 
     Settings settings = Application.getPluginLoader().getPlugin(Plugin.class).getResources().getSettings();
-    if (settings.getString("hibernate.connection.url",null) == null)
+    if (!settings.getBoolean("hibernate.enabled",false))
     {
-      Logger.info("no connection url configured, skipping database archive");
+      Logger.info("archive service disabled");
       return;
     }
 
     this.consumer = new MyMessageConsumer();
     Application.getMessagingFactory().registerMessageConsumer(this.consumer);
+    Logger.info("archive service started");
   }
   
   /**
@@ -296,11 +301,75 @@ public class ArchiveImpl implements Archive
       archive(msg.getDevice().getUuid(),msg.getMeasurement());
     }
   }
+
+  /**
+   * @see de.willuhn.jameica.sensors.config.Configurable#getParameters()
+   */
+  public List<Parameter> getParameters()
+  {
+    I18N i18n = Application.getPluginLoader().getPlugin(Plugin.class).getResources().getI18N();
+    Settings settings = Application.getPluginLoader().getPlugin(Plugin.class).getResources().getSettings();
+    
+
+    List<Parameter> params = new ArrayList<Parameter>();
+    params.add(new Parameter(i18n.tr("Archiv-Service aktiviert"),i18n.tr("Aktiviert/Deaktiviert das Schreiben der Messwerte in die Datenbank. Mögliche Werte: true/false"),settings.getString("hibernate.enabled","false"),"hibernate.enabled"));
+    params.add(new Parameter(i18n.tr("JDBC-Treiber"),i18n.tr("Für MySQL z.Bsp. com.mysql.jdbc.Driver"),settings.getString("hibernate.connection.driver_class","com.mysql.jdbc.Driver"),"hibernate.connection.driver_class"));
+    params.add(new Parameter(i18n.tr("JDBC-URL"),i18n.tr("Für MySQL z.Bsp. jdbc:mysql://localhost:3306/jameica_sensors"),settings.getString("hibernate.connection.url","jdbc:mysql://localhost:3306/jameica_sensors?useUnicode=Yes&characterEncoding=ISO8859_1"),"hibernate.connection.url"));
+    params.add(new Parameter(i18n.tr("JDBC-Username"),i18n.tr("Name des Datenbank-Benutzers"),settings.getString("hibernate.connection.username","jameica_sensors"),"hibernate.connection.username"));
+    params.add(new Parameter(i18n.tr("JDBC-Passwort"),i18n.tr("Passwort des Datenbank-Benutzers"),settings.getString("hibernate.connection.password","jameica_sensors"),"hibernate.connection.password"));
+    params.add(new Parameter(i18n.tr("Hibernate-Dialekt"),i18n.tr("Für MySQL z.Bsp. org.hibernate.dialect.MySQLDialect"),settings.getString("hibernate.dialect","org.hibernate.dialect.MySQLDialect"),"hibernate.dialect"));
+    return params;
+  }
+
+  /**
+   * @see de.willuhn.jameica.sensors.config.Configurable#setParameters(java.util.List)
+   */
+  public void setParameters(List<Parameter> parameters)
+  {
+    Settings settings = Application.getPluginLoader().getPlugin(Plugin.class).getResources().getSettings();
+
+    int count = 0;
+    for (Parameter p:parameters)
+    {
+      String id = p.getUuid();
+      
+      String oldValue = settings.getString(id,null);
+      String newValue = p.getValue();
+      
+      String s1 = oldValue == null ? "" : oldValue;
+      String s2 = newValue == null ? "" : newValue;
+      if (!s1.equals(s2))
+      {
+        Logger.info("parameter \"" + p.getName() + "\" [" + id + "] changed. old value: " + oldValue + ", new value: " + newValue);
+        settings.setAttribute(id,newValue);
+        count++;
+      }
+    }
+    
+    if (count > 0)
+    {
+      Logger.info("restarting archive service");
+      try
+      {
+        if (this.isStarted())
+          this.stop(true);
+        if (!this.isStarted())
+          this.start();
+      }
+      catch (RemoteException re)
+      {
+        Logger.error("unable to restart archive service",re);
+      }
+    }
+  }
 }
 
 
 /**********************************************************************
  * $Log: ArchiveImpl.java,v $
+ * Revision 1.11  2009/09/15 17:00:17  willuhn
+ * @N Konfigurierbarkeit aller Module ueber das Webfrontend
+ *
  * Revision 1.10  2009/08/24 10:34:44  willuhn
  * @N Archiv-Service nur starten, wenn konfiguriert
  *

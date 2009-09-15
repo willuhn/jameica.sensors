@@ -6,6 +6,7 @@
 
   <pages>
     <page pattern="^/charts" template="charts.html" controller="de.willuhn.jameica.sensors.web.controller.Charts" />
+    <page pattern="^/config" template="config.html" controller="de.willuhn.jameica.sensors.web.controller.Config" />
     <page pattern=".*"       template="index.html"  controller="de.willuhn.jameica.sensors.web.controller.Status" />
   </pages>
 </webtools>
