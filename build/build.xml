@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!--
- $Revision: 1.6 $
- $Date: 2009/08/28 15:00:19 $
+ $Revision: 1.7 $
+ $Date: 2009/09/15 17:30:34 $
  $Author: willuhn $
  
  Copyright (c) by willuhn software & services
@@ -157,6 +157,7 @@
 			
     <copy file="plugin.xml" todir="${project.zipdir}" />
 		<copy file="${build.dir}/COPYING" todir="${project.zipdir}" />
+    <copy file="${build.dir}/README.TXT" todir="${project.zipdir}" />
 
 		<!-- Jetzt muessen wir noch das ZIP-File erzeugen -->
 		<zip destfile="${project.release}/${define.zipfilename}">
