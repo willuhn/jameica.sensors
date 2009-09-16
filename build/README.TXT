@@ -55,13 +55,10 @@
    - Vergib ein beliebiges Masterpasswort
    - Starte Jameica anschliessend erneut
    
-   
 5) Konfiguration
 
-   - Starte Jameica
    - Oeffne einen Browser und gib folgende Adresse ein:
      https://localhost:8080/sensors
-   - Melde dich mit dem Benutzernamen "admin" und dem Masterpasswort an.
    - Klicke auf den Link "Configuration"
    - Trage den Namen/Pfad des seriellen Ports (Parameter "Serieller Port")
      einen passenden Wert ein. Fuer Linux meist "/dev/ttyS0", für Windows meist "COM1".
@@ -72,5 +69,25 @@
    lege einen Datenbankbenutzer sowie eine leere Datenbank an und trage die
    entsprechenden Parameter im Absatz "archive service" ein.
    
+7) Verwendung
 
-   Oeffne   
+   - Oeffne einen Browser und gib folgende Adresse ein:
+     https://localhost:8080/sensors
+     
+     Es werden die aktuellen Messwerte angezeigt. Sie werden im 5-Minutentakt
+     aktualisiert. Mit einem Klick auf "charts" kann der grafische Verlauf
+     angezeigt werden.
+     
+8) Fehler?
+
+   - Falls das Auslesen der Messwerte der Heizung nicht funktioniert, pruefe
+     ggf. aufgetretene Fehlermeldungen in der Lof-Datei "jameica.log". Sie
+     befindet sich im Jameica-Benutzerverzeichnis. Siehe
+     http://hibiscus.berlios.de/doku.php?id=support:backup#benutzerverzeichnis
+     
+9) Hinweise
+
+   - Ich habe den seriellen Zugriff auf die Heizung ausschliesslich unter
+     Linux getestet. Ich weiss daher nicht, ob es unter Windows tatsaechlich
+     funktioniert.
+        
