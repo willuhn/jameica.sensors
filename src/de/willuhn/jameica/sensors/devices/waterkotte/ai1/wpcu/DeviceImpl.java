@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/devices/waterkotte/ai1/wpcu/DeviceImpl.java,v $
- * $Revision: 1.8 $
- * $Date: 2009/09/15 17:00:17 $
+ * $Revision: 1.9 $
+ * $Date: 2009/09/16 11:26:14 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -48,6 +48,7 @@ public class DeviceImpl implements Device, Configurable
 {
   private final static I18N i18n         = Application.getPluginLoader().getPlugin(Plugin.class).getResources().getI18N();
   private final static Settings settings = new Settings(DeviceImpl.class);
+  private static boolean msgPrinted = false;
   
   /**
    * @see de.willuhn.jameica.sensors.devices.Device#collect()
@@ -55,9 +56,12 @@ public class DeviceImpl implements Device, Configurable
   public Measurement collect() throws IOException
   {
     String device = settings.getString("serialport.device",null);
-    if (device == null)
+    if (device == null || device.length() == 0)
     {
-      Logger.warn("device " + this.getName() + "[uuid: " + this.getUuid() + "] not configured");
+      // Wir zeigen den Hinweistext nur beim ersten Mal an.
+      if (!msgPrinted)
+        Logger.warn("device " + this.getName() + "[uuid: " + this.getUuid() + "] not configured - no serial port defined");
+      msgPrinted = true;
       return null;
     }
 
@@ -290,6 +294,9 @@ public class DeviceImpl implements Device, Configurable
 
 /**********************************************************************
  * $Log: DeviceImpl.java,v $
+ * Revision 1.9  2009/09/16 11:26:14  willuhn
+ * @C Auth fuer /sensors von /webadmin wiederverwenden
+ *
  * Revision 1.8  2009/09/15 17:00:17  willuhn
  * @N Konfigurierbarkeit aller Module ueber das Webfrontend
  *

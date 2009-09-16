@@ -59,6 +59,7 @@
 
    - Oeffne einen Browser und gib folgende Adresse ein:
      https://localhost:8080/sensors
+   - Melde dich mit dem Benutzernamen "admin" und dem Masterpasswort an.
    - Klicke auf den Link "Configuration"
    - Trage den Namen/Pfad des seriellen Ports (Parameter "Serieller Port")
      einen passenden Wert ein. Fuer Linux meist "/dev/ttyS0", für Windows meist "COM1".
@@ -73,6 +74,7 @@
 
    - Oeffne einen Browser und gib folgende Adresse ein:
      https://localhost:8080/sensors
+   - Melde dich mit dem Benutzernamen "admin" und dem Masterpasswort an.
      
      Es werden die aktuellen Messwerte angezeigt. Sie werden im 5-Minutentakt
      aktualisiert. Mit einem Klick auf "charts" kann der grafische Verlauf
