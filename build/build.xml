@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!--
- $Revision: 1.7 $
- $Date: 2009/09/15 17:30:34 $
+ $Revision: 1.8 $
+ $Date: 2009/09/18 13:57:58 $
  $Author: willuhn $
- 
+
  Copyright (c) by willuhn software & services
  All rights reserved
 -->
@@ -12,7 +12,7 @@
 <project basedir=".." default="all" name="All">
 
 
-  
+
   <target name="init" description="inits the build">
 
 		<property environment="env" />
@@ -20,7 +20,7 @@
 		<property name="build.dir" value="build" />
 
 		<loadproperties srcFile="${build.dir}/build.properties"/>
-		
+
 		<!-- read build number -->
 		<buildnumber file="${build.dir}/BUILD" />
 
@@ -77,16 +77,16 @@
 
 	</target>
 
-  
-  
+
+
 	<target depends="init" name="cvs" description="performs cvs update">
 		<exec executable="cvs" failonerror="true" dir="${basedir}">
 			<arg line="update -dP" />
 		</exec>
 	</target>
 
-  
-  
+
+
 	<target depends="init" name="compile" description="compiles everything">
 
 		<mkdir dir="${class.dir}" />
@@ -116,8 +116,8 @@
 
 	</target>
 
-  
-  
+
+
 	<!-- Libs nur dann hinzufuegen, wenn sie existieren -->
 	<target name="addlib" if="havelib">
 		<mkdir dir="${project.zipdir}/lib" />
@@ -132,8 +132,8 @@
 		</copy>
 	</target>
 
-  
-  
+
+
 	<target depends="compile" name="jar" description="generates the jar file">
 
 		<mkdir dir="${project.release}" />
@@ -154,7 +154,7 @@
 
 	  <antcall target="addlib"/>
 		<antcall target="addwebapps"/>
-			
+
     <copy file="plugin.xml" todir="${project.zipdir}" />
 		<copy file="${build.dir}/COPYING" todir="${project.zipdir}" />
     <copy file="${build.dir}/README.TXT" todir="${project.zipdir}" />
@@ -169,8 +169,8 @@
 
 	</target>
 
-  
-  
+
+
   <target depends="compile" name="api" description="generates the api jar file">
 
     <mkdir dir="${project.release}" />
@@ -190,8 +190,8 @@
     </jar>
   </target>
 
-  
-  
+
+
 	<target depends="init" name="src" description="build source package, depends compile target to make sure, the code has no errors">
 		<mkdir dir="${project.release}" />
 		<mkdir dir="${project.tmp}/${define.pluginname}" />
@@ -202,6 +202,7 @@
         <include name="plugin.xml" />
 				<include name="${lib.dir}/**" />
 				<include name="${src.dir}/**" />
+        <include name="${webapps.dir}/**" />
 				<include name="${build.dir}/**" />
 				<exclude name="${build.dir}/BUILD" />
 			</fileset>
@@ -237,7 +238,7 @@
 
 	</target>
 
-  
+
 
 	<target name="clean" description="cleanup">
 		<delete dir="${project.tmp}" />
@@ -246,7 +247,7 @@
 	</target>
 
 
-	
+
   <target name="sign" description="signs the jar/zip file">
 		<checksum file="${project.release}/${define.zipfilename}" />
 		<checksum file="${project.release}/${define.srcfilename}" />
@@ -259,16 +260,16 @@
 		</exec>
 	</target>
 
-  
-  
+
+
 	<target depends="init,compile,cvstag,jar,api,javadoc,src,sign,clean" description="build an official release" name="all" />
 
-  
-  
+
+
 	<target depends="init,compile,jar,api,clean" description="build inofficial release" name="fast" />
 
-  
-  
+
+
 	<target depends="init,cvs,compile,jar,javadoc,src" description="build nightly build" name="nightly">
 		<mkdir dir="${project.nightly}" />
 
