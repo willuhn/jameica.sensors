@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/devices/Sensor.java,v $
- * $Revision: 1.2 $
- * $Date: 2009/09/08 10:38:00 $
+ * $Revision: 1.3 $
+ * $Date: 2009/09/28 14:26:47 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -18,10 +18,51 @@ package de.willuhn.jameica.sensors.devices;
  */
 public class Sensor<T> implements UniqueItem
 {
+  /**
+   * Default-Typ von Messwerten.
+   */
+  public final static Type TYPE_DEFAULT = Type.GAUGE;
+  
   private T value     = null;
   private String name = null;
   private String uuid = null;
+  private Type type   = TYPE_DEFAULT;
+  
   private Class<? extends Serializer> serializer = StringSerializer.class;
+  
+  /**
+   * Typ des Messwertes.
+   * Siehe auch http://wiki.secitec.net/doku.php?id=tutorials:rrdtool
+   * bzw. http://oss.oetiker.ch/rrdtool/tut/rrd-beginners.en.html
+   */
+  public enum Type
+  {
+    /**
+     * Speichert keine Veränderungen pro Zeitraum sondern die aktuellen Werte, 
+     * ohne irgendwelche Divisionen oder dergleichen.
+     * Das ist der Default-Wert.
+     */
+    GAUGE,
+    
+    /**
+     * Ansteigender Wert, der die Veränderungen über den Zeitraum zum vorherigen
+     * Wert speichert, z.B. Traffic-Counter bei einem Router.
+     */
+    COUNTER,
+    
+    /**
+     * Aehnlich zu COUNTER, nur werden auch negative Werte erlaubt
+     * (Z.Bsp. Veränderung von Festplattenspeicher).
+     */
+    DERIVE,
+    
+    /**
+     * Speichert ebenfalls die Veränderung über den Zeitraum, allerdings wird der
+     * vorherige Wert als 0 angenommen. Es speichert also nur den derzeitigen
+     * Wert, dividiert durch das Stepintervall.
+     */
+    ABSOLUTE
+  }
   
   /**
    * Liefert einen sprechenden Namen fuer den Sensor.
@@ -94,12 +135,33 @@ public class Sensor<T> implements UniqueItem
   {
     this.uuid = uuid;
   }
+  
+  /**
+   * Liefert den Typ des Messwertes.
+   * @return Typ des Messwertes.
+   */
+  public Type getType()
+  {
+    return this.type;
+  }
+  
+  /**
+   * Speichert den Typ des Messwertes.
+   * @param type Typ des Messwertes.
+   */
+  public void setType(Type type)
+  {
+    this.type = type;
+  }
 
 }
 
 
 /**********************************************************************
  * $Log: Sensor.java,v $
+ * Revision 1.3  2009/09/28 14:26:47  willuhn
+ * @N Unterstuetzung fuer die anderen Sensor-Typen von RRD
+ *
  * Revision 1.2  2009/09/08 10:38:00  willuhn
  * *** empty log message ***
  *

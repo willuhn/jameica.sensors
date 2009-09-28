@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/service/impl/RRDImpl.java,v $
- * $Revision: 1.6 $
- * $Date: 2009/08/25 00:05:22 $
+ * $Revision: 1.7 $
+ * $Date: 2009/09/28 14:26:46 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -38,6 +38,7 @@ import de.willuhn.jameica.sensors.devices.Device;
 import de.willuhn.jameica.sensors.devices.Measurement;
 import de.willuhn.jameica.sensors.devices.Sensor;
 import de.willuhn.jameica.sensors.devices.Sensorgroup;
+import de.willuhn.jameica.sensors.devices.Sensor.Type;
 import de.willuhn.jameica.sensors.messaging.MeasureMessage;
 import de.willuhn.jameica.sensors.service.RRD;
 import de.willuhn.jameica.system.Application;
@@ -282,7 +283,20 @@ public class RRDImpl implements RRD
       for (Sensor sensor:sensors)
       {
         // Fuer jeden Sensor eine Datasource mit der UUID als Name.
-        def.addDatasource(createRrdName(sensor.getUuid()),DsType.GAUGE, 2 * minutes * 60,Double.NaN,Double.NaN);
+        // Type ermitteln
+        DsType type = DsType.GAUGE;
+        try
+        {
+          Type t = sensor.getType();
+          if (t == null)
+            t = Sensor.TYPE_DEFAULT;
+          type = Enum.valueOf(DsType.class,t.name());
+        }
+        catch (Exception e)
+        {
+          Logger.error("unable to determine sensor type",e);
+        }
+        def.addDatasource(createRrdName(sensor.getUuid()),type, 2 * minutes * 60,Double.NaN,Double.NaN);
       }
       db = new RrdDb(def);
     }
@@ -380,6 +394,9 @@ public class RRDImpl implements RRD
 
 /**********************************************************************
  * $Log: RRDImpl.java,v $
+ * Revision 1.7  2009/09/28 14:26:46  willuhn
+ * @N Unterstuetzung fuer die anderen Sensor-Typen von RRD
+ *
  * Revision 1.6  2009/08/25 00:05:22  willuhn
  * *** empty log message ***
  *
