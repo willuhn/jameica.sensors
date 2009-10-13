@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/service/impl/RRDImpl.java,v $
- * $Revision: 1.8 $
- * $Date: 2009/10/13 15:51:04 $
+ * $Revision: 1.9 $
+ * $Date: 2009/10/13 16:46:14 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -17,6 +17,7 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -108,9 +109,9 @@ public class RRDImpl implements RRD
   }
   
   /**
-   * @see de.willuhn.jameica.sensors.service.RRD#renderGroup(de.willuhn.jameica.sensors.devices.Device, de.willuhn.jameica.sensors.devices.Sensorgroup, java.util.Date, java.util.Date)
+   * @see de.willuhn.jameica.sensors.service.RRD#render(de.willuhn.jameica.sensors.devices.Device, de.willuhn.jameica.sensors.devices.Sensorgroup, de.willuhn.jameica.sensors.devices.Sensor, java.util.Date, java.util.Date)
    */
-  public byte[] renderGroup(Device device, Sensorgroup group, Date start, Date end) throws RemoteException
+  public byte[] render(Device device, Sensorgroup group, Sensor sensor, Date start, Date end) throws RemoteException
   {
     String basedir = Application.getPluginLoader().getPlugin(Plugin.class).getResources().getWorkPath();
     File deviceDir = new File(basedir,device.getUuid());
@@ -124,12 +125,16 @@ public class RRDImpl implements RRD
     // um in der Chartgrafik ordentliche Labels anzuzeigen, bauen
     // wir uns hier eine Map fuers Reverse-Lookup
     Map<String,Sensor> sensorMap = new HashMap<String,Sensor>();
-    List<Sensor> sensors = group.getSensors();
-    for (Sensor sensor:sensors)
+    List<Sensor> sensors = new ArrayList<Sensor>();
+    if (sensor != null)
+      sensors.add(sensor);
+    else
+      sensors.addAll(group.getSensors());
+
+    for (Sensor s:sensors)
     {
-      sensorMap.put(createRrdName(sensor.getUuid()),sensor);
+      sensorMap.put(createRrdName(s.getUuid()),s);
     }
-    
     
     RrdGraphDef gd = new RrdGraphDef();
 
@@ -147,15 +152,15 @@ public class RRDImpl implements RRD
         String[] names = db.getDsNames();
         for (int i=0;i<names.length;++i)
         {
-          Sensor sensor = sensorMap.get(names[i]); // Das sollte jetzt der zugehoerige Sensor sein.
-          if (sensor == null)
+          Sensor s = sensorMap.get(names[i]); // Das sollte jetzt der zugehoerige Sensor sein.
+          if (s == null)
           {
             Logger.warn(rrd.getAbsolutePath() + " contains datasource " + names[i] + ", but according sensor no longer exists, skipping");
             continue;
           }
           int[] color = ColorGenerator.create(ColorGenerator.PALETTE_OFFICE + i);
           gd.datasource(names[i],rrd.getAbsolutePath(),names[i],map(group.getConsolidation()));
-          gd.line(names[i],new Color(color[0],color[1],color[2]),sensor.getName(),2);
+          gd.line(names[i],new Color(color[0],color[1],color[2]),s.getName(),2);
         }
       }
       finally
@@ -437,6 +442,9 @@ public class RRDImpl implements RRD
 
 /**********************************************************************
  * $Log: RRDImpl.java,v $
+ * Revision 1.9  2009/10/13 16:46:14  willuhn
+ * @N Graph pro Sensor zeichnen
+ *
  * Revision 1.8  2009/10/13 15:51:04  willuhn
  * @N Sensor-API um Konsolidierungsfunktion erweitert
  *

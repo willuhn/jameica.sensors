@@ -27,7 +27,7 @@
           </tr>
           #foreach($sensor in $sensors)
             <tr>
-              <td>$sensor.name</td>
+              <td><a href="charts?device=$device.uuid&group=$group.uuid&sensor=$sensor.uuid">$sensor.name</a></td>
               <td style="text-align: right">$c.format($sensor)</td>
             </tr>
           #end

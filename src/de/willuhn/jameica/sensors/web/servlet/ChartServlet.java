@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/web/servlet/ChartServlet.java,v $
- * $Revision: 1.1 $
- * $Date: 2009/08/22 00:03:42 $
+ * $Revision: 1.2 $
+ * $Date: 2009/10/13 16:46:14 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 import de.willuhn.jameica.sensors.Plugin;
 import de.willuhn.jameica.sensors.devices.Device;
 import de.willuhn.jameica.sensors.devices.Measurement;
+import de.willuhn.jameica.sensors.devices.Sensor;
 import de.willuhn.jameica.sensors.devices.Sensorgroup;
 import de.willuhn.jameica.sensors.messaging.LiveMeasurement;
 import de.willuhn.jameica.sensors.service.RRD;
@@ -70,6 +71,8 @@ public class ChartServlet extends HttpServlet
     if (group == null || group.length() == 0)
       throw new ServletException("parameter 'group' missing");
     
+    String sensor = request.getParameter("sensor");
+
     // Checken, ob optionale Parameter vorhanden sind
     String from = request.getParameter("from");
     Date start = null;
@@ -103,6 +106,7 @@ public class ChartServlet extends HttpServlet
     // aber das RRD-Archiv noch da ist
     Device d      = null;
     Sensorgroup g = null;
+    Sensor s      = null;
     Map<Device,Measurement> values = LiveMeasurement.getValues();
     Iterator<Device> it = values.keySet().iterator();
     while (it.hasNext() && g == null)
@@ -122,6 +126,21 @@ public class ChartServlet extends HttpServlet
           {
             // gefunden
             g = sg;
+            
+            // wir checken noch, ob wir den Sensor hier finden, falls einer
+            // angegeben ist
+            if (sensor != null && sensor.length() > 0)
+            {
+              List<Sensor> sensors = sg.getSensors();
+              for (Sensor s2:sensors)
+              {
+                if (sensor.equals(s2.getUuid()))
+                {
+                  s = s2;
+                  break;
+                }
+              }
+            }
             break;
           }
         }
@@ -136,15 +155,13 @@ public class ChartServlet extends HttpServlet
     try
     {
       RRD rrd = (RRD) Application.getServiceFactory().lookup(Plugin.class,"rrd");
-      byte[] image = rrd.renderGroup(d,g,start,end);
+      byte[] image = rrd.render(d,g,s,start,end);
       
       response.setContentType("image/png"); // Die Information sollte vom RRD-Service kommen
       response.setContentLength(image.length);
       OutputStream os = response.getOutputStream();
       os.write(image);
       os.flush();
-      
-      // TODO: Muss ich das machen oder uebernimmt das Jetty?
       os.close();
     }
     catch (Exception e)
@@ -159,6 +176,9 @@ public class ChartServlet extends HttpServlet
 
 /**********************************************************************
  * $Log: ChartServlet.java,v $
+ * Revision 1.2  2009/10/13 16:46:14  willuhn
+ * @N Graph pro Sensor zeichnen
+ *
  * Revision 1.1  2009/08/22 00:03:42  willuhn
  * @N Das Zeichnen der Charts funktioniert! ;)
  *

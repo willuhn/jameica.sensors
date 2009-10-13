@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/service/RRD.java,v $
- * $Revision: 1.3 $
- * $Date: 2009/08/22 00:03:42 $
+ * $Revision: 1.4 $
+ * $Date: 2009/10/13 16:46:14 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -18,6 +18,7 @@ import java.util.Date;
 
 import de.willuhn.datasource.Service;
 import de.willuhn.jameica.sensors.devices.Device;
+import de.willuhn.jameica.sensors.devices.Sensor;
 import de.willuhn.jameica.sensors.devices.Sensorgroup;
 
 /**
@@ -26,35 +27,26 @@ import de.willuhn.jameica.sensors.devices.Sensorgroup;
 public interface RRD extends Service
 {
   /**
-   * Erzeugt eine Chartgrafik fuer eine Sensor-Gruppe.
+   * Erzeugt eine Chartgrafik fuer die Sensoren.
    * @param device Devices.
    * @param group Sensor-Gruppe.
+   * @param sensor der zu zeichnende Sensor.
+   * Wird keiner angegeben, werden Graphen fuer alle Sensoren aus der Gruppe gezeichnet.
+   * Andernfalls nur fuer diesen einen.
    * @param start Start-Datum.
    * @param end End-Datum.
    * @return die erzeugte Grafik im PNG-Format.
    * @throws RemoteException wenn es zu einem Fehler kam oder keine Daten vorliegen.
    */
-  public byte[] renderGroup(Device device, Sensorgroup group,Date start, Date end) throws RemoteException;
-
-  /**
-   * Erzeugt eine Chartgrafik fuer einen einzelnen Sensor.
-   * @param deviceId UUID des Devices.
-   * @param sensordId UUID der Sensor-Gruppe.
-   * @param start Start-Datum.
-   * @param end End-Datum.
-   * @return die erzeugte Grafik im PNG-Format.
-   * @throws RemoteException wenn es zu einem Fehler kam oder keine Daten vorliegen.
-   */
-  // TODO: Noch implementieren.
-  // Da fuer jeden Sensor nochmal extra RRD-Daten gespeichert
-  // (also einmal zusammen mit den anderen Sensoren aus seiner Gruppe und dann nochmal
-  // einzeln) stehen die Werte schon bereit.
-  // public byte[] renderSensor(String deviceId, String groupId,Date start, Date end) throws RemoteException;
+  public byte[] render(Device device, Sensorgroup group, Sensor sensor, Date start, Date end) throws RemoteException;
 }
 
 
 /**********************************************************************
  * $Log: RRD.java,v $
+ * Revision 1.4  2009/10/13 16:46:14  willuhn
+ * @N Graph pro Sensor zeichnen
+ *
  * Revision 1.3  2009/08/22 00:03:42  willuhn
  * @N Das Zeichnen der Charts funktioniert! ;)
  *
