@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/service/impl/RRDImpl.java,v $
- * $Revision: 1.7 $
- * $Date: 2009/09/28 14:26:46 $
+ * $Revision: 1.8 $
+ * $Date: 2009/10/13 15:51:04 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -39,6 +39,7 @@ import de.willuhn.jameica.sensors.devices.Measurement;
 import de.willuhn.jameica.sensors.devices.Sensor;
 import de.willuhn.jameica.sensors.devices.Sensorgroup;
 import de.willuhn.jameica.sensors.devices.Sensor.Type;
+import de.willuhn.jameica.sensors.devices.Sensorgroup.Consolidation;
 import de.willuhn.jameica.sensors.messaging.MeasureMessage;
 import de.willuhn.jameica.sensors.service.RRD;
 import de.willuhn.jameica.system.Application;
@@ -134,6 +135,8 @@ public class RRDImpl implements RRD
 
     try
     {
+      // Fuer jeden Sensor eine Datasource mit der UUID als Name.
+
       //////////////////////////////////////////////////////////////////////////
       // Wir holen uns aus der RRD-Datei die Datasources, um die Plotter
       // zum Chart hizuzufuegen
@@ -151,7 +154,7 @@ public class RRDImpl implements RRD
             continue;
           }
           int[] color = ColorGenerator.create(ColorGenerator.PALETTE_OFFICE + i);
-          gd.datasource(names[i],rrd.getAbsolutePath(),names[i],ConsolFun.AVERAGE);
+          gd.datasource(names[i],rrd.getAbsolutePath(),names[i],map(group.getConsolidation()));
           gd.line(names[i],new Color(color[0],color[1],color[2]),sensor.getName(),2);
         }
       }
@@ -220,14 +223,14 @@ public class RRDImpl implements RRD
       {
         // Jepp, wir haben eine. Dann erstellen wir eine RRD-Datei fuer die Gruppe.
         File rrdFile = new File(deviceDir,group.getUuid() + ".rrd");
-        store(rrdFile,sensors.toArray(new Sensor[sensors.size()]));
+        store(rrdFile,group.getConsolidation(),sensors.toArray(new Sensor[sensors.size()]));
       }
 
       // Und jetzt noch die fuer jeden Sensor einzeln.
       for (Sensor s:sensors)
       {
         File rrdFile = new File(deviceDir,s.getUuid() + ".rrd");
-        store(rrdFile,s);
+        store(rrdFile,group.getConsolidation(),s);
       }
     }
   }
@@ -236,13 +239,16 @@ public class RRDImpl implements RRD
    * Schreibt 1 - x Sensoren in die angegebene RRD-Datei.
    * Falls die Datei noch nicht existiert, wird sie automatisch angelegt.
    * @param rrdFile die RRD-Datei.
+   * @param con die Konsolidierungsfunktion.
    * @param sensors die Sensoren.
    * @throws Exception
    */
-  private void store(File rrdFile,Sensor... sensors) throws Exception
+  private void store(File rrdFile,Consolidation con, Sensor... sensors) throws Exception
   {
     RrdDb db = null;
 
+    ConsolFun fun = map(con);
+    
     if (!rrdFile.exists())
     {
       Logger.info("creating new rrd file " + rrdFile.getAbsolutePath());
@@ -257,7 +263,7 @@ public class RRDImpl implements RRD
       // Aufloesung. Per Default sind das Werte alle 5 Minuten.
       int rows = 60 / minutes; // Anzahl der Messwerte in einer Stunde (12)
       rows *= 24; // Anzahl der Messwerte an einem Tag (288)
-      def.addArchive(ConsolFun.AVERAGE,0.5,1,rows);
+      def.addArchive(fun,0.5,1,rows);
 
       // Bis maximal eine Woche nehmen wir Stunden-Mittelwerte. Heisst:
       // Bei Werten, die max. 7 Tage alte sind, werden die 12 Messungen (von 1 Stunde)
@@ -266,37 +272,25 @@ public class RRDImpl implements RRD
       // Der letzte Parameter gibt an, wie viele von denen aufgehoben werden
       // sollen. Konkret.
       rows = 24 * 7; // 24h (1 pro Stunde) * 7 Tage
-      def.addArchive(ConsolFun.AVERAGE,0.5,(60 / minutes),rows);
+      def.addArchive(fun,0.5,(60 / minutes),rows);
       
       // Bis maximal einen Monat nehmen wir 12h-Mittelwerte. Heisst:
       // Ein Tag besteht dann noch aus 2 Messwerten
       rows = 2 * 30; // 24h (2 pro Tag) * 30 Tage
-      def.addArchive(ConsolFun.AVERAGE,0.5,(12 * 60) / minutes,rows);
+      def.addArchive(fun,0.5,(12 * 60) / minutes,rows);
 
       // Alles, was noch aelter ist (also aelter als eine Woche), wird nur noch
       // mit taggenauer Aufloesung gespeichert. Ein Tag hat 288 5-Minutenhaeppchen,
       // (24 * 60 / 5).
       // Wir heben sie fuer 20 Jahre auf ;) Solange gibts Java wahrscheinlich gar nicht mehr ;)
       rows = 20 * 365;
-      def.addArchive(ConsolFun.AVERAGE,0.5,(24 * 60 / minutes),rows);
+      def.addArchive(fun,0.5,(24 * 60 / minutes),rows);
 
       for (Sensor sensor:sensors)
       {
         // Fuer jeden Sensor eine Datasource mit der UUID als Name.
         // Type ermitteln
-        DsType type = DsType.GAUGE;
-        try
-        {
-          Type t = sensor.getType();
-          if (t == null)
-            t = Sensor.TYPE_DEFAULT;
-          type = Enum.valueOf(DsType.class,t.name());
-        }
-        catch (Exception e)
-        {
-          Logger.error("unable to determine sensor type",e);
-        }
-        def.addDatasource(createRrdName(sensor.getUuid()),type, 2 * minutes * 60,Double.NaN,Double.NaN);
+        def.addDatasource(createRrdName(sensor.getUuid()),map(sensor.getType()), 2 * minutes * 60,Double.NaN,Double.NaN);
       }
       db = new RrdDb(def);
     }
@@ -359,6 +353,55 @@ public class RRDImpl implements RRD
   }
   
   /**
+   * Mappt unsere Konsolidierungsfunktion auf die von RRDJ4.
+   * Das machen wir nur aus einem Grund: In der Device-API sollen
+   * sich keine Referenzen auf RRD4J befinden. Sie soll absolut frei
+   * von 3rd-Party-Libs sein.
+   * @param c unsere Konsolidierungsfunktion.
+   * @return die Konsolidierungsfunktion von RRD4J.
+   */
+  private ConsolFun map(Consolidation c)
+  {
+    // Konsolidierungsfunktion ermitteln
+    ConsolFun fun = ConsolFun.AVERAGE;
+    
+    try
+    {
+      if (c == null)
+        c = Sensorgroup.CONSOLIDATION_DEFAULT;
+      fun = Enum.valueOf(ConsolFun.class,c.name());
+    }
+    catch (Exception e)
+    {
+      Logger.error("unable to determine sensor type",e);
+    }
+    
+    return fun;
+  }
+  
+  /**
+   * Mappt unseren Sensor-Typ auf den von RRD4J.
+   * @param t unser Sensor-Typ.
+   * @return der Sensor-Typ von RRD4J.
+   */
+  private DsType map(Type t)
+  {
+    DsType type = DsType.GAUGE;
+    try
+    {
+      if (t == null)
+        t = Sensor.TYPE_DEFAULT;
+      type = Enum.valueOf(DsType.class,t.name());
+    }
+    catch (Exception e)
+    {
+      Logger.error("unable to determine sensor type",e);
+    }
+    
+    return type;
+  }
+  
+  /**
    * Mit dem Message-Consumer abonnieren wir die aktuellen Messwerte fuer die Archivierung.
    */
   private class MyMessageConsumer implements MessageConsumer
@@ -394,6 +437,9 @@ public class RRDImpl implements RRD
 
 /**********************************************************************
  * $Log: RRDImpl.java,v $
+ * Revision 1.8  2009/10/13 15:51:04  willuhn
+ * @N Sensor-API um Konsolidierungsfunktion erweitert
+ *
  * Revision 1.7  2009/09/28 14:26:46  willuhn
  * @N Unterstuetzung fuer die anderen Sensor-Typen von RRD
  *

@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/devices/Sensorgroup.java,v $
- * $Revision: 1.3 $
- * $Date: 2009/09/08 10:38:00 $
+ * $Revision: 1.4 $
+ * $Date: 2009/10/13 15:51:04 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -21,10 +21,52 @@ import java.util.List;
  */
 public class Sensorgroup implements UniqueItem
 {
+  /**
+   * Default-Konsolidierungsfunktion.
+   */
+  public final static Consolidation CONSOLIDATION_DEFAULT = Consolidation.AVERAGE;
+
   private String name = null;
   private String uuid = null;
+  private Consolidation consolidation = CONSOLIDATION_DEFAULT;
   
   private List<Sensor> sensors = null;
+  
+  /**
+   * Die zu verwendende Konsolidierungsfunktion.
+   */
+  public enum Consolidation
+  {
+    /**
+     * Durchschnittswerte bilden.
+     */
+    AVERAGE,
+    
+    /**
+     * Minimum-Werte.
+     */
+    MIN, 
+    
+    /**
+     * Maximum-Werte.
+     */
+    MAX,
+    
+    /**
+     * Letzter Wert.
+     */
+    LAST, 
+    
+    /**
+     * Erster Wert.
+     */
+    FIRST,
+    
+    /**
+     * Summe.
+     */
+    TOTAL
+  }
   
   /**
    * Liefert einen sprechenden Namen fuer die Sensor-Gruppe.
@@ -72,11 +114,32 @@ public class Sensorgroup implements UniqueItem
   {
     this.uuid = uuid;
   }
+
+  /**
+   * Liefert die Konsolidierungsfunktion.
+   * @return die Konsolidierungsfunktion.
+   */
+  public Consolidation getConsolidation()
+  {
+    return this.consolidation;
+  }
+
+  /**
+   * Speicher die Konsolidierungsfunktion.
+   * @param consolidation die Konsolidierungsfunktion.
+   */
+  public void setConsolidation(Consolidation consolidation)
+  {
+    this.consolidation = consolidation;
+  }
 }
 
 
 /**********************************************************************
  * $Log: Sensorgroup.java,v $
+ * Revision 1.4  2009/10/13 15:51:04  willuhn
+ * @N Sensor-API um Konsolidierungsfunktion erweitert
+ *
  * Revision 1.3  2009/09/08 10:38:00  willuhn
  * *** empty log message ***
  *
