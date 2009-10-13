@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/web/controller/Charts.java,v $
- * $Revision: 1.2 $
- * $Date: 2009/08/22 00:15:18 $
+ * $Revision: 1.3 $
+ * $Date: 2009/10/13 17:21:50 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -65,6 +65,17 @@ public class Charts
   }
   
   /**
+   * Liefert den UNIX-Timestamp von vor 6 Monaten.
+   * @return den UNIX-Timestamp von vor 6 Monaten.
+   */
+  public String getHalfYear()
+  {
+    long now = System.currentTimeMillis() / 1000L;
+    now -= (60 * 60 * 24 * 30 * 6);
+    return String.valueOf(now);
+  }
+
+  /**
    * Liefert den UNIX-Timestamp von vor 1 Jahr.
    * @return den UNIX-Timestamp von vor 1 Jahr.
    */
@@ -79,6 +90,9 @@ public class Charts
 
 /**********************************************************************
  * $Log: Charts.java,v $
+ * Revision 1.3  2009/10/13 17:21:50  willuhn
+ * @N Graph pro Sensor zeichnen
+ *
  * Revision 1.2  2009/08/22 00:15:18  willuhn
  * @B daemlich ;)
  *
