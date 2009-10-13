@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/service/impl/RRDImpl.java,v $
- * $Revision: 1.9 $
- * $Date: 2009/10/13 16:46:14 $
+ * $Revision: 1.10 $
+ * $Date: 2009/10/13 16:57:47 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -152,6 +152,13 @@ public class RRDImpl implements RRD
         String[] names = db.getDsNames();
         for (int i=0;i<names.length;++i)
         {
+          // Wenn ein konkreter Sensor angegeben ist, nehmen wir nur diesen einen
+          if (sensor != null)
+          {
+            if (!names[i].equals(createRrdName(sensor.getUuid())))
+              continue;
+          }
+          
           Sensor s = sensorMap.get(names[i]); // Das sollte jetzt der zugehoerige Sensor sein.
           if (s == null)
           {
@@ -442,6 +449,9 @@ public class RRDImpl implements RRD
 
 /**********************************************************************
  * $Log: RRDImpl.java,v $
+ * Revision 1.10  2009/10/13 16:57:47  willuhn
+ * *** empty log message ***
+ *
  * Revision 1.9  2009/10/13 16:46:14  willuhn
  * @N Graph pro Sensor zeichnen
  *
