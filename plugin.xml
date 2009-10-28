@@ -11,8 +11,8 @@
   <license>GPL - http://www.gnu.org/copyleft/gpl.html</license>
 
   <requires jameica="1.9+">
-    <import plugin="jameica.webtools"  version="1.1+" required="false" />
-    <import plugin="jameica.webadmin"  version="1.1+" required="false" />
+    <import plugin="jameica.webtools"  version="1.1+" required="true" />
+    <import plugin="jameica.webadmin"  version="1.1+" required="true" />
   </requires>
 
   <classfinder>
