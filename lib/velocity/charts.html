@@ -1,17 +1,20 @@
 #parse("includes/header.vm")
 
-<div id="breadcrumbs">
-  <a href="/sensors/">Home</a>
-</div>
-
-<h2>Charts</h2>
-
 #set($device = $!{request.getParameter("device")})
 #set($group  = $!{request.getParameter("group")})
 #set($sensor = $!{request.getParameter("sensor")})
 #if(!$sensor)
   #set($sensor="")
 #end
+
+<div id="breadcrumbs">
+  <a href="/sensors/">Home</a>
+  |
+  <a href="/webadmin/rest/sensors/value/$sensor">REST-URL</a>
+</div>
+
+<h2>Charts</h2>
+
 <table>
   <tr>
     <td>
