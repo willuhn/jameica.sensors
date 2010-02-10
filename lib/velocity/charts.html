@@ -9,8 +9,10 @@
 
 <div id="breadcrumbs">
   <a href="/sensors/">Home</a>
-  |
-  <a href="/webadmin/rest/sensors/value/$sensor">REST-URL</a>
+  #if($sensor != "")
+    |
+    <a href="/webadmin/rest/sensors/value/$sensor">REST-URL</a>
+  #end
 </div>
 
 <h2>Charts</h2>
