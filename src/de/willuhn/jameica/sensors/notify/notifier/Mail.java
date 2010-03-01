@@ -1,7 +1,7 @@
 /**********************************************************************
- * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/notify/Attic/MailNotifier.java,v $
+ * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/notify/notifier/Mail.java,v $
  * $Revision: 1.1 $
- * $Date: 2010/03/01 17:08:18 $
+ * $Date: 2010/03/01 18:12:23 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -9,7 +9,7 @@
  *
  **********************************************************************/
 
-package de.willuhn.jameica.sensors.notify;
+package de.willuhn.jameica.sensors.notify.notifier;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -28,20 +28,21 @@ import de.willuhn.jameica.sensors.Plugin;
 import de.willuhn.jameica.sensors.devices.Sensor;
 import de.willuhn.jameica.sensors.devices.Serializer;
 import de.willuhn.jameica.sensors.devices.StringSerializer;
+import de.willuhn.jameica.sensors.notify.Rule;
 import de.willuhn.jameica.system.Application;
 import de.willuhn.logging.Logger;
 
 /**
  * Implementierung eines Notifiers, der via eMail benachrichtigt.
  */
-public class MailNotifier implements Notifier
+public class Mail implements Notifier
 {
   /**
-   * @see de.willuhn.jameica.sensors.notify.Notifier#notify(de.willuhn.jameica.sensors.devices.Sensor, de.willuhn.jameica.sensors.notify.Rule, java.util.Map)
+   * @see de.willuhn.jameica.sensors.notify.notifier.Notifier#notify(de.willuhn.jameica.sensors.devices.Sensor, de.willuhn.jameica.sensors.notify.Rule, java.util.Map)
    */
   public void notify(Sensor sensor, Rule rule) throws Exception
   {
-    Map<String,String> params = rule.getNotifierParams();
+    Map<String,String> params = rule.getParams();
     
     if (params == null) // erspart uns unnoetige NULL-Checks
       params = new HashMap<String,String>();
@@ -144,7 +145,10 @@ public class MailNotifier implements Notifier
 
 
 /**********************************************************************
- * $Log: MailNotifier.java,v $
+ * $Log: Mail.java,v $
+ * Revision 1.1  2010/03/01 18:12:23  willuhn
+ * *** empty log message ***
+ *
  * Revision 1.1  2010/03/01 17:08:18  willuhn
  * @N Mail-Benachrichtigung via javax.mail
  *

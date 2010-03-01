@@ -1,7 +1,7 @@
 /**********************************************************************
- * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/notify/Attic/Notifier.java,v $
- * $Revision: 1.2 $
- * $Date: 2010/03/01 17:08:18 $
+ * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/notify/notifier/Notifier.java,v $
+ * $Revision: 1.1 $
+ * $Date: 2010/03/01 18:12:23 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -9,9 +9,10 @@
  *
  **********************************************************************/
 
-package de.willuhn.jameica.sensors.notify;
+package de.willuhn.jameica.sensors.notify.notifier;
 
 import de.willuhn.jameica.sensors.devices.Sensor;
+import de.willuhn.jameica.sensors.notify.Rule;
 
 /**
  * Interface fuer die verschiedenen Benachrichtigungsarten (Mail, Log, etc.).
@@ -33,6 +34,9 @@ public interface Notifier
 
 /**********************************************************************
  * $Log: Notifier.java,v $
+ * Revision 1.1  2010/03/01 18:12:23  willuhn
+ * *** empty log message ***
+ *
  * Revision 1.2  2010/03/01 17:08:18  willuhn
  * @N Mail-Benachrichtigung via javax.mail
  *

@@ -1,7 +1,7 @@
 /**********************************************************************
- * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/notify/Attic/Operator.java,v $
+ * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/notify/operator/Operator.java,v $
  * $Revision: 1.1 $
- * $Date: 2010/03/01 13:16:12 $
+ * $Date: 2010/03/01 18:12:23 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -9,7 +9,7 @@
  *
  **********************************************************************/
 
-package de.willuhn.jameica.sensors.notify;
+package de.willuhn.jameica.sensors.notify.operator;
 
 /**
  * Interface, welches entscheidet, ob der Sensor-Wert eine Benachrichtigung
@@ -35,6 +35,9 @@ public interface Operator
 
 /**********************************************************************
  * $Log: Operator.java,v $
+ * Revision 1.1  2010/03/01 18:12:23  willuhn
+ * *** empty log message ***
+ *
  * Revision 1.1  2010/03/01 13:16:12  willuhn
  * @N Erster Code fuer automatische Benachrichtigungen bei Limit-Ueberschreitungen von Sensoren.
  *

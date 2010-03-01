@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/notify/RuleProcessor.java,v $
- * $Revision: 1.1 $
- * $Date: 2010/03/01 17:08:18 $
+ * $Revision: 1.2 $
+ * $Date: 2010/03/01 18:12:23 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -30,6 +30,8 @@ import de.willuhn.jameica.sensors.devices.Sensor;
 import de.willuhn.jameica.sensors.devices.Sensorgroup;
 import de.willuhn.jameica.sensors.devices.Serializer;
 import de.willuhn.jameica.sensors.devices.StringSerializer;
+import de.willuhn.jameica.sensors.notify.notifier.Notifier;
+import de.willuhn.jameica.sensors.notify.operator.Operator;
 import de.willuhn.jameica.system.Application;
 import de.willuhn.jameica.util.XPathEmu;
 import de.willuhn.logging.Logger;
@@ -152,12 +154,12 @@ public class RuleProcessor
     List<Rule> rules = new ArrayList<Rule>();
 
     // Wir suchen im Pluginverzeichnis und im Work-Verzeichnis. Jeweils
-    // im Unterverzeichnis "notify"
+    // im Unterverzeichnis "rules"
     
-    File sys = new File(Application.getPluginLoader().getManifest(Plugin.class).getPluginDir(),"notify");
+    File sys = new File(Application.getPluginLoader().getManifest(Plugin.class).getPluginDir(),"rules");
     rules.addAll(findRules(sys));
     
-    File user = new File(Application.getPluginLoader().getPlugin(Plugin.class).getResources().getWorkPath(),"notify");
+    File user = new File(Application.getPluginLoader().getPlugin(Plugin.class).getResources().getWorkPath(),"rules");
     rules.addAll(findRules(user));
     
     return rules;
@@ -228,6 +230,9 @@ public class RuleProcessor
 
 /**********************************************************************
  * $Log: RuleProcessor.java,v $
+ * Revision 1.2  2010/03/01 18:12:23  willuhn
+ * *** empty log message ***
+ *
  * Revision 1.1  2010/03/01 17:08:18  willuhn
  * @N Mail-Benachrichtigung via javax.mail
  *

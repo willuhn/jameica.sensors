@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/notify/Rule.java,v $
- * $Revision: 1.1 $
- * $Date: 2010/03/01 13:16:12 $
+ * $Revision: 1.2 $
+ * $Date: 2010/03/01 18:12:23 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -15,6 +15,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import de.willuhn.jameica.sensors.Plugin;
+import de.willuhn.jameica.sensors.notify.notifier.Notifier;
+import de.willuhn.jameica.sensors.notify.operator.Operator;
 import de.willuhn.jameica.system.Application;
 import de.willuhn.jameica.util.XPathEmu;
 import net.n3.nanoxml.IXMLElement;
@@ -80,29 +82,22 @@ public class Rule
   }
   
   /**
-   * Liefert die optionalen Zustell-Parameter fuer den Notifier.
-   * @return optionale Zustell-Parameter.
+   * Liefert die optionalen Regel-Parameter.
+   * @return optionale Regel-Parameter.
    * @throws Exception
    */
-  public Map<String,String> getNotifierParams() throws Exception
+  public Map<String,String> getParams() throws Exception
   {
     XPathEmu xpath = new XPathEmu(this.node);
     
-    IXMLElement[] params = xpath.getElements("notifier/params/param");
+    IXMLElement[] params = xpath.getElements("params/param");
     Map<String,String> map = new HashMap<String,String>();
     for (IXMLElement e:params)
     {
-      IXMLElement i = e.getFirstChildNamed("name");
-      if (i == null)
-        continue;
-      
-      String name = i.getContent();
-      if (name == null || name.length() == 0)
-        continue;
-
-      IXMLElement value = e.getFirstChildNamed("value");
-      
-      map.put(name,value != null ? value.getContent() : null);
+      String name = e.getAttribute("name",null);
+      String value = e.getAttribute("value",null);
+      if (name != null && value != null)
+        map.put(name,value);
     }
     
     return map;
@@ -137,6 +132,9 @@ public class Rule
 
 /**********************************************************************
  * $Log: Rule.java,v $
+ * Revision 1.2  2010/03/01 18:12:23  willuhn
+ * *** empty log message ***
+ *
  * Revision 1.1  2010/03/01 13:16:12  willuhn
  * @N Erster Code fuer automatische Benachrichtigungen bei Limit-Ueberschreitungen von Sensoren.
  *

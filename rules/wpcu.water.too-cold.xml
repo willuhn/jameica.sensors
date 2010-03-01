@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<rules xmlns:wt="http://www.willuhn.de/schema/jameica-sensors-rule"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.willuhn.de/schema/jameica-sensors-rule http://www.willuhn.de/schema/jameica-sensors-rule-1.0.xsd ">
+
+  <rule>
+  
+    <!--
+      Sendet eine Email-Benachrichtigung, wenn die Warmwasser-Temperatur
+      unter 20 Grad faellt.
+    -->
+    <sensor>waterkotte.ai1.wpcu.device.temp.water.real</sensor>
+    <limit>20.0</limit>
+    <notifier>de.willuhn.jameica.sensors.notify.notifier.Mail</notifier>
+    <operator>de.willuhn.jameica.sensors.notify.operator.SmallerThan</operator>
+    
+    <params>
+      <param name="smtp.username"   value="" />
+      <param name="smtp.password"   value="" />
+      <param name="smtp.host"       value="localhost" />
+      
+      <param name="mail.subject"    value="" />
+      <param name="mail.sender"     value="root@localhost" />
+      <param name="mail.recipients" value="info@willuhn.de" />
+      <param name="mail.text"       value="" />
+    </params>
+  </rule>
+</rules>
