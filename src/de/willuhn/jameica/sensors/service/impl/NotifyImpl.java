@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/service/impl/NotifyImpl.java,v $
- * $Revision: 1.1 $
- * $Date: 2010/03/01 13:16:12 $
+ * $Revision: 1.2 $
+ * $Date: 2010/03/01 17:08:17 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -12,20 +12,11 @@
 package de.willuhn.jameica.sensors.service.impl;
 
 import java.rmi.RemoteException;
-import java.util.List;
 
 import de.willuhn.jameica.messaging.Message;
 import de.willuhn.jameica.messaging.MessageConsumer;
-import de.willuhn.jameica.sensors.devices.Measurement;
-import de.willuhn.jameica.sensors.devices.Sensor;
-import de.willuhn.jameica.sensors.devices.Sensorgroup;
-import de.willuhn.jameica.sensors.devices.Serializer;
-import de.willuhn.jameica.sensors.devices.StringSerializer;
 import de.willuhn.jameica.sensors.messaging.MeasureMessage;
-import de.willuhn.jameica.sensors.notify.Notifier;
-import de.willuhn.jameica.sensors.notify.Operator;
-import de.willuhn.jameica.sensors.notify.Rule;
-import de.willuhn.jameica.sensors.notify.RuleFinder;
+import de.willuhn.jameica.sensors.notify.RuleProcessor;
 import de.willuhn.jameica.sensors.service.Notify;
 import de.willuhn.jameica.system.Application;
 import de.willuhn.logging.Logger;
@@ -124,99 +115,8 @@ public class NotifyImpl implements Notify
      */
     public void handleMessage(Message message) throws Exception
     {
-      Measurement m = ((MeasureMessage) message).getMeasurement();
-      List<Rule> rules = new RuleFinder().getRules();
-      for (Rule r:rules)
-      {
-        Sensor s = findSensor(m,r.getSensor());
-        if (s == null)
-          continue;
-        
-        handleRule(s,r);
-      }
+      new RuleProcessor().process(((MeasureMessage)message).getMeasurement());
     }
-    
-    /**
-     * Bearbeitet die Benachrichtigungsregel.
-     * @param s der Sensor.
-     * @param r die Regel.
-     */
-    private void handleRule(Sensor s,Rule r)
-    {
-      try
-      {
-        ////////////////////////////////////////////////////////////////////////
-        // NULL-Checks
-        String limit = r.getLimit();
-        if (limit == null || limit.length() == 0)
-        {
-          Logger.warn("rule for sensor " + r.getSensor() + " has no limit");
-          return;
-        }
-        
-        Notifier n = r.getNotifier();
-        if (n == null)
-        {
-          Logger.warn("rule for sensor " + r.getSensor() + " has no notifier");
-          return;
-        }
-        
-        Operator o = r.getOperator();
-        if (o == null)
-        {
-          Logger.warn("rule for sensor " + r.getSensor() + " has no operator");
-          return;
-        }
-        ////////////////////////////////////////////////////////////////////////
-        
-        Class<? extends Serializer> c = s.getSerializer();
-        if (c == null)
-          c = StringSerializer.class;
-        Serializer serializer = c.newInstance();
-        
-        Object oLimit = serializer.unserialize(limit);
-        Object oValue = s.getValue();
-        if (o.matches(oValue,oLimit))
-        {
-          Logger.info("limit exceeded for sensor " + s.getUuid() + ". current value: " + serializer.format(oValue) + ", limit: " + serializer.format(oLimit) + ". Notifying via " + n.getClass().getName());
-          n.notify(s,r.getNotifierParams());
-        }
-      }
-      catch (Exception e)
-      {
-        Logger.error("error while processing notify rule",e);
-      }
-    }
-    
-    /**
-     * Durchsucht die Messung nach dem angegebenen Sensor.
-     * @param m die Messung.
-     * @param uuid der Sensor.
-     * @return der Sensor oder NULL, wenn er nicht gefunden wurde.
-     */
-    private Sensor findSensor(Measurement m, String uuid)
-    {
-      if (uuid == null || uuid.length() == 0)
-      {
-        Logger.warn("rule contains no sensor uuid, skipping");
-        return null;
-      }
-      
-      List<Sensorgroup> groups = m.getSensorgroups();
-      for (Sensorgroup g:groups)
-      {
-        List<Sensor> sensors = g.getSensors();
-        for (Sensor s:sensors)
-        {
-          if (uuid.equals(s.getUuid()))
-            return s;
-        }
-      }
-      
-      Logger.warn("sensor uuid " + uuid + " not found in measurement");
-      return null;
-    }
-    
   }
 
 }
@@ -225,6 +125,9 @@ public class NotifyImpl implements Notify
 
 /**********************************************************************
  * $Log: NotifyImpl.java,v $
+ * Revision 1.2  2010/03/01 17:08:17  willuhn
+ * @N Mail-Benachrichtigung via javax.mail
+ *
  * Revision 1.1  2010/03/01 13:16:12  willuhn
  * @N Erster Code fuer automatische Benachrichtigungen bei Limit-Ueberschreitungen von Sensoren.
  *
