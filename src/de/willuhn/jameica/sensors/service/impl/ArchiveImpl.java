@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/service/impl/ArchiveImpl.java,v $
- * $Revision: 1.11 $
- * $Date: 2009/09/15 17:00:17 $
+ * $Revision: 1.12 $
+ * $Date: 2010/03/01 00:19:04 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -146,6 +146,7 @@ public class ArchiveImpl implements Archive, Configurable
     finally
     {
       this.entityManager = null;
+      this.consumer = null;
     }
   }
   
@@ -367,6 +368,9 @@ public class ArchiveImpl implements Archive, Configurable
 
 /**********************************************************************
  * $Log: ArchiveImpl.java,v $
+ * Revision 1.12  2010/03/01 00:19:04  willuhn
+ * *** empty log message ***
+ *
  * Revision 1.11  2009/09/15 17:00:17  willuhn
  * @N Konfigurierbarkeit aller Module ueber das Webfrontend
  *
