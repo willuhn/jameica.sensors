@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/notify/RuleProcessor.java,v $
- * $Revision: 1.2 $
- * $Date: 2010/03/01 18:12:23 $
+ * $Revision: 1.3 $
+ * $Date: 2010/03/01 23:51:07 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -33,6 +33,7 @@ import de.willuhn.jameica.sensors.devices.StringSerializer;
 import de.willuhn.jameica.sensors.notify.notifier.Notifier;
 import de.willuhn.jameica.sensors.notify.operator.Operator;
 import de.willuhn.jameica.system.Application;
+import de.willuhn.jameica.system.Settings;
 import de.willuhn.jameica.util.XPathEmu;
 import de.willuhn.logging.Logger;
 
@@ -42,11 +43,23 @@ import de.willuhn.logging.Logger;
  */
 public class RuleProcessor
 {
+  private static Settings settings = new Settings(RuleProcessor.class);
+  
+  private Measurement measurement = null;
+  
   /**
-   * Fuehrt die Regelverarbeitung fuer die uebergebene Messung durch.
+   * ct.
    * @param m die Messung.
    */
-  public void process(Measurement m)
+  public RuleProcessor(Measurement m)
+  {
+    this.measurement = m;
+  }
+  
+  /**
+   * Fuehrt die Regelverarbeitung fuer die uebergebene Messung durch.
+   */
+  public void process()
   {
     List<Rule> rules = this.findRules();
     for (Rule r:rules)
@@ -54,7 +67,7 @@ public class RuleProcessor
       Sensor s = null;
       try
       {
-        s = findSensor(m,r.getSensor());
+        s = findSensor(r.getSensor());
         if (s == null)
           continue;
         
@@ -80,7 +93,7 @@ public class RuleProcessor
   {
     ////////////////////////////////////////////////////////////////////////
     // NULL-Checks
-    String limit = r.getLimit();
+    String limit = getLimit(r);
     if (limit == null || limit.length() == 0)
     {
       Logger.warn("rule for sensor " + r.getSensor() + " has no limit");
@@ -102,35 +115,60 @@ public class RuleProcessor
     }
     ////////////////////////////////////////////////////////////////////////
     
+    ////////////////////////////////////////////////////////////////////////
+    // Serializer
     Class<? extends Serializer> c = s.getSerializer();
     if (c == null)
       c = StringSerializer.class;
     Serializer serializer = c.newInstance();
+    //
+    ////////////////////////////////////////////////////////////////////////
     
+    ////////////////////////////////////////////////////////////////////////
+    // Messwert und Limit
     Object oLimit = serializer.unserialize(limit);
     Object oValue = s.getValue();
+    ////////////////////////////////////////////////////////////////////////
+    
+    String subject = "[" + Application.getPluginLoader().getManifest(Plugin.class).getName() + "] " + s.getName();
+    String body = "Sensor name  : " + s.getName() + "\n" +
+                  "Sensor uuid  : " + s.getUuid() + "\n\n" +
+                  "Current Value: " + serializer.format(oValue) + "\n" +
+                  "Limit        : " + serializer.format(oLimit);
+
+    String id = r.getID();
+    boolean again = settings.getBoolean(id,false);
+    
     if (o.matches(oValue,oLimit))
     {
-      Logger.info("limit exceeded for sensor " + s.getUuid() + ". current value: " + serializer.format(oValue) + ", limit: " + serializer.format(oLimit) + ". Notifying via " + n.getClass().getName());
-      n.notify(s,r);
+      subject += " -" + (again ? " STILL " : " ") + "OUTSIDE limit. current value: " + serializer.format(oValue) + ", limit: " + serializer.format(oLimit);
+      Logger.info(subject);
+      settings.setAttribute(id,true); // Wir tragen den Vorfall in die Merkliste ein
+      n.outsideLimit(subject,body,r.getParams(),again);
+    }
+    else if (again)
+    {
+      subject += " - INSIDE limit. current value: " + serializer.format(oValue) + ", limit: " + serializer.format(oLimit);
+      Logger.info(subject);
+      settings.setAttribute(id,(String) null); // wir entfernen ihn aus der Merkliste. Das NULL bewirkt ein Loeschen aus der Datei
+      n.insideLimit(subject,body,r.getParams());
     }
   }
   
   /**
    * Durchsucht die Messung nach dem angegebenen Sensor.
-   * @param m die Messung.
    * @param uuid der Sensor.
    * @return der Sensor oder NULL, wenn er nicht gefunden wurde.
    */
-  private Sensor findSensor(Measurement m, String uuid)
+  private Sensor findSensor(String uuid)
   {
     if (uuid == null || uuid.length() == 0)
     {
-      Logger.warn("rule contains no sensor uuid, skipping");
+      Logger.warn("no sensor uuid given, skipping");
       return null;
     }
     
-    List<Sensorgroup> groups = m.getSensorgroups();
+    List<Sensorgroup> groups = this.measurement.getSensorgroups();
     for (Sensorgroup g:groups)
     {
       List<Sensor> sensors = g.getSensors();
@@ -144,7 +182,33 @@ public class RuleProcessor
     Logger.warn("sensor uuid " + uuid + " not found in measurement");
     return null;
   }
-
+  
+  /**
+   * Liefert den Limit-Wert der Regel.
+   * Die Funktion evaluiert evtl. vorhandene Ausdruecke im Limit-Wert.
+   * @param r die Regel.
+   * @return der Limit-Wert.
+   * @throws Exception
+   */
+  private String getLimit(Rule r) throws Exception
+  {
+    String limit = r.getLimit();
+    if (limit != null && limit.matches("\\{.*\\}"))
+    {
+      // Limit verweist auf den Wert eines anderen Sensors.
+      String uuid = limit.substring(0,limit.length()-1).substring(1);
+      Sensor s = findSensor(uuid);
+      if (s == null)
+        return null;
+      Object o = s.getValue();
+      Class<? extends Serializer> c = s.getSerializer();
+      if (c == null)
+        c = StringSerializer.class;
+      limit = o != null ? c.newInstance().format(o) : null;
+    }
+    return limit;
+  }
+  
   /**
    * Liefert die gefundenen Regeln.
    * @return Liste der gefundenen Regeln.
@@ -230,6 +294,10 @@ public class RuleProcessor
 
 /**********************************************************************
  * $Log: RuleProcessor.java,v $
+ * Revision 1.3  2010/03/01 23:51:07  willuhn
+ * @N Benachrichtigung, wenn Sensor zurueck im normalen Bereich ist
+ * @N Merken des letzten Notify-Status, sodass nur beim ersten mal eine Mail gesendet wird
+ *
  * Revision 1.2  2010/03/01 18:12:23  willuhn
  * *** empty log message ***
  *

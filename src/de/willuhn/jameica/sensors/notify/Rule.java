@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/notify/Rule.java,v $
- * $Revision: 1.2 $
- * $Date: 2010/03/01 18:12:23 $
+ * $Revision: 1.3 $
+ * $Date: 2010/03/01 23:51:07 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -104,6 +104,27 @@ public class Rule
   }
   
   /**
+   * Erzeugt einen Identifier fuer die Regel.
+   * @return ein Identifier.
+   * @throws Exception
+   */
+  String getID() throws Exception
+  {
+    StringBuffer sb = new StringBuffer();
+
+    sb.append(this.getSensor());
+
+    Operator o = this.getOperator();
+    if (o != null)
+      sb.append(o.getClass());
+
+    sb.append(this.getLimit());
+    
+    return sb.toString();
+  }
+
+
+  /**
    * Laedt und instanziiert die angegebene Klasse.
    * @param classname Name der Klasse.
    * @return Instanz.
@@ -132,6 +153,10 @@ public class Rule
 
 /**********************************************************************
  * $Log: Rule.java,v $
+ * Revision 1.3  2010/03/01 23:51:07  willuhn
+ * @N Benachrichtigung, wenn Sensor zurueck im normalen Bereich ist
+ * @N Merken des letzten Notify-Status, sodass nur beim ersten mal eine Mail gesendet wird
+ *
  * Revision 1.2  2010/03/01 18:12:23  willuhn
  * *** empty log message ***
  *

@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/service/impl/NotifyImpl.java,v $
- * $Revision: 1.2 $
- * $Date: 2010/03/01 17:08:17 $
+ * $Revision: 1.3 $
+ * $Date: 2010/03/01 23:51:07 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -115,7 +115,7 @@ public class NotifyImpl implements Notify
      */
     public void handleMessage(Message message) throws Exception
     {
-      new RuleProcessor().process(((MeasureMessage)message).getMeasurement());
+      new RuleProcessor(((MeasureMessage)message).getMeasurement()).process();
     }
   }
 
@@ -125,6 +125,10 @@ public class NotifyImpl implements Notify
 
 /**********************************************************************
  * $Log: NotifyImpl.java,v $
+ * Revision 1.3  2010/03/01 23:51:07  willuhn
+ * @N Benachrichtigung, wenn Sensor zurueck im normalen Bereich ist
+ * @N Merken des letzten Notify-Status, sodass nur beim ersten mal eine Mail gesendet wird
+ *
  * Revision 1.2  2010/03/01 17:08:17  willuhn
  * @N Mail-Benachrichtigung via javax.mail
  *

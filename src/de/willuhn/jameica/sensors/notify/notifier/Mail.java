@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/notify/notifier/Mail.java,v $
- * $Revision: 1.1 $
- * $Date: 2010/03/01 18:12:23 $
+ * $Revision: 1.2 $
+ * $Date: 2010/03/01 23:51:07 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -24,12 +24,6 @@ import javax.mail.Message.RecipientType;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import de.willuhn.jameica.sensors.Plugin;
-import de.willuhn.jameica.sensors.devices.Sensor;
-import de.willuhn.jameica.sensors.devices.Serializer;
-import de.willuhn.jameica.sensors.devices.StringSerializer;
-import de.willuhn.jameica.sensors.notify.Rule;
-import de.willuhn.jameica.system.Application;
 import de.willuhn.logging.Logger;
 
 /**
@@ -38,22 +32,36 @@ import de.willuhn.logging.Logger;
 public class Mail implements Notifier
 {
   /**
-   * @see de.willuhn.jameica.sensors.notify.notifier.Notifier#notify(de.willuhn.jameica.sensors.devices.Sensor, de.willuhn.jameica.sensors.notify.Rule, java.util.Map)
+   * @see de.willuhn.jameica.sensors.notify.notifier.Notifier#outsideLimit(java.lang.String, java.lang.String, java.util.Map, boolean)
    */
-  public void notify(Sensor sensor, Rule rule) throws Exception
+  public void outsideLimit(String subject, String description, Map<String,String> params, boolean again) throws Exception
   {
-    Map<String,String> params = rule.getParams();
+    // Wir schicken die Mail nur beim ersten Mal
+    if (again)
+      return;
     
+    send(subject,description,params);
+  }
+
+  /**
+   * @see de.willuhn.jameica.sensors.notify.notifier.Notifier#insideLimit(java.lang.String, java.lang.String, java.util.Map)
+   */
+  public void insideLimit(String subject, String description, Map<String,String> params) throws Exception
+  {
+    send(subject,description,params);
+  }
+  
+  /**
+   * Sendet die Mail.
+   * @param subject Betreff.
+   * @param description Beschreibungstext.
+   * @param params Zustellparameter.
+   * @throws Exception
+   */
+  private void send(String subject, String description, Map<String,String> params) throws Exception
+  {
     if (params == null) // erspart uns unnoetige NULL-Checks
       params = new HashMap<String,String>();
-    
-    Class<? extends Serializer> c = sensor.getSerializer();
-    if (c == null)
-      c = StringSerializer.class;
-    Serializer serializer = c.newInstance();
-
-    String value = serializer.format(sensor.getValue());
-    
 
     ////////////////////////////////////////////////////////////////////////////
     // Authentifizierung
@@ -82,18 +90,9 @@ public class Mail implements Notifier
 
     Session session = Session.getDefaultInstance(props,auth);
     MimeMessage mime = new MimeMessage(session);
-    
-    ////////////////////////////////////////////////////////////////////////////
-    // Betreff
-    String subject = params.get("mail.subject");
-    if (subject == null || subject.length() == 0)
-    {
-      String name = Application.getPluginLoader().getManifest(Plugin.class).getName();
-      subject = "[" + name + "] " + sensor.getName() + ": " + value;
-    }
     mime.setSubject(subject);
-    //
-    ////////////////////////////////////////////////////////////////////////////
+    mime.setText(description);
+    mime.setSentDate(new Date());
     
     ////////////////////////////////////////////////////////////////////////////
     // Absender
@@ -120,22 +119,6 @@ public class Mail implements Notifier
     //
     ////////////////////////////////////////////////////////////////////////////
 
-    ////////////////////////////////////////////////////////////////////////////
-    // Body
-    String body = params.get("mail.text");
-    if (body == null || body.length() == 0)
-    {
-      body = "Limit exceeded\n\n" +
-             "Sensor name  : " + sensor.getName() + "\n" +
-             "Sensor uuid  : " + sensor.getUuid() + "\n\n" +
-             "Current Value: " + value + "\n" +
-             "Limit        : " + serializer.format(serializer.unserialize(rule.getLimit()));
-    }
-    
-    mime.setText(body);
-    
-
-    mime.setSentDate(new Date());
     Logger.info("sending mail [" + subject + "] to " + recipients);
     Transport.send(mime);
     Logger.info("message sent");
@@ -146,6 +129,10 @@ public class Mail implements Notifier
 
 /**********************************************************************
  * $Log: Mail.java,v $
+ * Revision 1.2  2010/03/01 23:51:07  willuhn
+ * @N Benachrichtigung, wenn Sensor zurueck im normalen Bereich ist
+ * @N Merken des letzten Notify-Status, sodass nur beim ersten mal eine Mail gesendet wird
+ *
  * Revision 1.1  2010/03/01 18:12:23  willuhn
  * *** empty log message ***
  *
