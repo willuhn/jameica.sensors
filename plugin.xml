@@ -21,9 +21,10 @@
   </classfinder>
 
   <services>
-    <service name="scheduler"   autostart="true" depends="" class="de.willuhn.jameica.sensors.service.Scheduler" />
-    <service name="archive"     autostart="true" depends="" class="de.willuhn.jameica.sensors.service.Archive" />
-    <service name="rrd"         autostart="true" depends="" class="de.willuhn.jameica.sensors.service.RRD" />
+    <service name="scheduler"   autostart="true" depends=""          class="de.willuhn.jameica.sensors.service.Scheduler" />
+    <service name="archive"     autostart="true" depends="scheduler" class="de.willuhn.jameica.sensors.service.Archive" />
+    <service name="rrd"         autostart="true" depends="scheduler" class="de.willuhn.jameica.sensors.service.RRD" />
+    <service name="notify"      autostart="true" depends="scheduler" class="de.willuhn.jameica.sensors.service.Notify" />
   </services>
 </plugin>
 
