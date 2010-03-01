@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 
 <!--
-  $Revision: 1.1 $
-  $Date: 2010/03/01 17:59:11 $
+  $Revision: 1.2 $
+  $Date: 2010/03/01 22:44:48 $
   $Author: willuhn $
  
   Copyright (c) by willuhn software & services
@@ -43,9 +43,9 @@
     <xsd:annotation>
       <xsd:documentation>Root-Element einer rules.xml</xsd:documentation>
     </xsd:annotation>
-    <xsd:choice>
+    <xsd:sequence>
       <xsd:element name="rule" type="tns:ruleType" minOccurs="1" maxOccurs="unbounded" />
-    </xsd:choice>
+    </xsd:sequence>
   </xsd:complexType>
 
 
@@ -54,7 +54,7 @@
     <xsd:annotation>
       <xsd:documentation>Element fuer eine einzelne Regel</xsd:documentation>
     </xsd:annotation>
-    <xsd:sequence>
+    <xsd:all>
       <xsd:annotation>
         <xsd:documentation>Kriterien der Regel</xsd:documentation>
       </xsd:annotation>
@@ -85,7 +85,7 @@
 
       <xsd:element name="params" type="tns:paramsType" minOccurs="0" maxOccurs="1" />
 
-    </xsd:sequence>
+    </xsd:all>
   </xsd:complexType>
 
 
