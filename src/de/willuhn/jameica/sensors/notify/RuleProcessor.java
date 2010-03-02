@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/notify/RuleProcessor.java,v $
- * $Revision: 1.6 $
- * $Date: 2010/03/02 12:43:52 $
+ * $Revision: 1.7 $
+ * $Date: 2010/03/02 13:00:36 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -18,9 +18,9 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.List;
-import java.util.Map;
 
 import net.n3.nanoxml.IXMLElement;
 import net.n3.nanoxml.IXMLParser;
@@ -45,7 +45,7 @@ import de.willuhn.logging.Logger;
  */
 public class RuleProcessor
 {
-  private Map<String,Date> log = new HashMap<String,Date>();
+  private Hashtable<String,Date> log = new Hashtable<String,Date>();
   
   /**
    * Fuehrt die Regelverarbeitung fuer die uebergebene Messung durch.
@@ -71,6 +71,23 @@ public class RuleProcessor
           Logger.error("error while processing notify rule for sensor " + s.getUuid(),e);
         else
           Logger.error("error while processing notify rule",e);
+      }
+    }
+    
+    
+    // Wir machen noch ein Cleanup im Log. Alles, was aelter als
+    // 24h ist, werfen wir raus. Dann kommt eine erneute Benachrichtigung,
+    // wenn der Sensor nach einem Tag immer noch ungueltige Werte liefert.
+    Enumeration<String> e = this.log.keys();
+    long now = System.currentTimeMillis();
+    while (e.hasMoreElements())
+    {
+      String key = e.nextElement();
+      Date last = this.log.get(key);
+      if (now - last.getTime() > (24 * 60 * 60 * 1000L))
+      {
+        Logger.info("removing key " + key + " from log, sensor out of limit since " + last);
+        this.log.remove(key);
       }
     }
   }
@@ -145,7 +162,7 @@ public class RuleProcessor
     }
     else if (last != null) // Sensor ist wieder in den Normbereich zurueckgekehrt
     {
-      log.put(id,null); // wir entfernen ihn aus dem Log
+      log.remove(id); // wir entfernen ihn aus dem Log
 
       subject += "INSIDE limit. current value: " + serializer.format(oValue) + ", limit: " + serializer.format(oLimit);
       Logger.info(subject);
@@ -300,6 +317,9 @@ public class RuleProcessor
 
 /**********************************************************************
  * $Log: RuleProcessor.java,v $
+ * Revision 1.7  2010/03/02 13:00:36  willuhn
+ * @N Cleanup verwaister Sensoren im Log
+ *
  * Revision 1.6  2010/03/02 12:43:52  willuhn
  * @C Ausfall-Log nicht mehr persistieren
  *
