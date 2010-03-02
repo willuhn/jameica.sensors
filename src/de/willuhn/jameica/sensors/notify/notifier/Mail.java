@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/notify/notifier/Mail.java,v $
- * $Revision: 1.2 $
- * $Date: 2010/03/01 23:51:07 $
+ * $Revision: 1.3 $
+ * $Date: 2010/03/02 00:28:41 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -119,7 +119,7 @@ public class Mail implements Notifier
     //
     ////////////////////////////////////////////////////////////////////////////
 
-    Logger.info("sending mail [" + subject + "] to " + recipients);
+    Logger.info("sending mail to " + recipients);
     Transport.send(mime);
     Logger.info("message sent");
   }
@@ -129,6 +129,9 @@ public class Mail implements Notifier
 
 /**********************************************************************
  * $Log: Mail.java,v $
+ * Revision 1.3  2010/03/02 00:28:41  willuhn
+ * @B bugfixing
+ *
  * Revision 1.2  2010/03/01 23:51:07  willuhn
  * @N Benachrichtigung, wenn Sensor zurueck im normalen Bereich ist
  * @N Merken des letzten Notify-Status, sodass nur beim ersten mal eine Mail gesendet wird

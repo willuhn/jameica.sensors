@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/notify/Rule.java,v $
- * $Revision: 1.3 $
- * $Date: 2010/03/01 23:51:07 $
+ * $Revision: 1.4 $
+ * $Date: 2010/03/02 00:28:41 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -44,8 +44,15 @@ public class Rule
    */
   public String getSensor() throws Exception
   {
-    IXMLElement sensor = this.node.getFirstChildNamed("sensor");
-    return sensor != null ? sensor.getContent() : null;
+    IXMLElement i = this.node.getFirstChildNamed("sensor");
+    if (i == null)
+      return null;
+    
+    String s = i.getContent();
+    if (s == null)
+      return null;
+    
+    return s.trim();
   }
   
   /**
@@ -55,8 +62,15 @@ public class Rule
    */
   public String getLimit() throws Exception
   {
-    IXMLElement limit = this.node.getFirstChildNamed("limit");
-    return limit != null ? limit.getContent() : null;
+    IXMLElement i = this.node.getFirstChildNamed("limit");
+    if (i == null)
+      return null;
+    
+    String s = i.getContent();
+    if (s == null)
+      return null;
+    
+    return s.trim();
   }
   
   /**
@@ -66,8 +80,15 @@ public class Rule
    */
   public Operator getOperator() throws Exception
   {
-    IXMLElement operator = this.node.getFirstChildNamed("operator");
-    return operator != null ? (Operator) load(operator.getContent()) : null;
+    IXMLElement i = this.node.getFirstChildNamed("operator");
+    if (i == null)
+      return null;
+    
+    String s = i.getContent();
+    if (s == null)
+      return null;
+    
+    return (Operator) load(s.trim());
   }
   
   /**
@@ -77,8 +98,15 @@ public class Rule
    */
   public Notifier getNotifier() throws Exception
   {
-    IXMLElement notifier = this.node.getFirstChildNamed("notifier");
-    return notifier != null ? (Notifier) load(notifier.getContent()) : null;
+    IXMLElement i = this.node.getFirstChildNamed("notifier");
+    if (i == null)
+      return null;
+    
+    String s = i.getContent();
+    if (s == null)
+      return null;
+    
+    return (Notifier) load(s.trim());
   }
   
   /**
@@ -97,7 +125,7 @@ public class Rule
       String name = e.getAttribute("name",null);
       String value = e.getAttribute("value",null);
       if (name != null && value != null)
-        map.put(name,value);
+        map.put(name.trim(),value.trim());
     }
     
     return map;
@@ -113,10 +141,14 @@ public class Rule
     StringBuffer sb = new StringBuffer();
 
     sb.append(this.getSensor());
+    sb.append(".");
 
     Operator o = this.getOperator();
     if (o != null)
-      sb.append(o.getClass());
+    {
+      sb.append(o.getClass().getName());
+      sb.append(".");
+    }
 
     sb.append(this.getLimit());
     
@@ -153,6 +185,9 @@ public class Rule
 
 /**********************************************************************
  * $Log: Rule.java,v $
+ * Revision 1.4  2010/03/02 00:28:41  willuhn
+ * @B bugfixing
+ *
  * Revision 1.3  2010/03/01 23:51:07  willuhn
  * @N Benachrichtigung, wenn Sensor zurueck im normalen Bereich ist
  * @N Merken des letzten Notify-Status, sodass nur beim ersten mal eine Mail gesendet wird

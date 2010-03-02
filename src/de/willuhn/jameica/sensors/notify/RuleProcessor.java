@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/notify/RuleProcessor.java,v $
- * $Revision: 1.3 $
- * $Date: 2010/03/01 23:51:07 $
+ * $Revision: 1.4 $
+ * $Date: 2010/03/02 00:28:41 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -53,6 +53,8 @@ public class RuleProcessor
    */
   public RuleProcessor(Measurement m)
   {
+    // TODO: Hier sollte ausserdem das Device noch mit angegeben werden.
+    // Da die Sensor-UUIDs aber Device-uebergreifend eindeutig sein muessen, ist es nicht unbedingt noetig.
     this.measurement = m;
   }
   
@@ -130,7 +132,7 @@ public class RuleProcessor
     Object oValue = s.getValue();
     ////////////////////////////////////////////////////////////////////////
     
-    String subject = "[" + Application.getPluginLoader().getManifest(Plugin.class).getName() + "] " + s.getName();
+    String subject = "[" + Application.getPluginLoader().getManifest(Plugin.class).getName() + "] " + s.getName() + " ";
     String body = "Sensor name  : " + s.getName() + "\n" +
                   "Sensor uuid  : " + s.getUuid() + "\n\n" +
                   "Current Value: " + serializer.format(oValue) + "\n" +
@@ -141,15 +143,20 @@ public class RuleProcessor
     
     if (o.matches(oValue,oLimit))
     {
-      subject += " -" + (again ? " STILL " : " ") + "OUTSIDE limit. current value: " + serializer.format(oValue) + ", limit: " + serializer.format(oLimit);
+      if (again)
+        subject += "STILL ";
+      
+      subject += "OUTSIDE limit. current value: " + serializer.format(oValue) + ", limit: " + serializer.format(oLimit);
       Logger.info(subject);
+      
       settings.setAttribute(id,true); // Wir tragen den Vorfall in die Merkliste ein
       n.outsideLimit(subject,body,r.getParams(),again);
     }
     else if (again)
     {
-      subject += " - INSIDE limit. current value: " + serializer.format(oValue) + ", limit: " + serializer.format(oLimit);
+      subject += "INSIDE limit. current value: " + serializer.format(oValue) + ", limit: " + serializer.format(oLimit);
       Logger.info(subject);
+      
       settings.setAttribute(id,(String) null); // wir entfernen ihn aus der Merkliste. Das NULL bewirkt ein Loeschen aus der Datei
       n.insideLimit(subject,body,r.getParams());
     }
@@ -179,7 +186,7 @@ public class RuleProcessor
       }
     }
     
-    Logger.warn("sensor uuid " + uuid + " not found in measurement");
+    Logger.debug("sensor uuid " + uuid + " not found in measurement");
     return null;
   }
   
@@ -256,7 +263,7 @@ public class RuleProcessor
           IXMLParser parser = XMLParserFactory.createDefaultXMLParser();
           parser.setReader(new StdXMLReader(is));
           XPathEmu xpath = new XPathEmu((IXMLElement) parser.parse());
-          IXMLElement[] list = xpath.getElements("rules/rule");
+          IXMLElement[] list = xpath.getElements("rule");
           for (IXMLElement i:list)
           {
             rules.add(new Rule(i));
@@ -294,6 +301,9 @@ public class RuleProcessor
 
 /**********************************************************************
  * $Log: RuleProcessor.java,v $
+ * Revision 1.4  2010/03/02 00:28:41  willuhn
+ * @B bugfixing
+ *
  * Revision 1.3  2010/03/01 23:51:07  willuhn
  * @N Benachrichtigung, wenn Sensor zurueck im normalen Bereich ist
  * @N Merken des letzten Notify-Status, sodass nur beim ersten mal eine Mail gesendet wird

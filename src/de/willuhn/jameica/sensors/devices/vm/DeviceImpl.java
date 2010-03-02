@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/devices/vm/DeviceImpl.java,v $
- * $Revision: 1.1 $
- * $Date: 2009/11/24 14:44:10 $
+ * $Revision: 1.2 $
+ * $Date: 2010/03/02 00:28:41 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -20,6 +20,7 @@ import java.util.List;
 import de.willuhn.jameica.sensors.Plugin;
 import de.willuhn.jameica.sensors.config.Configurable;
 import de.willuhn.jameica.sensors.config.Parameter;
+import de.willuhn.jameica.sensors.devices.DecimalSerializer;
 import de.willuhn.jameica.sensors.devices.Device;
 import de.willuhn.jameica.sensors.devices.Measurement;
 import de.willuhn.jameica.sensors.devices.Sensor;
@@ -52,6 +53,7 @@ public class DeviceImpl implements Device, Configurable
       
       {
         Sensor<Long> s = new Sensor<Long>();
+        s.setSerializer(DecimalSerializer.class);
         s.setUuid(group.getUuid() + ".total");
         s.setName("total memory (MB)");
         s.setValue(rt.totalMemory() / 1024 / 1024);
@@ -59,6 +61,7 @@ public class DeviceImpl implements Device, Configurable
       }
       {
         Sensor<Long> s = new Sensor<Long>();
+        s.setSerializer(DecimalSerializer.class);
         s.setUuid(group.getUuid() + ".max");
         s.setName("maximum memory (MB)");
         s.setValue(rt.maxMemory() / 1024 / 1024);
@@ -66,6 +69,7 @@ public class DeviceImpl implements Device, Configurable
       }
       {
         Sensor<Long> s = new Sensor<Long>();
+        s.setSerializer(DecimalSerializer.class);
         s.setUuid(group.getUuid() + ".free");
         s.setName("free memory (MB)");
         s.setValue(rt.freeMemory() / 1024 / 1024);
@@ -144,6 +148,9 @@ public class DeviceImpl implements Device, Configurable
 
 /**********************************************************************
  * $Log: DeviceImpl.java,v $
+ * Revision 1.2  2010/03/02 00:28:41  willuhn
+ * @B bugfixing
+ *
  * Revision 1.1  2009/11/24 14:44:10  willuhn
  * @N Neues Device fuer VM-Stats
  *
