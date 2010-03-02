@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/service/impl/NotifyImpl.java,v $
- * $Revision: 1.3 $
- * $Date: 2010/03/01 23:51:07 $
+ * $Revision: 1.4 $
+ * $Date: 2010/03/02 12:43:52 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -27,6 +27,7 @@ import de.willuhn.logging.Logger;
 public class NotifyImpl implements Notify
 {
   private MessageConsumer mc = null;
+  private RuleProcessor processor = null;
   
   /**
    * @see de.willuhn.datasource.Service#getName()
@@ -49,7 +50,7 @@ public class NotifyImpl implements Notify
    */
   public boolean isStarted() throws RemoteException
   {
-    return this.mc != null;
+    return this.mc != null && this.processor != null;
   }
 
   /**
@@ -64,6 +65,8 @@ public class NotifyImpl implements Notify
     }
     this.mc = new MyMessageConsumer();
     Application.getMessagingFactory().registerMessageConsumer(this.mc);
+    
+    this.processor = new RuleProcessor();
   }
 
   /**
@@ -84,6 +87,7 @@ public class NotifyImpl implements Notify
     finally
     {
       this.mc = null;
+      this.processor = null;
     }
   }
   
@@ -115,7 +119,7 @@ public class NotifyImpl implements Notify
      */
     public void handleMessage(Message message) throws Exception
     {
-      new RuleProcessor(((MeasureMessage)message).getMeasurement()).process();
+      processor.process(((MeasureMessage)message).getMeasurement());
     }
   }
 
@@ -125,6 +129,9 @@ public class NotifyImpl implements Notify
 
 /**********************************************************************
  * $Log: NotifyImpl.java,v $
+ * Revision 1.4  2010/03/02 12:43:52  willuhn
+ * @C Ausfall-Log nicht mehr persistieren
+ *
  * Revision 1.3  2010/03/01 23:51:07  willuhn
  * @N Benachrichtigung, wenn Sensor zurueck im normalen Bereich ist
  * @N Merken des letzten Notify-Status, sodass nur beim ersten mal eine Mail gesendet wird

@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/notify/notifier/Notifier.java,v $
- * $Revision: 1.2 $
- * $Date: 2010/03/01 23:51:07 $
+ * $Revision: 1.3 $
+ * $Date: 2010/03/02 12:43:52 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -11,6 +11,7 @@
 
 package de.willuhn.jameica.sensors.notify.notifier;
 
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -24,12 +25,16 @@ public interface Notifier
    * @param Betreff-Text.
    * @param Beschreibungstext.
    * @param optionale Zustell-Parameter gemaess "params" der XML-Regeldatei.
-   * @param again true, wenn das Limit schon bei der letzten Messung ueberschritten
-   * wurde. Der Notifier kann dann selbst entscheiden, ob er die Benachrichtigung
-   * nochmal sendet oder nicht.
+   * @param since Datum, seit wann der Sensor bereits Werte ausserhalb des Limits liefert.
+   * Ist dies die erste Messung, in der der Sensor unnormale Werte liefert, wird NULL
+   * uebergeben. Sobald der Sensor wieder in den Normal-Bereich zurueckkehrt, wird
+   * das Datum wieder auf NULL gesetzt.
+   * Die Implementierung kann so selbst entscheiden, ob und wie oft sie wiederholte
+   * Benachrichtigungen sendet. Soll sie beispielsweise nur beim ersten Auftreten des
+   * Ausfalls gesendet werden, genuegt eine Pruefung auf "since == null".
    * @throws Exception
    */
-  public void outsideLimit(String subject, String description, Map<String,String> params, boolean again) throws Exception;
+  public void outsideLimit(String subject, String description, Map<String,String> params, Date since) throws Exception;
   
   /**
    * Wird einmalig aufgerufen, wenn der Sensor vorher ausserhalb des Limit
@@ -46,6 +51,9 @@ public interface Notifier
 
 /**********************************************************************
  * $Log: Notifier.java,v $
+ * Revision 1.3  2010/03/02 12:43:52  willuhn
+ * @C Ausfall-Log nicht mehr persistieren
+ *
  * Revision 1.2  2010/03/01 23:51:07  willuhn
  * @N Benachrichtigung, wenn Sensor zurueck im normalen Bereich ist
  * @N Merken des letzten Notify-Status, sodass nur beim ersten mal eine Mail gesendet wird

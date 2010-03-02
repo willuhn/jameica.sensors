@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/notify/notifier/Mail.java,v $
- * $Revision: 1.3 $
- * $Date: 2010/03/02 00:28:41 $
+ * $Revision: 1.4 $
+ * $Date: 2010/03/02 12:43:52 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -32,12 +32,12 @@ import de.willuhn.logging.Logger;
 public class Mail implements Notifier
 {
   /**
-   * @see de.willuhn.jameica.sensors.notify.notifier.Notifier#outsideLimit(java.lang.String, java.lang.String, java.util.Map, boolean)
+   * @see de.willuhn.jameica.sensors.notify.notifier.Notifier#outsideLimit(java.lang.String, java.lang.String, java.util.Map, java.util.Date)
    */
-  public void outsideLimit(String subject, String description, Map<String,String> params, boolean again) throws Exception
+  public void outsideLimit(String subject, String description, Map<String,String> params, Date since) throws Exception
   {
     // Wir schicken die Mail nur beim ersten Mal
-    if (again)
+    if (since != null)
       return;
     
     send(subject,description,params);
@@ -129,6 +129,9 @@ public class Mail implements Notifier
 
 /**********************************************************************
  * $Log: Mail.java,v $
+ * Revision 1.4  2010/03/02 12:43:52  willuhn
+ * @C Ausfall-Log nicht mehr persistieren
+ *
  * Revision 1.3  2010/03/02 00:28:41  willuhn
  * @B bugfixing
  *

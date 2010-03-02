@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/notify/RuleProcessor.java,v $
- * $Revision: 1.5 $
- * $Date: 2010/03/02 00:43:54 $
+ * $Revision: 1.6 $
+ * $Date: 2010/03/02 12:43:52 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -17,7 +17,10 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.n3.nanoxml.IXMLElement;
 import net.n3.nanoxml.IXMLParser;
@@ -33,7 +36,6 @@ import de.willuhn.jameica.sensors.devices.StringSerializer;
 import de.willuhn.jameica.sensors.notify.notifier.Notifier;
 import de.willuhn.jameica.sensors.notify.operator.Operator;
 import de.willuhn.jameica.system.Application;
-import de.willuhn.jameica.system.Settings;
 import de.willuhn.jameica.util.XPathEmu;
 import de.willuhn.logging.Logger;
 
@@ -43,25 +45,13 @@ import de.willuhn.logging.Logger;
  */
 public class RuleProcessor
 {
-  private static Settings settings = new Settings(RuleProcessor.class);
-  
-  private Measurement measurement = null;
-  
-  /**
-   * ct.
-   * @param m die Messung.
-   */
-  public RuleProcessor(Measurement m)
-  {
-    // TODO: Hier sollte ausserdem das Device noch mit angegeben werden.
-    // Da die Sensor-UUIDs aber Device-uebergreifend eindeutig sein muessen, ist es nicht unbedingt noetig.
-    this.measurement = m;
-  }
+  private Map<String,Date> log = new HashMap<String,Date>();
   
   /**
    * Fuehrt die Regelverarbeitung fuer die uebergebene Messung durch.
+   * @param m die Messung.
    */
-  public void process()
+  public void process(Measurement m)
   {
     List<Rule> rules = this.findRules();
     for (Rule r:rules)
@@ -69,11 +59,11 @@ public class RuleProcessor
       Sensor s = null;
       try
       {
-        s = findSensor(r.getSensor());
+        s = findSensor(m,r.getSensor());
         if (s == null)
           continue;
         
-        handleRule(s,r);
+        handleRule(s,r,getLimit(m,r));
       }
       catch (Exception e)
       {
@@ -89,13 +79,13 @@ public class RuleProcessor
    * Bearbeitet die Benachrichtigungsregel.
    * @param s der Sensor.
    * @param r die Regel.
+   * @param limit das errechnete Limit.
    * throws Exception
    */
-  private void handleRule(Sensor s,Rule r) throws Exception
+  private void handleRule(Sensor s,Rule r, String limit) throws Exception
   {
     ////////////////////////////////////////////////////////////////////////
     // NULL-Checks
-    String limit = getLimit(r);
     if (limit == null || limit.length() == 0)
     {
       Logger.warn("rule for sensor " + r.getSensor() + " has no limit");
@@ -139,35 +129,38 @@ public class RuleProcessor
                   "Limit        : " + serializer.format(oLimit);
 
     String id = r.getID();
-    boolean again = settings.getBoolean(id,false);
+    Date last = log.get(id);
     
     if (o.matches(oValue,oLimit))
     {
-      if (again)
+      if (last != null) // war vorher schon ausgefallen
         subject += "STILL ";
+      else
+        log.put(id,new Date()); // Wir tragen den Vorfall ins Log ein
       
       subject += "OUTSIDE limit. current value: " + serializer.format(oValue) + ", limit: " + serializer.format(oLimit);
       Logger.info(subject);
       
-      settings.setAttribute(id,true); // Wir tragen den Vorfall in die Merkliste ein
-      n.outsideLimit(subject,body,r.getParams(),again);
+      n.outsideLimit(subject,body,r.getParams(),last);
     }
-    else if (again)
+    else if (last != null) // Sensor ist wieder in den Normbereich zurueckgekehrt
     {
+      log.put(id,null); // wir entfernen ihn aus dem Log
+
       subject += "INSIDE limit. current value: " + serializer.format(oValue) + ", limit: " + serializer.format(oLimit);
       Logger.info(subject);
       
-      settings.setAttribute(id,(String) null); // wir entfernen ihn aus der Merkliste. Das NULL bewirkt ein Loeschen aus der Datei
       n.insideLimit(subject,body,r.getParams());
     }
   }
   
   /**
    * Durchsucht die Messung nach dem angegebenen Sensor.
+   * @param m die Messung.
    * @param uuid der Sensor.
    * @return der Sensor oder NULL, wenn er nicht gefunden wurde.
    */
-  private Sensor findSensor(String uuid)
+  private Sensor findSensor(Measurement m, String uuid)
   {
     if (uuid == null || uuid.length() == 0)
     {
@@ -175,7 +168,7 @@ public class RuleProcessor
       return null;
     }
     
-    List<Sensorgroup> groups = this.measurement.getSensorgroups();
+    List<Sensorgroup> groups = m.getSensorgroups();
     for (Sensorgroup g:groups)
     {
       List<Sensor> sensors = g.getSensors();
@@ -193,18 +186,19 @@ public class RuleProcessor
   /**
    * Liefert den Limit-Wert der Regel.
    * Die Funktion evaluiert evtl. vorhandene Ausdruecke im Limit-Wert.
+   * @param m die Messung.
    * @param r die Regel.
    * @return der Limit-Wert.
    * @throws Exception
    */
-  private String getLimit(Rule r) throws Exception
+  private String getLimit(Measurement m, Rule r) throws Exception
   {
     String limit = r.getLimit();
     if (limit != null && limit.matches("\\{.*\\}"))
     {
       // Limit verweist auf den Wert eines anderen Sensors.
       String uuid = limit.substring(0,limit.length()-1).substring(1);
-      Sensor s = findSensor(uuid);
+      Sensor s = findSensor(m,uuid);
       if (s == null)
         return null;
       Object o = s.getValue();
@@ -306,6 +300,9 @@ public class RuleProcessor
 
 /**********************************************************************
  * $Log: RuleProcessor.java,v $
+ * Revision 1.6  2010/03/02 12:43:52  willuhn
+ * @C Ausfall-Log nicht mehr persistieren
+ *
  * Revision 1.5  2010/03/02 00:43:54  willuhn
  * *** empty log message ***
  *
