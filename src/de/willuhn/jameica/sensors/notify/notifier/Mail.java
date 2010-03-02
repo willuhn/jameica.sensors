@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/notify/notifier/Mail.java,v $
- * $Revision: 1.4 $
- * $Date: 2010/03/02 12:43:52 $
+ * $Revision: 1.5 $
+ * $Date: 2010/03/02 13:55:51 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -87,6 +87,13 @@ public class Mail implements Notifier
     //
     ////////////////////////////////////////////////////////////////////////////
 
+    ////////////////////////////////////////////////////////////////////////////
+    // Zeichensatz
+    String charset = params.get("mail.charset");
+    System.setProperty("mail.mime.charset",charset != null ? charset : "iso-8859-15");
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    
 
     Session session = Session.getDefaultInstance(props,auth);
     MimeMessage mime = new MimeMessage(session);
@@ -129,6 +136,10 @@ public class Mail implements Notifier
 
 /**********************************************************************
  * $Log: Mail.java,v $
+ * Revision 1.5  2010/03/02 13:55:51  willuhn
+ * @N Encoding
+ * @N Sensor-Gruppe mit anzeigen
+ *
  * Revision 1.4  2010/03/02 12:43:52  willuhn
  * @C Ausfall-Log nicht mehr persistieren
  *

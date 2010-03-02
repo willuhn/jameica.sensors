@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/notify/RuleProcessor.java,v $
- * $Revision: 1.7 $
- * $Date: 2010/03/02 13:00:36 $
+ * $Revision: 1.8 $
+ * $Date: 2010/03/02 13:55:51 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -56,21 +56,13 @@ public class RuleProcessor
     List<Rule> rules = this.findRules();
     for (Rule r:rules)
     {
-      Sensor s = null;
       try
       {
-        s = findSensor(m,r.getSensor());
-        if (s == null)
-          continue;
-        
-        handleRule(s,r,getLimit(m,r));
+        handleRule(m,r);
       }
       catch (Exception e)
       {
-        if (s != null)
-          Logger.error("error while processing notify rule for sensor " + s.getUuid(),e);
-        else
-          Logger.error("error while processing notify rule",e);
+        Logger.error(e.getMessage(),e);
       }
     }
     
@@ -94,34 +86,38 @@ public class RuleProcessor
   
   /**
    * Bearbeitet die Benachrichtigungsregel.
-   * @param s der Sensor.
+   * @param m die Messung.
    * @param r die Regel.
-   * @param limit das errechnete Limit.
    * throws Exception
    */
-  private void handleRule(Sensor s,Rule r, String limit) throws Exception
+  private void handleRule(Measurement m, Rule r) throws Exception
   {
     ////////////////////////////////////////////////////////////////////////
     // NULL-Checks
-    if (limit == null || limit.length() == 0)
-    {
-      Logger.warn("rule for sensor " + r.getSensor() + " has no limit");
-      return;
-    }
+    if (m == null)
+      throw new Exception("no measurement given");
     
-    Notifier n = r.getNotifier();
+    if (r == null)
+      throw new Exception("no rule given");
+    
+    Notifier n    = r.getNotifier();
+    Operator o    = r.getOperator();
+    String limit  = getLimit(m,r);
+    Sensor s      = findSensor(m,r.getSensor());
+    Sensorgroup g = findGroup(m,r.getSensor());
+    
+    if (s == null)
+      throw new Exception("sensor " + r.getSensor() + " not found");
+
     if (n == null)
-    {
-      Logger.warn("rule for sensor " + r.getSensor() + " has no notifier");
-      return;
-    }
+      throw new Exception("rule for sensor " + r.getSensor() + " has no notifier");
     
-    Operator o = r.getOperator();
     if (o == null)
-    {
-      Logger.warn("rule for sensor " + r.getSensor() + " has no operator");
-      return;
-    }
+      throw new Exception("rule for sensor " + r.getSensor() + " has no operator");
+
+    if (limit == null || limit.length() == 0)
+      throw new Exception("rule for sensor " + r.getSensor() + " has no limit");
+    
     ////////////////////////////////////////////////////////////////////////
     
     ////////////////////////////////////////////////////////////////////////
@@ -139,8 +135,12 @@ public class RuleProcessor
     Object oValue = s.getValue();
     ////////////////////////////////////////////////////////////////////////
     
-    String subject = "[" + Application.getPluginLoader().getManifest(Plugin.class).getName() + "] " + s.getName() + " ";
-    String body = "Sensor name  : " + s.getName() + "\n" +
+    String name = s.getName();
+    if (g != null)
+      name = g.getName() + " - " + name;
+    
+    String subject = "[" + Application.getPluginLoader().getManifest(Plugin.class).getName() + "] " + name + " ";
+    String body = "Sensor name  : " + name + "\n" +
                   "Sensor uuid  : " + s.getUuid() + "\n\n" +
                   "Current Value: " + serializer.format(oValue) + "\n" +
                   "Limit        : " + serializer.format(oLimit);
@@ -197,6 +197,35 @@ public class RuleProcessor
     }
     
     Logger.debug("sensor uuid " + uuid + " not found in measurement");
+    return null;
+  }
+  
+  /**
+   * Sucht die Sensor-Gruppe des Sensors.
+   * @param m die Messung.
+   * @param sensorUuid die UUID des Sensors.
+   * @return die Sensor-Gruppe oder NULL, wenn sie nicht gefunden wurde.
+   */
+  private Sensorgroup findGroup(Measurement m, String sensorUuid)
+  {
+    if (sensorUuid == null || sensorUuid.length() == 0)
+    {
+      Logger.warn("no sensor uuid given, skipping");
+      return null;
+    }
+    
+    List<Sensorgroup> groups = m.getSensorgroups();
+    for (Sensorgroup g:groups)
+    {
+      List<Sensor> sensors = g.getSensors();
+      for (Sensor s:sensors)
+      {
+        if (sensorUuid.equals(s.getUuid()))
+          return g;
+      }
+    }
+    
+    Logger.debug("group for sensor uuid " + sensorUuid + " not found in measurement");
     return null;
   }
   
@@ -317,6 +346,10 @@ public class RuleProcessor
 
 /**********************************************************************
  * $Log: RuleProcessor.java,v $
+ * Revision 1.8  2010/03/02 13:55:51  willuhn
+ * @N Encoding
+ * @N Sensor-Gruppe mit anzeigen
+ *
  * Revision 1.7  2010/03/02 13:00:36  willuhn
  * @N Cleanup verwaister Sensoren im Log
  *
