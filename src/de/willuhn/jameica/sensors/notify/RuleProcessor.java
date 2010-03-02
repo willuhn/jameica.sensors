@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/notify/RuleProcessor.java,v $
- * $Revision: 1.8 $
- * $Date: 2010/03/02 13:55:51 $
+ * $Revision: 1.9 $
+ * $Date: 2010/03/02 14:03:01 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -99,15 +99,16 @@ public class RuleProcessor
     
     if (r == null)
       throw new Exception("no rule given");
-    
+
+    Sensor s = findSensor(m,r.getSensor());
+    if (s == null)
+      return; // darf passieren, wenn der Sensor in einer anderen Messung steht.
+
     Notifier n    = r.getNotifier();
     Operator o    = r.getOperator();
     String limit  = getLimit(m,r);
-    Sensor s      = findSensor(m,r.getSensor());
     Sensorgroup g = findGroup(m,r.getSensor());
     
-    if (s == null)
-      throw new Exception("sensor " + r.getSensor() + " not found");
 
     if (n == null)
       throw new Exception("rule for sensor " + r.getSensor() + " has no notifier");
@@ -346,6 +347,9 @@ public class RuleProcessor
 
 /**********************************************************************
  * $Log: RuleProcessor.java,v $
+ * Revision 1.9  2010/03/02 14:03:01  willuhn
+ * *** empty log message ***
+ *
  * Revision 1.8  2010/03/02 13:55:51  willuhn
  * @N Encoding
  * @N Sensor-Gruppe mit anzeigen
