@@ -15,8 +15,8 @@
     <params>
       <param name="smtp.username"   value="" />
       <param name="smtp.password"   value="" />
-      <param name="smtp.host"       value="localhost" />
-      <param name="mail.sender"     value="root@localhost" />
+      <param name="smtp.host"       value="" />
+      <param name="mail.sender"     value="" />
       <param name="mail.recipients" value="info@willuhn.de" />
     </params>
   </rule>
@@ -29,10 +29,6 @@
     <notifier>de.willuhn.jameica.sensors.notify.notifier.Mail</notifier>
     
     <params>
-      <param name="smtp.username"   value="" />
-      <param name="smtp.password"   value="" />
-      <param name="smtp.host"       value="localhost" />
-      <param name="mail.sender"     value="root@localhost" />
       <param name="mail.recipients" value="info@willuhn.de" />
     </params>
   </rule>
@@ -46,10 +42,6 @@
     <notifier>de.willuhn.jameica.sensors.notify.notifier.Mail</notifier>
     
     <params>
-      <param name="smtp.username"   value="" />
-      <param name="smtp.password"   value="" />
-      <param name="smtp.host"       value="localhost" />
-      <param name="mail.sender"     value="root@localhost" />
       <param name="mail.recipients" value="info@willuhn.de" />
     </params>
   </rule>
@@ -62,10 +54,6 @@
     <notifier>de.willuhn.jameica.sensors.notify.notifier.Mail</notifier>
     
     <params>
-      <param name="smtp.username"   value="" />
-      <param name="smtp.password"   value="" />
-      <param name="smtp.host"       value="localhost" />
-      <param name="mail.sender"     value="root@localhost" />
       <param name="mail.recipients" value="info@willuhn.de" />
     </params>
   </rule>
@@ -79,10 +67,6 @@
     <notifier>de.willuhn.jameica.sensors.notify.notifier.Mail</notifier>
     
     <params>
-      <param name="smtp.username"   value="" />
-      <param name="smtp.password"   value="" />
-      <param name="smtp.host"       value="localhost" />
-      <param name="mail.sender"     value="root@localhost" />
       <param name="mail.recipients" value="info@willuhn.de" />
     </params>
   </rule>
