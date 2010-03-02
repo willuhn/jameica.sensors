@@ -13,6 +13,7 @@
     <notifier>de.willuhn.jameica.sensors.notify.notifier.Mail</notifier>
     
     <params>
+      <param name="mail.sender" value="info@willuhn.de" />
       <param name="mail.recipients" value="info@willuhn.de" />
     </params>
   </rule>
@@ -25,6 +26,7 @@
     <notifier>de.willuhn.jameica.sensors.notify.notifier.Mail</notifier>
     
     <params>
+      <param name="mail.sender" value="info@willuhn.de" />
       <param name="mail.recipients" value="info@willuhn.de" />
     </params>
   </rule>
@@ -38,6 +40,7 @@
     <notifier>de.willuhn.jameica.sensors.notify.notifier.Mail</notifier>
     
     <params>
+      <param name="mail.sender" value="info@willuhn.de" />
       <param name="mail.recipients" value="info@willuhn.de" />
     </params>
   </rule>
@@ -50,6 +53,7 @@
     <notifier>de.willuhn.jameica.sensors.notify.notifier.Mail</notifier>
     
     <params>
+      <param name="mail.sender" value="info@willuhn.de" />
       <param name="mail.recipients" value="info@willuhn.de" />
     </params>
   </rule>
@@ -63,6 +67,7 @@
     <notifier>de.willuhn.jameica.sensors.notify.notifier.Mail</notifier>
     
     <params>
+      <param name="mail.sender" value="info@willuhn.de" />
       <param name="mail.recipients" value="info@willuhn.de" />
     </params>
   </rule>
