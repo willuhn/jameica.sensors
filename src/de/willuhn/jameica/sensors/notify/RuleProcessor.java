@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/notify/RuleProcessor.java,v $
- * $Revision: 1.4 $
- * $Date: 2010/03/02 00:28:41 $
+ * $Revision: 1.5 $
+ * $Date: 2010/03/02 00:43:54 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -231,6 +231,11 @@ public class RuleProcessor
     rules.addAll(findRules(sys));
     
     File user = new File(Application.getPluginLoader().getPlugin(Plugin.class).getResources().getWorkPath(),"rules");
+    if (!user.exists())
+    {
+      Logger.info("creating " + user);
+      user.mkdirs();
+    }
     rules.addAll(findRules(user));
     
     return rules;
@@ -301,6 +306,9 @@ public class RuleProcessor
 
 /**********************************************************************
  * $Log: RuleProcessor.java,v $
+ * Revision 1.5  2010/03/02 00:43:54  willuhn
+ * *** empty log message ***
+ *
  * Revision 1.4  2010/03/02 00:28:41  willuhn
  * @B bugfixing
  *
