@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/notify/RuleProcessor.java,v $
- * $Revision: 1.10 $
- * $Date: 2010/03/02 14:07:56 $
+ * $Revision: 1.11 $
+ * $Date: 2010/03/23 18:35:45 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -312,7 +312,9 @@ public class RuleProcessor
           IXMLElement[] list = xpath.getElements("rule");
           for (IXMLElement i:list)
           {
-            rules.add(new Rule(i));
+            Rule r = new Rule(i);
+            if (r.isEnabled())
+              rules.add(r);
           }
         }
         catch (Exception e)
@@ -347,6 +349,9 @@ public class RuleProcessor
 
 /**********************************************************************
  * $Log: RuleProcessor.java,v $
+ * Revision 1.11  2010/03/23 18:35:45  willuhn
+ * @N Rule serialisierbar
+ *
  * Revision 1.10  2010/03/02 14:07:56  willuhn
  * *** empty log message ***
  *

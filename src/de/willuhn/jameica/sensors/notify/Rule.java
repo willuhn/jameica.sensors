@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/notify/Rule.java,v $
- * $Revision: 1.4 $
- * $Date: 2010/03/02 00:28:41 $
+ * $Revision: 1.5 $
+ * $Date: 2010/03/23 18:35:45 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -12,6 +12,7 @@
 package de.willuhn.jameica.sensors.notify;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import de.willuhn.jameica.sensors.Plugin;
@@ -20,115 +21,220 @@ import de.willuhn.jameica.sensors.notify.operator.Operator;
 import de.willuhn.jameica.system.Application;
 import de.willuhn.jameica.util.XPathEmu;
 import net.n3.nanoxml.IXMLElement;
+import net.n3.nanoxml.XMLElement;
 
 /**
  * Implementierung einer einzelnen Benachrichtigungsregel.
  */
 public class Rule
 {
-  private IXMLElement node = null;
+  private boolean enabled           = true;
+  private String sensor             = null;
+  private String limit              = null;
+  private Operator operator         = null;
+  private Notifier notifier         = null;
+  private Map<String,String> params = new HashMap<String,String>();
   
   /**
    * ct.
+   */
+  public Rule()
+  {
+    
+  }
+  
+  /**
+   * ct.
+   * Liest die Regel-Einstellungen aus dem XML-Element.
    * @param node
    */
-  Rule(IXMLElement node)
+  public Rule(IXMLElement node) throws Exception
   {
-    this.node = node;
+    ////////////////////////////////////////////////////////////////////////////
+    // enabled
+    {
+      IXMLElement i = node.getFirstChildNamed("enabled");
+      if (i != null)
+      {
+        String s = i.getContent();
+        if (s != null)
+          this.enabled = s.trim().toLowerCase().matches("true|1|yes");
+      }
+    }
+    //
+    ////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////
+    // Sensor
+    {
+      IXMLElement i = node.getFirstChildNamed("sensor");
+      if (i != null)
+      {
+        this.sensor = i.getContent();
+        if (this.sensor != null)
+          this.sensor = this.sensor.trim();
+      }
+    }
+    //
+    ////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////
+    // Limit
+    {
+      IXMLElement i = node.getFirstChildNamed("limit");
+      if (i != null)
+      {
+        this.limit = i.getContent();
+        if (this.limit != null)
+          this.limit = this.limit.trim();
+      }
+    }
+    //
+    ////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////
+    // Operator
+    {
+      IXMLElement i = node.getFirstChildNamed("operator");
+      if (i != null)
+      {
+        String s = i.getContent();
+        if (s != null)
+        this.operator = (Operator) load(s.trim());
+      }
+    }
+    //
+    ////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////
+    // Notifier
+    {
+      IXMLElement i = node.getFirstChildNamed("notifier");
+      if (i != null)
+      {
+        String s = i.getContent();
+        if (s != null)
+        this.notifier = (Notifier) load(s.trim());
+      }
+    }
+    //
+    ////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////
+    // Params
+    {
+      XPathEmu xpath = new XPathEmu(node);
+      IXMLElement[] list = xpath.getElements("params/param");
+      for (IXMLElement e:list)
+      {
+        String name = e.getAttribute("name",null);
+        String value = e.getAttribute("value",null);
+        if (name != null && value != null)
+          this.params.put(name.trim(),value.trim());
+      }
+    }
+    //
+    ////////////////////////////////////////////////////////////////////////////
+  
+  }
+  
+  /**
+   * Liefert true, wenn die Regel angewendet werden soll.
+   * @return true, wenn die Regel angewendet werden soll.
+   */
+  public boolean isEnabled()
+  {
+    return this.enabled;
+  }
+  
+  /**
+   * Legt fest, ob die Regel angewendet werden soll.
+   * @param b true, wenn die Regel angewendet werden soll.
+   */
+  public void setEnabled(boolean b)
+  {
+    this.enabled = b;
   }
   
   /**
    * Liefert die UUID des zu ueberwachenden Sensors.
    * @return UUID des Sensors.
-   * @throws Exception
    */
-  public String getSensor() throws Exception
+  public String getSensor()
   {
-    IXMLElement i = this.node.getFirstChildNamed("sensor");
-    if (i == null)
-      return null;
-    
-    String s = i.getContent();
-    if (s == null)
-      return null;
-    
-    return s.trim();
+    return this.sensor;
+  }
+  
+  /**
+   * Speichert die UUID des Sensors.
+   * @param uuid UUID des Sensors.
+   */
+  public void setSensor(String uuid)
+  {
+    this.sensor = uuid;
   }
   
   /**
    * Liefert den Grenzwert.
    * @return der Grenzwert.
-   * @throws Exception
    */
-  public String getLimit() throws Exception
+  public String getLimit()
   {
-    IXMLElement i = this.node.getFirstChildNamed("limit");
-    if (i == null)
-      return null;
-    
-    String s = i.getContent();
-    if (s == null)
-      return null;
-    
-    return s.trim();
+    return this.limit;
+  }
+  
+  /**
+   * Speichert den Grenzwert.
+   * @param limit der Grenzwert.
+   */
+  public void setLimit(String limit)
+  {
+    this.limit = limit;
   }
   
   /**
    * Liefert den Operator, der entscheidet, ob der Grenzwert ueberschritten ist.
    * @return der Operator.
-   * @throws Exception
    */
-  public Operator getOperator() throws Exception
+  public Operator getOperator()
   {
-    IXMLElement i = this.node.getFirstChildNamed("operator");
-    if (i == null)
-      return null;
-    
-    String s = i.getContent();
-    if (s == null)
-      return null;
-    
-    return (Operator) load(s.trim());
+    return this.operator;
+  }
+  
+  /**
+   * Speichert den Operator, der entscheidet, ob der Grenzwert ueberschritten ist.
+   * @param o der Operator.
+   */
+  public void setOperator(Operator o)
+  {
+    this.operator = o;
   }
   
   /**
    * Liefert den Notifier, der die Benachrichtigung absendet.
    * @return der Notifier.
-   * @throws Exception
    */
-  public Notifier getNotifier() throws Exception
+  public Notifier getNotifier()
   {
-    IXMLElement i = this.node.getFirstChildNamed("notifier");
-    if (i == null)
-      return null;
-    
-    String s = i.getContent();
-    if (s == null)
-      return null;
-    
-    return (Notifier) load(s.trim());
+    return this.notifier;
+  }
+  
+  /**
+   * Speichert den Notifier, der die Benachrichtigung absendet.
+   * @return der Notifier.
+   */
+  public void setNotifier(Notifier n)
+  {
+    this.notifier = n;
   }
   
   /**
    * Liefert die optionalen Regel-Parameter.
    * @return optionale Regel-Parameter.
-   * @throws Exception
    */
-  public Map<String,String> getParams() throws Exception
+  public Map<String,String> getParams()
   {
-    XPathEmu xpath = new XPathEmu(this.node);
-    
-    IXMLElement[] params = xpath.getElements("params/param");
-    Map<String,String> map = new HashMap<String,String>();
-    for (IXMLElement e:params)
-    {
-      String name = e.getAttribute("name",null);
-      String value = e.getAttribute("value",null);
-      if (name != null && value != null)
-        map.put(name.trim(),value.trim());
-    }
-    
-    return map;
+    return this.params;
   }
   
   /**
@@ -155,6 +261,67 @@ public class Rule
     return sb.toString();
   }
 
+  /**
+   * Liefert ein XML-Fragment mit der Regel.
+   * @return XML-Fragment mit der Regel.
+   */
+  public IXMLElement toXml()
+  {
+    IXMLElement root = new XMLElement("rule");
+    
+    {
+      IXMLElement e = new XMLElement("enabled");
+      e.setContent(Boolean.toString(this.enabled));
+      root.addChild(e);
+    }
+
+    if (this.sensor != null)
+    {
+      IXMLElement e = new XMLElement("sensor");
+      e.setContent(this.sensor);
+      root.addChild(e);
+    }
+
+    if (this.limit != null)
+    {
+      IXMLElement e = new XMLElement("limit");
+      e.setContent(this.limit);
+      root.addChild(e);
+    }
+    
+    if (this.operator != null)
+    {
+      IXMLElement e = new XMLElement("operator");
+      e.setContent(this.operator.getClass().getName());
+      root.addChild(e);
+    }
+
+    if (this.notifier != null)
+    {
+      IXMLElement e = new XMLElement("notifier");
+      e.setContent(this.notifier.getClass().getName());
+      root.addChild(e);
+    }
+    
+    if (this.params.size() > 0)
+    {
+      IXMLElement e = new XMLElement("params");
+      Iterator<String> i = this.params.keySet().iterator();
+      while (i.hasNext())
+      {
+        String name = i.next();
+        String value = this.params.get(name);
+        if (name == null || value == null || name.length() == 0 || value.length() == 0)
+          continue;
+        IXMLElement param = new XMLElement("param");
+        param.setAttribute("name",name);
+        param.setAttribute("value",value);
+        e.addChild(param);
+      }
+      root.addChild(e);
+    }
+    return root;
+  }
 
   /**
    * Laedt und instanziiert die angegebene Klasse.
@@ -185,6 +352,9 @@ public class Rule
 
 /**********************************************************************
  * $Log: Rule.java,v $
+ * Revision 1.5  2010/03/23 18:35:45  willuhn
+ * @N Rule serialisierbar
+ *
  * Revision 1.4  2010/03/02 00:28:41  willuhn
  * @B bugfixing
  *
