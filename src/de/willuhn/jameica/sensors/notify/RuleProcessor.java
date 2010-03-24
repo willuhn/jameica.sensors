@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/notify/RuleProcessor.java,v $
- * $Revision: 1.11 $
- * $Date: 2010/03/23 18:35:45 $
+ * $Revision: 1.12 $
+ * $Date: 2010/03/24 12:09:35 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -140,6 +140,10 @@ public class RuleProcessor
     if (g != null)
       name = g.getName() + " - " + name;
     
+    // Benutzerdefinierte Betreff-Zeile
+    String subjectInside  = r.getParams().get("mail.subject.inside");
+    String subjectOutside = r.getParams().get("mail.subject.outside");
+    
     String subject = "[" + Application.getPluginLoader().getManifest(Plugin.class).getName() + "][" + name + "] ";
     String body = "Sensor name  : " + name + "\n" +
                   "Sensor uuid  : " + s.getUuid() + "\n\n" +
@@ -159,7 +163,7 @@ public class RuleProcessor
       subject += "OUTSIDE limit. current value: " + serializer.format(oValue) + ", limit: " + serializer.format(oLimit);
       Logger.info(subject);
       
-      n.outsideLimit(subject,body,r.getParams(),last);
+      n.outsideLimit(subjectOutside != null && subjectOutside.length() > 0 ? subjectOutside : subject,body,r.getParams(),last);
     }
     else if (last != null) // Sensor ist wieder in den Normbereich zurueckgekehrt
     {
@@ -168,7 +172,7 @@ public class RuleProcessor
       subject += "INSIDE limit. current value: " + serializer.format(oValue) + ", limit: " + serializer.format(oLimit);
       Logger.info(subject);
       
-      n.insideLimit(subject,body,r.getParams());
+      n.insideLimit(subjectInside != null && subjectInside.length() > 0 ? subjectInside : subject,body,r.getParams());
     }
   }
   
@@ -349,6 +353,9 @@ public class RuleProcessor
 
 /**********************************************************************
  * $Log: RuleProcessor.java,v $
+ * Revision 1.12  2010/03/24 12:09:35  willuhn
+ * @N Benutzerdefinierte Betreff-Zeile
+ *
  * Revision 1.11  2010/03/23 18:35:45  willuhn
  * @N Rule serialisierbar
  *
