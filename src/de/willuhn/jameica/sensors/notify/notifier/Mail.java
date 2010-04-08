@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/notify/notifier/Mail.java,v $
- * $Revision: 1.5 $
- * $Date: 2010/03/02 13:55:51 $
+ * $Revision: 1.6 $
+ * $Date: 2010/04/08 11:53:32 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -63,6 +63,8 @@ public class Mail implements Notifier
     if (params == null) // erspart uns unnoetige NULL-Checks
       params = new HashMap<String,String>();
 
+    Properties props = System.getProperties();
+
     ////////////////////////////////////////////////////////////////////////////
     // Authentifizierung
     Authenticator auth = null;
@@ -75,13 +77,13 @@ public class Mail implements Notifier
           return new PasswordAuthentication(user,pw);
         }
       };
+      props.put("mail.smtp.auth", "true");
     }
     //
     ////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////
     // SMTP-Host
-    Properties props = System.getProperties();
     String host = params.get("smtp.host");
     props.put("mail.smtp.host",host != null && host.length() > 0 ? host : "localhost");
     //
@@ -136,6 +138,9 @@ public class Mail implements Notifier
 
 /**********************************************************************
  * $Log: Mail.java,v $
+ * Revision 1.6  2010/04/08 11:53:32  willuhn
+ * @B Aktivierung der SMTP-Authentifizierung fehlte
+ *
  * Revision 1.5  2010/03/02 13:55:51  willuhn
  * @N Encoding
  * @N Sensor-Gruppe mit anzeigen
