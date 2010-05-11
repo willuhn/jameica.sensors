@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/web/rest/Sensor.java,v $
- * $Revision: 1.1 $
- * $Date: 2010/02/10 13:47:56 $
+ * $Revision: 1.2 $
+ * $Date: 2010/05/11 14:59:50 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -26,11 +26,12 @@ import de.willuhn.jameica.sensors.devices.Serializer;
 import de.willuhn.jameica.sensors.messaging.LiveMeasurement;
 import de.willuhn.jameica.webadmin.annotation.Path;
 import de.willuhn.jameica.webadmin.annotation.Response;
+import de.willuhn.jameica.webadmin.rest.AutoRestBean;
 
 /**
  * REST-Bean fuer den Zugriff auf Sensor-Werte.
  */
-public class Sensor
+public class Sensor implements AutoRestBean
 {
   @Response
   private HttpServletResponse response = null;
@@ -93,6 +94,9 @@ public class Sensor
 
 /**********************************************************************
  * $Log: Sensor.java,v $
+ * Revision 1.2  2010/05/11 14:59:50  willuhn
+ * @N Automatisches Deployment von REST-Beans
+ *
  * Revision 1.1  2010/02/10 13:47:56  willuhn
  * @N REST-Support zur Abfrage einzelner Werte
  *
