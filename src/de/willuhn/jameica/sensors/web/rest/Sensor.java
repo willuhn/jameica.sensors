@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/web/rest/Sensor.java,v $
- * $Revision: 1.2 $
- * $Date: 2010/05/11 14:59:50 $
+ * $Revision: 1.3 $
+ * $Date: 2010/05/11 16:40:58 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -16,16 +16,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletResponse;
-
 import de.willuhn.jameica.sensors.devices.Device;
 import de.willuhn.jameica.sensors.devices.Measurement;
 import de.willuhn.jameica.sensors.devices.Sensorgroup;
 import de.willuhn.jameica.sensors.devices.Serializer;
 import de.willuhn.jameica.sensors.messaging.LiveMeasurement;
 import de.willuhn.jameica.webadmin.annotation.Path;
-import de.willuhn.jameica.webadmin.annotation.Response;
 import de.willuhn.jameica.webadmin.rest.AutoRestBean;
 
 /**
@@ -33,19 +29,17 @@ import de.willuhn.jameica.webadmin.rest.AutoRestBean;
  */
 public class Sensor implements AutoRestBean
 {
-  @Response
-  private HttpServletResponse response = null;
-
   /**
    * Liefert den Messwert des angegebenen Sensors.
    * @param uuid die UUID des Sensors.
+   * @return der Messwert.
    * @throws Exception
    */
   @Path("/sensors/value/(.*)")
-  public void value(String uuid) throws Exception
+  public Object value(String uuid) throws Exception
   {
     if (uuid == null || uuid.length() == 0)
-      throw new ServletException("no uuid given");
+      throw new IOException("no uuid given");
 
     Map<Device,Measurement> values = LiveMeasurement.getValues();
     Iterator<Device> it = values.keySet().iterator();
@@ -65,23 +59,18 @@ public class Sensor implements AutoRestBean
             
             // Sensor hat keinen Wert
             if (value == null)
-            {
-              response.getWriter().print("");
-              return;
-            }
+              return "";
 
             // Haben wir einen Serializer?
             Class<Serializer> serializer = s.getSerializer();
             if (serializer != null)
             {
               Serializer sl = serializer.newInstance();
-              response.getWriter().print(sl.format(s.getValue()));
-              return;
+              return sl.format(s.getValue());
             }
             
             // Unformatiert zurueckliefern
-            response.getWriter().print(value.toString());
-            return;
+            return value;
           }
         }
       }
@@ -94,6 +83,9 @@ public class Sensor implements AutoRestBean
 
 /**********************************************************************
  * $Log: Sensor.java,v $
+ * Revision 1.3  2010/05/11 16:40:58  willuhn
+ * @N Automatisches Deployment von REST-Beans
+ *
  * Revision 1.2  2010/05/11 14:59:50  willuhn
  * @N Automatisches Deployment von REST-Beans
  *
