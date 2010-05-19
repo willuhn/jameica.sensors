@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/service/impl/RRDImpl.java,v $
- * $Revision: 1.11 $
- * $Date: 2010/05/19 09:59:11 $
+ * $Revision: 1.12 $
+ * $Date: 2010/05/19 10:03:12 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -196,7 +196,10 @@ public class RRDImpl implements RRD
     }
     catch (Throwable t) // Faengt auch NoClassDefFoundError falls die X11-Libs nicht installiert sind (dann geht das Rendern (ueber AWT) nicht)
     {
-      Logger.error("unable to create image",t);
+      if (t instanceof NoClassDefFoundError)
+        Logger.warn("unable to render image, perhaps the X11 libs are not installed (required for rendering charts): " + t.getMessage());
+      else
+        Logger.error("unable to create image",t);
       return getFallback();
     }
   }
@@ -494,6 +497,9 @@ public class RRDImpl implements RRD
 
 /**********************************************************************
  * $Log: RRDImpl.java,v $
+ * Revision 1.12  2010/05/19 10:03:12  willuhn
+ * *** empty log message ***
+ *
  * Revision 1.11  2010/05/19 09:59:11  willuhn
  * @N Fallback-Image anzeigen, wenn die Charts nicht gerendert werden koennen. Wird z.Bsp. dann genutzt, wenn auf dem Server (Linux) keine X11-Libs installiert sind. RRD braucht unter der Haube AWT zum Rendern.
  *
