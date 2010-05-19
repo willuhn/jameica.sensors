@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/service/impl/RRDImpl.java,v $
- * $Revision: 1.10 $
- * $Date: 2009/10/13 16:57:47 $
+ * $Revision: 1.11 $
+ * $Date: 2010/05/19 09:59:11 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -15,7 +15,9 @@ package de.willuhn.jameica.sensors.service.impl;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.InputStream;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -54,6 +56,7 @@ import de.willuhn.util.ColorGenerator;
 public class RRDImpl implements RRD
 {
   private MessageConsumer consumer = null;
+  private byte[] fallback          = null;
   
   /**
    * @see de.willuhn.datasource.Service#getName()
@@ -191,13 +194,55 @@ public class RRDImpl implements RRD
         throw new RemoteException("unable to create image, RrdGraphInfo was null, don't know why");
       return result.getBytes();
     }
-    catch (RemoteException re)
+    catch (Throwable t) // Faengt auch NoClassDefFoundError falls die X11-Libs nicht installiert sind (dann geht das Rendern (ueber AWT) nicht)
     {
-      throw re;
+      Logger.error("unable to create image",t);
+      return getFallback();
+    }
+  }
+  
+  /**
+   * Liefert ein Fallback-Image, wenn das Rendern fehlschlug.
+   * Das kann z.Bsp. passieren, wenn auf dem Server keine X11-Libs installiert sind.
+   * @return das Fallback-Image.
+   */
+  private byte[] getFallback()
+  {
+    if (this.fallback != null)
+      return this.fallback;
+    InputStream is = null;
+    try
+    {
+      is = Application.getPluginLoader().getPlugin(Plugin.class).getResources().getClassLoader().getResourceAsStream("img/nochart.png");
+      ByteArrayOutputStream bos = new ByteArrayOutputStream();
+      byte[] buf = new byte[4096];
+      int count = 0;
+      while ((count = is.read(buf)) != -1)
+      {
+        if (count > 0)
+          bos.write(buf,0,count);
+      }
+      this.fallback = bos.toByteArray();
+      return this.fallback;
     }
     catch (Exception e)
     {
-      throw new RemoteException("unable to create image",e);
+      Logger.error("unable to load fallback image",e);
+      return new byte[0];
+    }
+    finally
+    {
+      if (is != null)
+      {
+        try
+        {
+          is.close();
+        }
+        catch (Exception e)
+        {
+          // useless
+        }
+      }
     }
   }
 
@@ -449,6 +494,9 @@ public class RRDImpl implements RRD
 
 /**********************************************************************
  * $Log: RRDImpl.java,v $
+ * Revision 1.11  2010/05/19 09:59:11  willuhn
+ * @N Fallback-Image anzeigen, wenn die Charts nicht gerendert werden koennen. Wird z.Bsp. dann genutzt, wenn auf dem Server (Linux) keine X11-Libs installiert sind. RRD braucht unter der Haube AWT zum Rendern.
+ *
  * Revision 1.10  2009/10/13 16:57:47  willuhn
  * *** empty log message ***
  *

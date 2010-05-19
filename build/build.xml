@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!--
- $Revision: 1.11 $
- $Date: 2010/03/24 10:14:36 $
+ $Revision: 1.12 $
+ $Date: 2010/05/19 09:59:11 $
  $Author: willuhn $
 
  Copyright (c) by willuhn software & services
@@ -50,6 +50,7 @@
 
 		<property name="src.dir" 					      value="src" />
 		<property name="lang.dir" 					    value="${src.dir}/lang" />
+    <property name="img.dir"                value="${src.dir}/img" />
 		<property name="lib.dir" 					      value="lib" />
 		<property name="webapps.dir" 			      value="webapps" />
 		<property name="class.dir" 					    value="${project.tmp}/bin" />
@@ -92,6 +93,9 @@
       <fileset dir="${src.dir}">
         <include name="META-INF/**" />
       </fileset>
+    </copy>
+    <copy todir="${class.dir}/img">
+      <fileset dir="${img.dir}" />
     </copy>
   </target>
 
