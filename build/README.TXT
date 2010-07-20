@@ -62,7 +62,7 @@
    - Melde dich mit dem Benutzernamen "admin" und dem Masterpasswort an.
    - Klicke auf den Link "Configuration"
    - Trage den Namen/Pfad des seriellen Ports (Parameter "Serieller Port")
-     einen passenden Wert ein. Fuer Linux meist "/dev/ttyS0", für Windows meist "COM1".
+     einen passenden Wert ein. Fuer Linux meist "/dev/ttyS0", fuer Windows meist "COM1".
 
 6) Optional: Datenbank
 
