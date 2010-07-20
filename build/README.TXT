@@ -8,8 +8,8 @@
   
 2) Installation
 
-  - Jameica 1.9 Nightly-Build herunterladen und entpacken
-    http://www.willuhn.de/products/jameica/releases/nightly/jameica-1.9.0-nightly.zip
+  - Jameica 1.10 Nightly-Build herunterladen und entpacken
+    http://www.willuhn.de/products/jameica/releases/nightly/jameica-1.10.0-nightly-[linux|win32].zip
     
   - jameica.webadmin herunterladen und im Ordner "plugins" von Jameica entpacken
     http://www.willuhn.de/products/jameica/releases/nightly/jameica.webadmin-1.1-nightly.zip
@@ -51,7 +51,7 @@
           
 4) Erster Starte
 
-   - Starte jameica.bat bzw. jameica.sh
+   - Starte jameica.bat bzw. jameica.sh (ggf. mit dem Parameter "-d" fuer Start ohne GUI)
    - Vergib ein beliebiges Masterpasswort
    - Starte Jameica anschliessend erneut
    
@@ -69,6 +69,7 @@
    Falls die Messwerte ausserdem in einer Datenbank gespeichert werden sollen,
    lege einen Datenbankbenutzer sowie eine leere Datenbank an und trage die
    entsprechenden Parameter im Absatz "archive service" ein.
+   Achtung: Im Laufe der Zeit sammeln sich da eine ganze Menge Daten an.
    
 7) Verwendung
 
