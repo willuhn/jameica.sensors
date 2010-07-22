@@ -21,7 +21,7 @@
   <!-- Ruecklauf zu kalt -->
   <rule>
     <sensor>waterkotte.ai1.wpcu.device.temp.heater.return.real</sensor>
-    <limit>19.0</limit> <!-- Sommer 19.0, Winter 21.0 //-->
+    <limit>18.5</limit> <!-- Sommer 18.5, Winter 21.0 //-->
     <operator>de.willuhn.jameica.sensors.notify.operator.SmallerThan</operator>
     <notifier>de.willuhn.jameica.sensors.notify.notifier.Mail</notifier>
     
