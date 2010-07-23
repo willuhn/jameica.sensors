@@ -4,7 +4,7 @@
 1) System-Voraussetzungen
 
   - Betriebssystem: Linux oder Windows (32Bit)
-  - Java: SUN Java 1.5 oder hoeher
+  - Java: SUN Java 1.6 oder hoeher
   
 2) Installation
 
