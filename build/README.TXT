@@ -18,7 +18,7 @@
     http://www.willuhn.de/products/jameica/releases/nightly/jameica.webtools-1.1-nightly.zip
     
   - jameica.sensors herunterladen und im Ordner "plugins" von Jameica entpacken
-    http://www.willuhn.de/products/jameica/releases/nightly/jameica.sensors-1.0-nightly.src.zip
+    http://www.willuhn.de/products/jameica/releases/nightly/jameica.sensors-1.0-nightly.zip
     
 3) Start-Script anpassen
 
