@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/notify/notifier/Notifier.java,v $
- * $Revision: 1.3 $
- * $Date: 2010/03/02 12:43:52 $
+ * $Revision: 1.4 $
+ * $Date: 2010/08/31 11:01:38 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -22,9 +22,9 @@ public interface Notifier
   /**
    * Wird aufgerufen, wenn der Sensor einen Wert ausserhalb des Limits geliefert hat.
    * Die Implementierung muss dann hier die Benachrichtigung versenden.
-   * @param Betreff-Text.
-   * @param Beschreibungstext.
-   * @param optionale Zustell-Parameter gemaess "params" der XML-Regeldatei.
+   * @param subject Betreff-Text.
+   * @param description Beschreibungstext.
+   * @param params optionale Zustell-Parameter gemaess "params" der XML-Regeldatei.
    * @param since Datum, seit wann der Sensor bereits Werte ausserhalb des Limits liefert.
    * Ist dies die erste Messung, in der der Sensor unnormale Werte liefert, wird NULL
    * uebergeben. Sobald der Sensor wieder in den Normal-Bereich zurueckkehrt, wird
@@ -39,9 +39,9 @@ public interface Notifier
   /**
    * Wird einmalig aufgerufen, wenn der Sensor vorher ausserhalb des Limit
    * war und jetzt zurueckgekehrt ist.
-   * @param Betreff-Text.
-   * @param Beschreibungstext.
-   * @param optionale Zustell-Parameter gemaess "params" der XML-Regeldatei.
+   * @param subject Betreff-Text.
+   * @param description Beschreibungstext.
+   * @param params optionale Zustell-Parameter gemaess "params" der XML-Regeldatei.
    * @throws Exception
    */
   public void insideLimit(String subject, String description, Map<String,String> params) throws Exception;
@@ -51,6 +51,9 @@ public interface Notifier
 
 /**********************************************************************
  * $Log: Notifier.java,v $
+ * Revision 1.4  2010/08/31 11:01:38  willuhn
+ * @D javadoc
+ *
  * Revision 1.3  2010/03/02 12:43:52  willuhn
  * @C Ausfall-Log nicht mehr persistieren
  *
