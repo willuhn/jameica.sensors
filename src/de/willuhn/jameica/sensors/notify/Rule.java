@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/notify/Rule.java,v $
- * $Revision: 1.5 $
- * $Date: 2010/03/23 18:35:45 $
+ * $Revision: 1.6 $
+ * $Date: 2010/08/31 11:00:59 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -221,7 +221,7 @@ public class Rule
   
   /**
    * Speichert den Notifier, der die Benachrichtigung absendet.
-   * @return der Notifier.
+   * @param n der Notifier.
    */
   public void setNotifier(Notifier n)
   {
@@ -352,6 +352,9 @@ public class Rule
 
 /**********************************************************************
  * $Log: Rule.java,v $
+ * Revision 1.6  2010/08/31 11:00:59  willuhn
+ * @D javadoc
+ *
  * Revision 1.5  2010/03/23 18:35:45  willuhn
  * @N Rule serialisierbar
  *
