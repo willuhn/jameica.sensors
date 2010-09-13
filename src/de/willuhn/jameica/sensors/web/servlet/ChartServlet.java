@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/web/servlet/ChartServlet.java,v $
- * $Revision: 1.2 $
- * $Date: 2009/10/13 16:46:14 $
+ * $Revision: 1.3 $
+ * $Date: 2010/09/13 17:03:28 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -65,11 +65,11 @@ public class ChartServlet extends HttpServlet
   {
     String device = request.getParameter("device");
     if (device == null || device.length() == 0)
-      throw new ServletException("parameter 'device' missing");
+      throw new ServletException("parameter 'device' missing"); // TODO Fallback-Chart?
 
     String group = request.getParameter("group");
     if (group == null || group.length() == 0)
-      throw new ServletException("parameter 'group' missing");
+      throw new ServletException("parameter 'group' missing"); // TODO Fallback-Chart?
     
     String sensor = request.getParameter("sensor");
 
@@ -82,7 +82,7 @@ public class ChartServlet extends HttpServlet
         start = new Date(Long.parseLong(from) * 1000L); // vorher wieder in Millis umrechnen
       }
       catch (Exception e) {
-        throw new ServletException("invalid parameter 'from', value: " + from);
+        throw new ServletException("invalid parameter 'from', value: " + from); // TODO Fallback-Chart?
       }
     }
   
@@ -94,7 +94,7 @@ public class ChartServlet extends HttpServlet
         end = new Date(Long.parseLong(to) * 1000L);
       }
       catch (Exception e) {
-        throw new ServletException("invalid parameter 'to', value: " + to);
+        throw new ServletException("invalid parameter 'to', value: " + to); // TODO Fallback-Chart?
       }
     }
     
@@ -118,7 +118,7 @@ public class ChartServlet extends HttpServlet
         // Gruppe finden
         Measurement m = values.get(d);
         if (m == null)
-          throw new ServletException("sensorgroup not found for device"); // TODO: Wenn wir die Daten von der Device-API kriegen, muss das hier nicht mehr sein
+          throw new ServletException("sensorgroup not found for device"); //  // TODO Fallback-Chart?
         List<Sensorgroup> groups = m.getSensorgroups();
         for (Sensorgroup sg:groups)
         {
@@ -148,7 +148,7 @@ public class ChartServlet extends HttpServlet
     }
 
     if (g == null)
-      throw new ServletException("sensorgroup not found for device");
+      throw new ServletException("sensorgroup not found for device"); // TODO Fallback-Chart?
     
 
     // So, koemmer jetzt endlich? ;)
@@ -176,6 +176,9 @@ public class ChartServlet extends HttpServlet
 
 /**********************************************************************
  * $Log: ChartServlet.java,v $
+ * Revision 1.3  2010/09/13 17:03:28  willuhn
+ * *** empty log message ***
+ *
  * Revision 1.2  2009/10/13 16:46:14  willuhn
  * @N Graph pro Sensor zeichnen
  *

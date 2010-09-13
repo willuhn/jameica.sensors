@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/service/impl/RRDImpl.java,v $
- * $Revision: 1.12 $
- * $Date: 2010/05/19 10:03:12 $
+ * $Revision: 1.13 $
+ * $Date: 2010/09/13 17:03:28 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -119,7 +119,7 @@ public class RRDImpl implements RRD
     String basedir = Application.getPluginLoader().getPlugin(Plugin.class).getResources().getWorkPath();
     File deviceDir = new File(basedir,device.getUuid());
     File rrd = new File(deviceDir,group.getUuid() + ".rrd");
-    if (!rrd.exists())
+    if (!rrd.exists()) // TODO Fallback-Chart?
       throw new RemoteException("no rrd data found for device " + device.getName() + " [uuid: " + device.getUuid() + "], sensor group " + group.getName() + "[uuid: " + group.getUuid() + "]");
 
     // In RRD werden ja die UUIDs der Sensoren als Datasource-Name
@@ -497,6 +497,9 @@ public class RRDImpl implements RRD
 
 /**********************************************************************
  * $Log: RRDImpl.java,v $
+ * Revision 1.13  2010/09/13 17:03:28  willuhn
+ * *** empty log message ***
+ *
  * Revision 1.12  2010/05/19 10:03:12  willuhn
  * *** empty log message ***
  *
