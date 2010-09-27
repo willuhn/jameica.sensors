@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/service/impl/RRDImpl.java,v $
- * $Revision: 1.13 $
- * $Date: 2010/09/13 17:03:28 $
+ * $Revision: 1.14 $
+ * $Date: 2010/09/27 17:22:18 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -48,6 +48,7 @@ import de.willuhn.jameica.sensors.service.RRD;
 import de.willuhn.jameica.system.Application;
 import de.willuhn.jameica.system.Settings;
 import de.willuhn.logging.Logger;
+import de.willuhn.util.ApplicationException;
 import de.willuhn.util.ColorGenerator;
 
 /**
@@ -116,33 +117,38 @@ public class RRDImpl implements RRD
    */
   public byte[] render(Device device, Sensorgroup group, Sensor sensor, Date start, Date end) throws RemoteException
   {
-    String basedir = Application.getPluginLoader().getPlugin(Plugin.class).getResources().getWorkPath();
-    File deviceDir = new File(basedir,device.getUuid());
-    File rrd = new File(deviceDir,group.getUuid() + ".rrd");
-    if (!rrd.exists()) // TODO Fallback-Chart?
-      throw new RemoteException("no rrd data found for device " + device.getName() + " [uuid: " + device.getUuid() + "], sensor group " + group.getName() + "[uuid: " + group.getUuid() + "]");
-
-    // In RRD werden ja die UUIDs der Sensoren als Datasource-Name
-    // verwendet - jedoch verkuerzt, wenn sie mehr als 20 Zeichen
-    // haben. Damit wir das rueckwaerts wieder aufloesen zu koennen,
-    // um in der Chartgrafik ordentliche Labels anzuzeigen, bauen
-    // wir uns hier eine Map fuers Reverse-Lookup
-    Map<String,Sensor> sensorMap = new HashMap<String,Sensor>();
-    List<Sensor> sensors = new ArrayList<Sensor>();
-    if (sensor != null)
-      sensors.add(sensor);
-    else
-      sensors.addAll(group.getSensors());
-
-    for (Sensor s:sensors)
-    {
-      sensorMap.put(createRrdName(s.getUuid()),s);
-    }
-    
-    RrdGraphDef gd = new RrdGraphDef();
-
     try
     {
+      if (device == null)
+        throw new ApplicationException("no device given");
+      if (group == null)
+        throw new ApplicationException("no sensor group given");
+      
+      String basedir = Application.getPluginLoader().getPlugin(Plugin.class).getResources().getWorkPath();
+      File deviceDir = new File(basedir,device.getUuid());
+      File rrd = new File(deviceDir,group.getUuid() + ".rrd");
+      if (!rrd.exists())
+        throw new ApplicationException("no rrd data found for device " + device.getName() + " [uuid: " + device.getUuid() + "], sensor group " + group.getName() + "[uuid: " + group.getUuid() + "]");
+
+      // In RRD werden ja die UUIDs der Sensoren als Datasource-Name
+      // verwendet - jedoch verkuerzt, wenn sie mehr als 20 Zeichen
+      // haben. Damit wir das rueckwaerts wieder aufloesen zu koennen,
+      // um in der Chartgrafik ordentliche Labels anzuzeigen, bauen
+      // wir uns hier eine Map fuers Reverse-Lookup
+      Map<String,Sensor> sensorMap = new HashMap<String,Sensor>();
+      List<Sensor> sensors = new ArrayList<Sensor>();
+      if (sensor != null)
+        sensors.add(sensor);
+      else
+        sensors.addAll(group.getSensors());
+
+      for (Sensor s:sensors)
+      {
+        sensorMap.put(createRrdName(s.getUuid()),s);
+      }
+      
+      RrdGraphDef gd = new RrdGraphDef();
+
       // Fuer jeden Sensor eine Datasource mit der UUID als Name.
 
       //////////////////////////////////////////////////////////////////////////
@@ -198,6 +204,8 @@ public class RRDImpl implements RRD
     {
       if (t instanceof NoClassDefFoundError)
         Logger.warn("unable to render image, perhaps the X11 libs are not installed (required for rendering charts): " + t.getMessage());
+      else if (t instanceof ApplicationException)
+        Logger.warn(t.getMessage());
       else
         Logger.error("unable to create image",t);
       return getFallback();
@@ -497,7 +505,10 @@ public class RRDImpl implements RRD
 
 /**********************************************************************
  * $Log: RRDImpl.java,v $
- * Revision 1.13  2010/09/13 17:03:28  willuhn
+ * Revision 1.14  2010/09/27 17:22:18  willuhn
+ * @C Generell Fallback-Grafik liefern, wenn keine erzeugt werden kann
+ *
+ * Revision 1.13  2010-09-13 17:03:28  willuhn
  * *** empty log message ***
  *
  * Revision 1.12  2010/05/19 10:03:12  willuhn

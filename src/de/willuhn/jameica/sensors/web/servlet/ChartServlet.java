@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/web/servlet/ChartServlet.java,v $
- * $Revision: 1.3 $
- * $Date: 2010/09/13 17:03:28 $
+ * $Revision: 1.4 $
+ * $Date: 2010/09/27 17:22:18 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -64,13 +64,7 @@ public class ChartServlet extends HttpServlet
   protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
   {
     String device = request.getParameter("device");
-    if (device == null || device.length() == 0)
-      throw new ServletException("parameter 'device' missing"); // TODO Fallback-Chart?
-
-    String group = request.getParameter("group");
-    if (group == null || group.length() == 0)
-      throw new ServletException("parameter 'group' missing"); // TODO Fallback-Chart?
-    
+    String group  = request.getParameter("group");
     String sensor = request.getParameter("sensor");
 
     // Checken, ob optionale Parameter vorhanden sind
@@ -82,7 +76,7 @@ public class ChartServlet extends HttpServlet
         start = new Date(Long.parseLong(from) * 1000L); // vorher wieder in Millis umrechnen
       }
       catch (Exception e) {
-        throw new ServletException("invalid parameter 'from', value: " + from); // TODO Fallback-Chart?
+        Logger.error("invalid parameter 'from', value: " + from);
       }
     }
   
@@ -94,7 +88,7 @@ public class ChartServlet extends HttpServlet
         end = new Date(Long.parseLong(to) * 1000L);
       }
       catch (Exception e) {
-        throw new ServletException("invalid parameter 'to', value: " + to); // TODO Fallback-Chart?
+        Logger.error("invalid parameter 'to', value: " + to);
       }
     }
     
@@ -107,49 +101,48 @@ public class ChartServlet extends HttpServlet
     Device d      = null;
     Sensorgroup g = null;
     Sensor s      = null;
-    Map<Device,Measurement> values = LiveMeasurement.getValues();
-    Iterator<Device> it = values.keySet().iterator();
-    while (it.hasNext() && g == null)
+    if (device != null && group != null)
     {
-      d = it.next();
-      if (device.equals(d.getUuid()))
+      Map<Device,Measurement> values = LiveMeasurement.getValues();
+      Iterator<Device> it = values.keySet().iterator();
+      while (it.hasNext() && g == null)
       {
-        // Device passt schonmal. Mal schauen, ob wir die 
-        // Gruppe finden
-        Measurement m = values.get(d);
-        if (m == null)
-          throw new ServletException("sensorgroup not found for device"); //  // TODO Fallback-Chart?
-        List<Sensorgroup> groups = m.getSensorgroups();
-        for (Sensorgroup sg:groups)
+        d = it.next();
+        if (device.equals(d.getUuid()))
         {
-          if (group.equals(sg.getUuid()))
+          // Device passt schonmal. Mal schauen, ob wir die 
+          // Gruppe finden
+          Measurement m = values.get(d);
+          if (m == null)
+            break; // Wir haben (noch) gar keine Messungen - dann gibts die Fallback-Grafik 
+          List<Sensorgroup> groups = m.getSensorgroups();
+          for (Sensorgroup sg:groups)
           {
-            // gefunden
-            g = sg;
-            
-            // wir checken noch, ob wir den Sensor hier finden, falls einer
-            // angegeben ist
-            if (sensor != null && sensor.length() > 0)
+            if (group.equals(sg.getUuid()))
             {
-              List<Sensor> sensors = sg.getSensors();
-              for (Sensor s2:sensors)
+              // gefunden
+              g = sg;
+              
+              // wir checken noch, ob wir den Sensor hier finden, falls einer
+              // angegeben ist
+              if (sensor != null && sensor.length() > 0)
               {
-                if (sensor.equals(s2.getUuid()))
+                List<Sensor> sensors = sg.getSensors();
+                for (Sensor s2:sensors)
                 {
-                  s = s2;
-                  break;
+                  if (sensor.equals(s2.getUuid()))
+                  {
+                    s = s2;
+                    break;
+                  }
                 }
               }
+              break;
             }
-            break;
           }
         }
       }
     }
-
-    if (g == null)
-      throw new ServletException("sensorgroup not found for device"); // TODO Fallback-Chart?
-    
 
     // So, koemmer jetzt endlich? ;)
     try
@@ -176,7 +169,10 @@ public class ChartServlet extends HttpServlet
 
 /**********************************************************************
  * $Log: ChartServlet.java,v $
- * Revision 1.3  2010/09/13 17:03:28  willuhn
+ * Revision 1.4  2010/09/27 17:22:18  willuhn
+ * @C Generell Fallback-Grafik liefern, wenn keine erzeugt werden kann
+ *
+ * Revision 1.3  2010-09-13 17:03:28  willuhn
  * *** empty log message ***
  *
  * Revision 1.2  2009/10/13 16:46:14  willuhn
