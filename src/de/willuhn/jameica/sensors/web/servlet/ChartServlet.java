@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/web/servlet/ChartServlet.java,v $
- * $Revision: 1.4 $
- * $Date: 2010/09/27 17:22:18 $
+ * $Revision: 1.5 $
+ * $Date: 2010/11/29 16:17:22 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -15,6 +15,8 @@ package de.willuhn.jameica.sensors.web.servlet;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -46,8 +48,8 @@ import de.willuhn.logging.Logger;
  * 
  * Ausserdem <i>koennen</i> folgende Parameter uebergeben werden.
  * Name  : Wert
- * from  : Startdatum als UNIX-Timestamp
- * to    : Enddatum als UNIX-Timestamp
+ * from  : Startdatum als UNIX-Timestamp oder als Datum im Format "yyyy-mm-dd".
+ * to    : Enddatum als UNIX-Timestamp oder als Datum im Format "yyyy-mm-dd".
  * 
  * Wichtig: UNIX-Timestamp sind Epochen-<i>Sekunden</i>. Nicht Millisekunden.
  * Also den Wert von {@link Date#getTime()} vorher noch durch 1000 teilen.  
@@ -56,6 +58,8 @@ import de.willuhn.logging.Logger;
  */
 public class ChartServlet extends HttpServlet
 {
+  private DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+  
   /**
    * @see javax.servlet.http.HttpServlet#service(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
    * Wir ueberschreiben "service" statt "doGet" weil uns egal ist, ob wir
@@ -73,7 +77,10 @@ public class ChartServlet extends HttpServlet
     if (from != null && from.length() > 0)
     {
       try {
-        start = new Date(Long.parseLong(from) * 1000L); // vorher wieder in Millis umrechnen
+        if (from.indexOf(".") != -1)
+          start = format.parse(from);
+        else
+          start = new Date(Long.parseLong(from) * 1000L); // vorher wieder in Millis umrechnen
       }
       catch (Exception e) {
         Logger.error("invalid parameter 'from', value: " + from);
@@ -85,7 +92,10 @@ public class ChartServlet extends HttpServlet
     if (to != null && to.length() > 0)
     {
       try {
-        end = new Date(Long.parseLong(to) * 1000L);
+        if (to.indexOf(".") != -1)
+          end = format.parse(to);
+        else
+          end = new Date(Long.parseLong(to) * 1000L);
       }
       catch (Exception e) {
         Logger.error("invalid parameter 'to', value: " + to);
@@ -169,7 +179,10 @@ public class ChartServlet extends HttpServlet
 
 /**********************************************************************
  * $Log: ChartServlet.java,v $
- * Revision 1.4  2010/09/27 17:22:18  willuhn
+ * Revision 1.5  2010/11/29 16:17:22  willuhn
+ * @N Von-Bis-Datum kann alternativ auch als yyyy-mm-dd angegeben werden.
+ *
+ * Revision 1.4  2010-09-27 17:22:18  willuhn
  * @C Generell Fallback-Grafik liefern, wenn keine erzeugt werden kann
  *
  * Revision 1.3  2010-09-13 17:03:28  willuhn
