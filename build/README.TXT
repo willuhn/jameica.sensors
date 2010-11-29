@@ -7,15 +7,11 @@
   - Java: SUN Java 1.6 oder hoeher
   
 2) Installation
-
-  - Jameica 1.10 Nightly-Build herunterladen und entpacken
+  - Jameica 1.10 (oder 1.11 Nightly) herunterladen und entpacken
     http://www.willuhn.de/products/jameica/releases/nightly/jameica-1.10.0-nightly-[linux|win32].zip
     
   - jameica.webadmin herunterladen und im Ordner "plugins" von Jameica entpacken
     http://www.willuhn.de/products/jameica/releases/nightly/jameica.webadmin-1.1-nightly.zip
-    
-  - jameica.webtools herunterladen und im Ordner "plugins" von Jameica entpacken
-    http://www.willuhn.de/products/jameica/releases/nightly/jameica.webtools-1.1-nightly.zip
     
   - jameica.sensors herunterladen und im Ordner "plugins" von Jameica entpacken
     http://www.willuhn.de/products/jameica/releases/nightly/jameica.sensors-1.0-nightly.zip
