@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/web/servlet/ChartServlet.java,v $
- * $Revision: 1.5 $
- * $Date: 2010/11/29 16:17:22 $
+ * $Revision: 1.6 $
+ * $Date: 2010/11/29 16:31:35 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -77,7 +77,7 @@ public class ChartServlet extends HttpServlet
     if (from != null && from.length() > 0)
     {
       try {
-        if (from.indexOf(".") != -1)
+        if (from.indexOf("-") != -1)
           start = format.parse(from);
         else
           start = new Date(Long.parseLong(from) * 1000L); // vorher wieder in Millis umrechnen
@@ -92,7 +92,7 @@ public class ChartServlet extends HttpServlet
     if (to != null && to.length() > 0)
     {
       try {
-        if (to.indexOf(".") != -1)
+        if (to.indexOf("-") != -1)
           end = format.parse(to);
         else
           end = new Date(Long.parseLong(to) * 1000L);
@@ -179,7 +179,10 @@ public class ChartServlet extends HttpServlet
 
 /**********************************************************************
  * $Log: ChartServlet.java,v $
- * Revision 1.5  2010/11/29 16:17:22  willuhn
+ * Revision 1.6  2010/11/29 16:31:35  willuhn
+ * *** empty log message ***
+ *
+ * Revision 1.5  2010-11-29 16:17:22  willuhn
  * @N Von-Bis-Datum kann alternativ auch als yyyy-mm-dd angegeben werden.
  *
  * Revision 1.4  2010-09-27 17:22:18  willuhn
