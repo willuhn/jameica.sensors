@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/notify/notifier/Mail.java,v $
- * $Revision: 1.7 $
- * $Date: 2010/04/08 12:33:58 $
+ * $Revision: 1.8 $
+ * $Date: 2011/01/18 11:21:44 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -95,6 +95,10 @@ public class Mail implements Notifier
         props.put("mail.smtp.auth", "true");
         transport.connect(user,pw);
       }
+      else
+      {
+        transport.connect(); // Ohne Authentifizierung
+      }
       //
       ////////////////////////////////////////////////////////////////////////////
 
@@ -154,6 +158,9 @@ public class Mail implements Notifier
 
 /**********************************************************************
  * $Log: Mail.java,v $
+ * Revision 1.8  2011/01/18 11:21:44  willuhn
+ * @B transport.connect() fehlte - fuehre zu "not connected" exception
+ *
  * Revision 1.7  2010/04/08 12:33:58  willuhn
  * @B Fehler in SMTP-Authentifizierung
  *
