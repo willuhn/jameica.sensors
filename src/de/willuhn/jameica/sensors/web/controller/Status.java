@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/web/controller/Status.java,v $
- * $Revision: 1.2 $
- * $Date: 2009/08/21 13:34:17 $
+ * $Revision: 1.3 $
+ * $Date: 2011/02/14 16:04:51 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -21,6 +21,7 @@ import de.willuhn.jameica.sensors.devices.Measurement;
 import de.willuhn.jameica.sensors.devices.Sensor;
 import de.willuhn.jameica.sensors.devices.Serializer;
 import de.willuhn.jameica.sensors.devices.StringSerializer;
+import de.willuhn.jameica.sensors.messaging.LimitMessageConsumer;
 import de.willuhn.jameica.sensors.messaging.LiveMeasurement;
 import de.willuhn.jameica.webadmin.annotation.Lifecycle;
 import de.willuhn.jameica.webadmin.annotation.Lifecycle.Type;
@@ -66,12 +67,27 @@ public class Status
     }
     return new StringSerializer().format(value);
   }
+  
+  /**
+   * Prueft, ob der Sensor ausserhalb des Limits ist.
+   * @param s der zu pruefende Sensor.
+   * @return true, wenn der Sensor ausserhalb des Limits ist.
+   */
+  public boolean outsideLimit(Sensor s)
+  {
+    if (s == null)
+      return false;
+    return LimitMessageConsumer.outsideLimit(s.getUuid());
+  }
 }
 
 
 /**********************************************************************
  * $Log: Status.java,v $
- * Revision 1.2  2009/08/21 13:34:17  willuhn
+ * Revision 1.3  2011/02/14 16:04:51  willuhn
+ * @N Messwerte hervorheben, die ausserhalb des Limits liegen
+ *
+ * Revision 1.2  2009-08-21 13:34:17  willuhn
  * @N Redesign der Device-API
  * @N Cleanup in Persistierung
  * @B Bugfixing beim Initialisieren des EntityManagers

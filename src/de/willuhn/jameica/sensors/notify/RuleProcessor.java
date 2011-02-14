@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/notify/RuleProcessor.java,v $
- * $Revision: 1.12 $
- * $Date: 2010/03/24 12:09:35 $
+ * $Revision: 1.13 $
+ * $Date: 2011/02/14 16:04:51 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -33,6 +33,7 @@ import de.willuhn.jameica.sensors.devices.Sensor;
 import de.willuhn.jameica.sensors.devices.Sensorgroup;
 import de.willuhn.jameica.sensors.devices.Serializer;
 import de.willuhn.jameica.sensors.devices.StringSerializer;
+import de.willuhn.jameica.sensors.messaging.LimitMessage;
 import de.willuhn.jameica.sensors.notify.notifier.Notifier;
 import de.willuhn.jameica.sensors.notify.operator.Operator;
 import de.willuhn.jameica.system.Application;
@@ -109,10 +110,6 @@ public class RuleProcessor
     String limit  = getLimit(m,r);
     Sensorgroup g = findGroup(m,r.getSensor());
     
-
-    if (n == null)
-      throw new Exception("rule for sensor " + r.getSensor() + " has no notifier");
-    
     if (o == null)
       throw new Exception("rule for sensor " + r.getSensor() + " has no operator");
 
@@ -153,27 +150,35 @@ public class RuleProcessor
     String id = r.getID();
     Date last = log.get(id);
     
-    if (o.matches(oValue,oLimit))
-    {
-      if (last != null) // war vorher schon ausgefallen
-        subject += "STILL ";
-      else
-        log.put(id,new Date()); // Wir tragen den Vorfall ins Log ein
-      
-      subject += "OUTSIDE limit. current value: " + serializer.format(oValue) + ", limit: " + serializer.format(oLimit);
-      Logger.info(subject);
-      
-      n.outsideLimit(subjectOutside != null && subjectOutside.length() > 0 ? subjectOutside : subject,body,r.getParams(),last);
-    }
-    else if (last != null) // Sensor ist wieder in den Normbereich zurueckgekehrt
-    {
-      log.remove(id); // wir entfernen ihn aus dem Log
+    boolean outside = o.matches(oValue,oLimit);
 
-      subject += "INSIDE limit. current value: " + serializer.format(oValue) + ", limit: " + serializer.format(oLimit);
-      Logger.info(subject);
-      
-      n.insideLimit(subjectInside != null && subjectInside.length() > 0 ? subjectInside : subject,body,r.getParams());
+    if (n != null) // Notifier benachrichtigen, wenn einer vorhanden ist
+    {
+      if (outside)
+      {
+        if (last != null) // war vorher schon ausgefallen
+          subject += "STILL ";
+        else
+          log.put(id,new Date()); // Wir tragen den Vorfall ins Log ein
+        
+        subject += "OUTSIDE limit. current value: " + serializer.format(oValue) + ", limit: " + serializer.format(oLimit);
+        Logger.info(subject);
+        
+        n.outsideLimit(subjectOutside != null && subjectOutside.length() > 0 ? subjectOutside : subject,body,r.getParams(),last);
+      }
+      else if (last != null) // Sensor ist wieder in den Normbereich zurueckgekehrt
+      {
+        log.remove(id); // wir entfernen ihn aus dem Log
+
+        subject += "INSIDE limit. current value: " + serializer.format(oValue) + ", limit: " + serializer.format(oLimit);
+        Logger.info(subject);
+        
+        n.insideLimit(subjectInside != null && subjectInside.length() > 0 ? subjectInside : subject,body,r.getParams());
+      }
     }
+
+    // Wir geben noch via Messaging Bescheid, ob der Sensor ausserhalb oder innerhalb des Limits ist.
+    Application.getMessagingFactory().sendMessage(new LimitMessage(s,outside));
   }
   
   /**
@@ -353,7 +358,10 @@ public class RuleProcessor
 
 /**********************************************************************
  * $Log: RuleProcessor.java,v $
- * Revision 1.12  2010/03/24 12:09:35  willuhn
+ * Revision 1.13  2011/02/14 16:04:51  willuhn
+ * @N Messwerte hervorheben, die ausserhalb des Limits liegen
+ *
+ * Revision 1.12  2010-03-24 12:09:35  willuhn
  * @N Benutzerdefinierte Betreff-Zeile
  *
  * Revision 1.11  2010/03/23 18:35:45  willuhn

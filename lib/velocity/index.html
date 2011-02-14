@@ -29,7 +29,7 @@
             #foreach($sensor in $sensors)
               <tr>
                 <td><a href="charts?device=$device.uuid&group=$group.uuid&sensor=$sensor.uuid">$sensor.name</a></td>
-                <td style="text-align: right">$c.format($sensor)</td>
+                <td style="text-align: right#if($c.outsideLimit($sensor)); color:#AE1416;font-weight:bold;background-image: url('/webadmin/img/status-error.png');background-repeat: no-repeat;#end">$c.format($sensor)</td>
               </tr>
             #end
           </table>
