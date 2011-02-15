@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/web/rest/Measurement.java,v $
- * $Revision: 1.1 $
- * $Date: 2011/02/15 16:28:28 $
+ * $Revision: 1.2 $
+ * $Date: 2011/02/15 16:35:28 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -12,6 +12,8 @@
 package de.willuhn.jameica.sensors.web.rest;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -37,6 +39,8 @@ import de.willuhn.logging.Logger;
 @Doc("jameica.sensors: Bietet Zugriff auf alle Messwerte einer Messung")
 public class Measurement implements AutoRestBean
 {
+  public static DateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
   /**
    * Liefert alle Messwerte aller Devices.
    * @return alle Messwerte.
@@ -64,6 +68,7 @@ public class Measurement implements AutoRestBean
         Map map = new HashMap();
         map.put("name",device.getName());
         map.put("uuid",device.getUuid());
+        map.put("date",dateformat.format(m.getDate()));
 
         // Sensor-Gruppen
         List<JSONObject> list2 = new ArrayList<JSONObject>();
@@ -130,7 +135,8 @@ public class Measurement implements AutoRestBean
 
 /**********************************************************************
  * $Log: Measurement.java,v $
- * Revision 1.1  2011/02/15 16:28:28  willuhn
- * @N REST-URL zum Abrufen aller Messwerte via JSON
+ * Revision 1.2  2011/02/15 16:35:28  willuhn
+ * @B json.jar fehlte noch im Build-Script
+ * @N Datum in Ausgabe
  *
  **********************************************************************/
