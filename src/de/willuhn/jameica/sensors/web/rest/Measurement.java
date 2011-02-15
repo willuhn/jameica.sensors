@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/web/rest/Measurement.java,v $
- * $Revision: 1.2 $
- * $Date: 2011/02/15 16:35:28 $
+ * $Revision: 1.3 $
+ * $Date: 2011/02/15 16:56:10 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -27,6 +27,7 @@ import de.willuhn.jameica.sensors.devices.Device;
 import de.willuhn.jameica.sensors.devices.Sensor;
 import de.willuhn.jameica.sensors.devices.Sensorgroup;
 import de.willuhn.jameica.sensors.devices.Serializer;
+import de.willuhn.jameica.sensors.messaging.LimitMessageConsumer;
 import de.willuhn.jameica.sensors.messaging.LiveMeasurement;
 import de.willuhn.jameica.webadmin.annotation.Doc;
 import de.willuhn.jameica.webadmin.annotation.Path;
@@ -112,6 +113,9 @@ public class Measurement implements AutoRestBean
               }
             }
             map3.put("value",text);
+            
+            // Noch vermerken, ob der Sensor ausserhalb der Norm ist
+            map3.put("outsidelimit",LimitMessageConsumer.outsideLimit(sensor.getUuid()));
             list3.add(new JSONObject(map3));
           }
           map2.put("sensors",list3); // Liste der Sensoren in die Gruppe tun
@@ -135,7 +139,10 @@ public class Measurement implements AutoRestBean
 
 /**********************************************************************
  * $Log: Measurement.java,v $
- * Revision 1.2  2011/02/15 16:35:28  willuhn
+ * Revision 1.3  2011/02/15 16:56:10  willuhn
+ * @N Vermerken, ob Sensor ausserhalb Limit
+ *
+ * Revision 1.2  2011-02-15 16:35:28  willuhn
  * @B json.jar fehlte noch im Build-Script
  * @N Datum in Ausgabe
  *
