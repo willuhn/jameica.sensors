@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/notify/operator/SmallerThan.java,v $
- * $Revision: 1.1 $
- * $Date: 2010/03/01 18:12:23 $
+ * $Revision: 1.2 $
+ * $Date: 2011/02/17 23:47:56 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -33,8 +33,15 @@ public class SmallerThan implements Operator
     Comparable cLimit = null;
     if (limit instanceof Comparable) cLimit = (Comparable) limit;
     else                             cLimit = limit.toString();
-    
-    
+
+    // Wenn beides Zahlen sind, erzeugen wir Double-Objekte.
+    // Andernfalls koennte es passieren, dass wir ein Long mit einem
+    // Double vergleichen. Und das bringt u.U. eine ClassCastException
+    if ((cValue instanceof Number) && (cLimit instanceof Number))
+    {
+      cValue = new Double(((Number)cValue).doubleValue());
+      cLimit = new Double(((Number)cLimit).doubleValue());
+    }
     return cValue.compareTo(cLimit) < 0;
   }
 
@@ -44,6 +51,9 @@ public class SmallerThan implements Operator
 
 /**********************************************************************
  * $Log: SmallerThan.java,v $
+ * Revision 1.2  2011/02/17 23:47:56  willuhn
+ * *** empty log message ***
+ *
  * Revision 1.1  2010/03/01 18:12:23  willuhn
  * *** empty log message ***
  *

@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/devices/DecimalSerializer.java,v $
- * $Revision: 1.1 $
- * $Date: 2009/08/21 13:34:17 $
+ * $Revision: 1.2 $
+ * $Date: 2011/02/17 23:47:56 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -15,7 +15,6 @@ package de.willuhn.jameica.sensors.devices;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.text.ParseException;
 
 /**
  * Serialisiert Dezimal-Werte.
@@ -33,11 +32,20 @@ public class DecimalSerializer extends StringSerializer
       return null;
     try
     {
-      return NF.parseObject(s);
+      // Erstmal mit Punkt als Dezimaltrenner versuchen
+      return new Double(Double.parseDouble(s));
     }
-    catch (ParseException e)
+    catch (Exception e)
     {
-      throw new IllegalArgumentException(e);
+      // Fallback
+      try
+      {
+        return NF.parseObject(s);
+      }
+      catch (Exception e2)
+      {
+        throw new IllegalArgumentException(e);
+      }
     }
   }
 
@@ -46,6 +54,9 @@ public class DecimalSerializer extends StringSerializer
 
 /**********************************************************************
  * $Log: DecimalSerializer.java,v $
+ * Revision 1.2  2011/02/17 23:47:56  willuhn
+ * *** empty log message ***
+ *
  * Revision 1.1  2009/08/21 13:34:17  willuhn
  * @N Redesign der Device-API
  * @N Cleanup in Persistierung

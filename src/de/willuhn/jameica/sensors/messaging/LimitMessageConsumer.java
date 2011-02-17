@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/messaging/LimitMessageConsumer.java,v $
- * $Revision: 1.2 $
- * $Date: 2011/02/17 22:38:51 $
+ * $Revision: 1.3 $
+ * $Date: 2011/02/17 23:47:56 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -49,9 +49,10 @@ public class LimitMessageConsumer implements MessageConsumer
     LimitMessage msg = (LimitMessage) message;
     String uuid = msg.getSensor().getUuid();
     if (uuid == null)
+    {
+      Logger.warn("sensor has no uuid");
       return;
-    
-    Logger.debug("limit state for sensor " + uuid + ": " + (msg.isOutside() ? "outside" : "inside"));
+    }
     
     if (msg.isOutside())
       map.put(uuid,uuid);
@@ -75,7 +76,10 @@ public class LimitMessageConsumer implements MessageConsumer
 
 /**********************************************************************
  * $Log: LimitMessageConsumer.java,v $
- * Revision 1.2  2011/02/17 22:38:51  willuhn
+ * Revision 1.3  2011/02/17 23:47:56  willuhn
+ * *** empty log message ***
+ *
+ * Revision 1.2  2011-02-17 22:38:51  willuhn
  * *** empty log message ***
  *
  * Revision 1.1  2011-02-14 16:04:51  willuhn

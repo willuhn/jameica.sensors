@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/notify/RuleProcessor.java,v $
- * $Revision: 1.17 $
- * $Date: 2011/02/17 22:43:14 $
+ * $Revision: 1.18 $
+ * $Date: 2011/02/17 23:47:56 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -152,6 +152,13 @@ public class RuleProcessor
     
     boolean outside = o.matches(oValue,oLimit);
 
+    // TODO: Wir haben hier noch ein echtes Problem mit multiplen Regeln fuer einen Sensor!
+    // Wenn wir fuer einen Sensor mehrere Regeln (min/max) haben, und nur eine davon ausserhalb des
+    // Limits ist, dann "neutralisieren" wir uns selbst wieder, da bei der ersten Regel
+    // OUTSIDE gemeldet wird, bei der naechsten dann aber wieder INSIDE.
+    // Hier koennte ein neuer Operator "between" helfen, mit dem man Ober- UND Untergrenze
+    // mit einer Regel festlegen kann.
+    
     // Wir geben noch via Messaging Bescheid, ob der Sensor ausserhalb oder innerhalb des Limits ist.
     Application.getMessagingFactory().sendMessage(new LimitMessage(s,outside));
 
@@ -359,7 +366,10 @@ public class RuleProcessor
 
 /**********************************************************************
  * $Log: RuleProcessor.java,v $
- * Revision 1.17  2011/02/17 22:43:14  willuhn
+ * Revision 1.18  2011/02/17 23:47:56  willuhn
+ * *** empty log message ***
+ *
+ * Revision 1.17  2011-02-17 22:43:14  willuhn
  * *** empty log message ***
  *
  * Revision 1.16  2011-02-17 22:38:51  willuhn
