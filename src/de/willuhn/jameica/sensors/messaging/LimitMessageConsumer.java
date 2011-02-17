@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/messaging/LimitMessageConsumer.java,v $
- * $Revision: 1.1 $
- * $Date: 2011/02/14 16:04:51 $
+ * $Revision: 1.2 $
+ * $Date: 2011/02/17 22:38:51 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -16,6 +16,7 @@ import java.util.Map;
 
 import de.willuhn.jameica.messaging.Message;
 import de.willuhn.jameica.messaging.MessageConsumer;
+import de.willuhn.logging.Logger;
 
 /**
  * Wird ueber die Limit-Ueberschreitungen von Sensoren benachrichtigt.
@@ -50,6 +51,8 @@ public class LimitMessageConsumer implements MessageConsumer
     if (uuid == null)
       return;
     
+    Logger.debug("limit state for sensor " + uuid + ": " + (msg.isOutside() ? "outside" : "inside"));
+    
     if (msg.isOutside())
       map.put(uuid,uuid);
     else
@@ -63,7 +66,7 @@ public class LimitMessageConsumer implements MessageConsumer
    */
   public static boolean outsideLimit(String uuid)
   {
-    return map.containsKey(uuid);
+    return map.get(uuid) != null;
   }
 
 }
@@ -72,7 +75,10 @@ public class LimitMessageConsumer implements MessageConsumer
 
 /**********************************************************************
  * $Log: LimitMessageConsumer.java,v $
- * Revision 1.1  2011/02/14 16:04:51  willuhn
+ * Revision 1.2  2011/02/17 22:38:51  willuhn
+ * *** empty log message ***
+ *
+ * Revision 1.1  2011-02-14 16:04:51  willuhn
  * @N Messwerte hervorheben, die ausserhalb des Limits liegen
  *
  **********************************************************************/

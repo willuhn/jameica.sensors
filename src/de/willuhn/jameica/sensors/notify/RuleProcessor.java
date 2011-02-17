@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/notify/RuleProcessor.java,v $
- * $Revision: 1.15 $
- * $Date: 2011/02/17 22:12:39 $
+ * $Revision: 1.16 $
+ * $Date: 2011/02/17 22:38:51 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -169,15 +169,16 @@ public class RuleProcessor
       if (n != null)
         n.outsideLimit(subjectOutside != null && subjectOutside.length() > 0 ? subjectOutside : subject,body,r.getParams(),last);
     }
-    else if (last != null) // Sensor ist wieder in den Normbereich zurueckgekehrt
+    else
     {
-      log.remove(id); // wir entfernen ihn aus dem Log
+      if (last != null) // Sensor ist soeben wieder in den Normbereich zurueckgekehrt
+        log.remove(id); // wir entfernen ihn aus dem Log
 
       subject += "INSIDE limit. current value: " + serializer.format(oValue) + ", limit: " + serializer.format(oLimit);
       Logger.info(subject);
       
       // Versenden, wenn Notifier vorhanden
-      if (n != null)
+      if (n != null && last != null) // Sensor ist soeben wieder in den Normbereich zurueckgekehrt
         n.insideLimit(subjectInside != null && subjectInside.length() > 0 ? subjectInside : subject,body,r.getParams());
     }
   }
@@ -359,7 +360,10 @@ public class RuleProcessor
 
 /**********************************************************************
  * $Log: RuleProcessor.java,v $
- * Revision 1.15  2011/02/17 22:12:39  willuhn
+ * Revision 1.16  2011/02/17 22:38:51  willuhn
+ * *** empty log message ***
+ *
+ * Revision 1.15  2011-02-17 22:12:39  willuhn
  * *** empty log message ***
  *
  * Revision 1.14  2011-02-17 18:08:45  willuhn
