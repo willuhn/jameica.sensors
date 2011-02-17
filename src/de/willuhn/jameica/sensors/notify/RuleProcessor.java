@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/notify/RuleProcessor.java,v $
- * $Revision: 1.13 $
- * $Date: 2011/02/14 16:04:51 $
+ * $Revision: 1.14 $
+ * $Date: 2011/02/17 18:08:45 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -152,6 +152,9 @@ public class RuleProcessor
     
     boolean outside = o.matches(oValue,oLimit);
 
+    // Wir geben noch via Messaging Bescheid, ob der Sensor ausserhalb oder innerhalb des Limits ist.
+    Application.getMessagingFactory().sendMessage(new LimitMessage(s,outside));
+
     if (n != null) // Notifier benachrichtigen, wenn einer vorhanden ist
     {
       if (outside)
@@ -176,9 +179,6 @@ public class RuleProcessor
         n.insideLimit(subjectInside != null && subjectInside.length() > 0 ? subjectInside : subject,body,r.getParams());
       }
     }
-
-    // Wir geben noch via Messaging Bescheid, ob der Sensor ausserhalb oder innerhalb des Limits ist.
-    Application.getMessagingFactory().sendMessage(new LimitMessage(s,outside));
   }
   
   /**
@@ -358,7 +358,10 @@ public class RuleProcessor
 
 /**********************************************************************
  * $Log: RuleProcessor.java,v $
- * Revision 1.13  2011/02/14 16:04:51  willuhn
+ * Revision 1.14  2011/02/17 18:08:45  willuhn
+ * *** empty log message ***
+ *
+ * Revision 1.13  2011-02-14 16:04:51  willuhn
  * @N Messwerte hervorheben, die ausserhalb des Limits liegen
  *
  * Revision 1.12  2010-03-24 12:09:35  willuhn
