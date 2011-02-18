@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/notify/operator/Operator.java,v $
- * $Revision: 1.1 $
- * $Date: 2010/03/01 18:12:23 $
+ * $Revision: 1.2 $
+ * $Date: 2011/02/18 12:29:41 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -11,11 +11,13 @@
 
 package de.willuhn.jameica.sensors.notify.operator;
 
+import de.willuhn.jameica.sensors.devices.Sensor;
+
 /**
  * Interface, welches entscheidet, ob der Sensor-Wert eine Benachrichtigung
  * ausloesen soll oder nicht.
  * Die Implementierungen sind typischerweise einfache mathematische
- * Operatoren wie "kleiner als", "groesser als" oder "gleich".
+ * Operatoren wie "kleiner als", "groesser als" oder "im Bereich zwischen".
  */
 public interface Operator
 {
@@ -24,17 +26,21 @@ public interface Operator
    * Falls die Implementierung beispielsweise pruefen soll, ob ein
    * Maximalwert ueberschritten ist, muss sie dann "true" zurueckliefern,
    * wenn "value" groesser als "limit" ist.
-   * @param value der aktuelle Messwert.
+   * @param sensor der Sensor samt seinem Messwert.
    * @param test der festgelegte Grenzwert.
-   * @return true, wenn eine Benachrichtigung erfolgen soll.
+   * @return true, wenn die Bedingung erfuellt ist.
+   * @throws IllegalArgumentException wenn die Parameter ungueltig sind.
    */
-  public boolean matches(Object value, Object limit);
+  public boolean matches(Sensor sensor, String limit) throws IllegalArgumentException;
 }
 
 
 
 /**********************************************************************
  * $Log: Operator.java,v $
+ * Revision 1.2  2011/02/18 12:29:41  willuhn
+ * @N Regel-Operatoren umgebaut. Es gibt jetzt auch einen "Outside"-Operator mit dessen Hilfe eine Unter- UND Obergrenze in EINER Regel definiert werden kann
+ *
  * Revision 1.1  2010/03/01 18:12:23  willuhn
  * *** empty log message ***
  *

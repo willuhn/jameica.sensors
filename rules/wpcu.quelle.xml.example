@@ -10,8 +10,8 @@
     <sensor>waterkotte.ai1.wpcu.device.temp.system.source.in</sensor>
     <limit>0.0</limit>
     <operator>de.willuhn.jameica.sensors.notify.operator.SmallerThan</operator>
-    <notifier>de.willuhn.jameica.sensors.notify.notifier.Mail</notifier>
     
+    <notifier>de.willuhn.jameica.sensors.notify.notifier.Mail</notifier>
     <params>
       <param name="mail.sender" value="info@willuhn.de" />
       <param name="mail.recipients" value="info@willuhn.de" />

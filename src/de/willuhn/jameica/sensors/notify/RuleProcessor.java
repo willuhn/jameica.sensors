@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/notify/RuleProcessor.java,v $
- * $Revision: 1.18 $
- * $Date: 2011/02/17 23:47:56 $
+ * $Revision: 1.19 $
+ * $Date: 2011/02/18 12:29:41 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -127,38 +127,23 @@ public class RuleProcessor
     //
     ////////////////////////////////////////////////////////////////////////
     
-    ////////////////////////////////////////////////////////////////////////
-    // Messwert und Limit
-    Object oLimit = serializer.unserialize(limit);
-    Object oValue = s.getValue();
-    ////////////////////////////////////////////////////////////////////////
-    
     String name = s.getName();
     if (g != null)
       name = g.getName() + " - " + name;
     
     // Benutzerdefinierte Betreff-Zeile
-    String subjectInside  = r.getParams().get("mail.subject.inside");
-    String subjectOutside = r.getParams().get("mail.subject.outside");
     
     String subject = "[" + Application.getPluginLoader().getManifest(Plugin.class).getName() + "][" + name + "] ";
     String body = "Sensor name  : " + name + "\n" +
                   "Sensor uuid  : " + s.getUuid() + "\n\n" +
-                  "Current Value: " + serializer.format(oValue) + "\n" +
-                  "Limit        : " + serializer.format(oLimit);
+                  "Current Value: " + serializer.format(s.getValue()) + "\n" +
+                  "Limit        : " + limit;
 
     String id = r.getID();
     Date last = log.get(id);
     
-    boolean outside = o.matches(oValue,oLimit);
+    boolean outside = o.matches(s,limit);
 
-    // TODO: Wir haben hier noch ein echtes Problem mit multiplen Regeln fuer einen Sensor!
-    // Wenn wir fuer einen Sensor mehrere Regeln (min/max) haben, und nur eine davon ausserhalb des
-    // Limits ist, dann "neutralisieren" wir uns selbst wieder, da bei der ersten Regel
-    // OUTSIDE gemeldet wird, bei der naechsten dann aber wieder INSIDE.
-    // Hier koennte ein neuer Operator "between" helfen, mit dem man Ober- UND Untergrenze
-    // mit einer Regel festlegen kann.
-    
     // Wir geben noch via Messaging Bescheid, ob der Sensor ausserhalb oder innerhalb des Limits ist.
     Application.getMessagingFactory().sendMessage(new LimitMessage(s,outside));
 
@@ -169,23 +154,29 @@ public class RuleProcessor
       else
         log.put(id,new Date()); // Wir tragen den Vorfall ins Log ein
 
-      subject += "OUTSIDE limit. current value: " + serializer.format(oValue) + ", limit: " + serializer.format(oLimit);
+      subject += "OUTSIDE limit. current value: " + serializer.format(s.getValue()) + ", limit: " + limit;
       Logger.info(subject);
   
       // Versenden, wenn Notifier vorhanden
       if (n != null)
+      {
+        String subjectOutside = r.getParams().get("mail.subject.outside");
         n.outsideLimit(subjectOutside != null && subjectOutside.length() > 0 ? subjectOutside : subject,body,r.getParams(),last);
+      }
     }
     else if (last != null) // Sensor ist soeben wieder in den Normbereich zurueckgekehrt
     {
       log.remove(id); // wir entfernen ihn aus dem Log
 
-      subject += "INSIDE limit. current value: " + serializer.format(oValue) + ", limit: " + serializer.format(oLimit);
+      subject += "INSIDE limit. current value: " + serializer.format(s.getValue()) + ", limit: " + limit;
       Logger.info(subject);
       
       // Versenden, wenn Notifier vorhanden
-      if (n != null) // Sensor ist soeben wieder in den Normbereich zurueckgekehrt
+      if (n != null)
+      {
+        String subjectInside  = r.getParams().get("mail.subject.inside");
         n.insideLimit(subjectInside != null && subjectInside.length() > 0 ? subjectInside : subject,body,r.getParams());
+      }
     }
   }
   
@@ -366,7 +357,10 @@ public class RuleProcessor
 
 /**********************************************************************
  * $Log: RuleProcessor.java,v $
- * Revision 1.18  2011/02/17 23:47:56  willuhn
+ * Revision 1.19  2011/02/18 12:29:41  willuhn
+ * @N Regel-Operatoren umgebaut. Es gibt jetzt auch einen "Outside"-Operator mit dessen Hilfe eine Unter- UND Obergrenze in EINER Regel definiert werden kann
+ *
+ * Revision 1.18  2011-02-17 23:47:56  willuhn
  * *** empty log message ***
  *
  * Revision 1.17  2011-02-17 22:43:14  willuhn

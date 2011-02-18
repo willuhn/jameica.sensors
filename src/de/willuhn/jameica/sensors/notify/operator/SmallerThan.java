@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/notify/operator/SmallerThan.java,v $
- * $Revision: 1.2 $
- * $Date: 2011/02/17 23:47:56 $
+ * $Revision: 1.3 $
+ * $Date: 2011/02/18 12:29:41 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -11,47 +11,37 @@
 
 package de.willuhn.jameica.sensors.notify.operator;
 
+import de.willuhn.jameica.sensors.devices.Sensor;
+
 
 /**
  * Implementierung eines Operators, der dann ausloest, wenn
  * der Messwert das Limit unterschritten hat.
  */
-public class SmallerThan implements Operator
+public class SmallerThan extends AbstractOperator
 {
   /**
-   * @see de.willuhn.jameica.sensors.notify.operator.Operator#matches(java.lang.Object, java.lang.Object)
+   * @see de.willuhn.jameica.sensors.notify.operator.Operator#matches(de.willuhn.jameica.sensors.devices.Sensor, java.lang.String)
    */
-  public boolean matches(Object value, Object limit)
+  public boolean matches(Sensor sensor, String limit) throws IllegalArgumentException
   {
-    if (value == null || limit == null)
-      return false;
+    check(sensor,limit); // Gatekeeper
 
-    Comparable cValue = null;
-    if (value instanceof Comparable) cValue = (Comparable) value;
-    else                             cValue = value.toString();
+    Comparable cValue = prepareSensor(sensor.getValue());
+    Comparable cLimit = prepareLimit(sensor.getSerializer(),limit);
     
-    Comparable cLimit = null;
-    if (limit instanceof Comparable) cLimit = (Comparable) limit;
-    else                             cLimit = limit.toString();
-
-    // Wenn beides Zahlen sind, erzeugen wir Double-Objekte.
-    // Andernfalls koennte es passieren, dass wir ein Long mit einem
-    // Double vergleichen. Und das bringt u.U. eine ClassCastException
-    if ((cValue instanceof Number) && (cLimit instanceof Number))
-    {
-      cValue = new Double(((Number)cValue).doubleValue());
-      cLimit = new Double(((Number)cLimit).doubleValue());
-    }
     return cValue.compareTo(cLimit) < 0;
   }
-
 }
 
 
 
 /**********************************************************************
  * $Log: SmallerThan.java,v $
- * Revision 1.2  2011/02/17 23:47:56  willuhn
+ * Revision 1.3  2011/02/18 12:29:41  willuhn
+ * @N Regel-Operatoren umgebaut. Es gibt jetzt auch einen "Outside"-Operator mit dessen Hilfe eine Unter- UND Obergrenze in EINER Regel definiert werden kann
+ *
+ * Revision 1.2  2011-02-17 23:47:56  willuhn
  * *** empty log message ***
  *
  * Revision 1.1  2010/03/01 18:12:23  willuhn
