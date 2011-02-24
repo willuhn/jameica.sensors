@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!--
- $Revision: 1.13 $
- $Date: 2010/07/25 23:19:28 $
+ $Revision: 1.14 $
+ $Date: 2011/02/24 12:10:47 $
  $Author: willuhn $
 
  Copyright (c) by willuhn software & services
@@ -144,27 +144,37 @@
       </manifest>
 			<fileset dir="${class.dir}" />
 		</jar>
+	</target>
 
-	  <antcall target="addlib"/>
-		<antcall target="addwebapps"/>
+  <target depends="jar" name="signjar" description="generates the signatures">
+    <loadfile property="storepass" srcFile="${signjar.storepass}" />
+    <exec executable="jarsigner" failonerror="true" timeout="60000">
+      <arg line="-verbose -keystore ${signjar.keystore} -storepass ${storepass} ${project.zipdir}/${define.jarfilename} &quot;${signjar.alias}&quot;" />
+    </exec>
+  </target>
+
+  <target depends="jar" name="zip" description="generates the zip file">
+
+    <antcall target="addlib"/>
+    <antcall target="addwebapps"/>
 
     <copy file="plugin.xml" todir="${project.zipdir}" />
-		<copy file="${build.dir}/COPYING" todir="${project.zipdir}" />
+    <copy file="${build.dir}/COPYING" todir="${project.zipdir}" />
     <copy file="${build.dir}/README.TXT" todir="${project.zipdir}" />
     <copy todir="${project.zipdir}/rules">
       <fileset dir="rules" />
     </copy>
 
-		<!-- Jetzt muessen wir noch das ZIP-File erzeugen -->
-		<zip destfile="${project.release}/${define.zipfilename}">
-			<fileset dir="${project.release}">
-				<include name="${plugin.name}" />
-				<include name="${plugin.name}/**" />
-			</fileset>
-		</zip>
+    <!-- Jetzt muessen wir noch das ZIP-File erzeugen -->
+    <zip destfile="${project.release}/${define.zipfilename}">
+      <fileset dir="${project.release}">
+        <include name="${plugin.name}" />
+        <include name="${plugin.name}/**" />
+      </fileset>
+    </zip>
 
-	</target>
-
+  </target>
+  <target depends="signjar,zip" name="signzip" description="generates a signed zip file" />
 
 
   <target depends="compile" name="api" description="generates the api jar file">
@@ -258,15 +268,9 @@
 
 
 
-	<target depends="init,compile,cvstag,jar,api,javadoc,src,sign,clean" description="build an official release" name="all" />
-
-
-
-	<target depends="init,compile,jar,api,clean" description="build inofficial release" name="fast" />
-
-
-
-	<target depends="init,cvs,compile,jar,javadoc,src" description="build nightly build" name="nightly">
+	<target depends="init,compile,cvstag,signzip,api,javadoc,src,sign,clean" description="build an official release" name="all" />
+	<target depends="init,compile,signzip,api,clean" description="build inofficial release" name="fast" />
+	<target depends="init,cvs,compile,zip,javadoc,src" description="build nightly build" name="nightly">
 		<mkdir dir="${project.nightly}" />
 
 		<copy file="${project.release}/${define.zipfilename}" tofile="${project.nightly}/${plugin.name}-${plugin.version}-nightly.zip" />
