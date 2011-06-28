@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/web/controller/Config.java,v $
- * $Revision: 1.1 $
- * $Date: 2009/09/15 17:00:17 $
+ * $Revision: 1.2 $
+ * $Date: 2011/06/28 09:56:36 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -18,13 +18,13 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import de.willuhn.annotation.Lifecycle;
+import de.willuhn.annotation.Lifecycle.Type;
 import de.willuhn.jameica.sensors.Plugin;
 import de.willuhn.jameica.sensors.config.Configurable;
 import de.willuhn.jameica.sensors.config.Parameter;
 import de.willuhn.jameica.system.Application;
-import de.willuhn.jameica.webadmin.annotation.Lifecycle;
 import de.willuhn.jameica.webadmin.annotation.Request;
-import de.willuhn.jameica.webadmin.annotation.Lifecycle.Type;
 import de.willuhn.logging.Logger;
 import de.willuhn.util.ClassFinder;
 
@@ -102,6 +102,9 @@ public class Config
 
 /**********************************************************************
  * $Log: Config.java,v $
+ * Revision 1.2  2011/06/28 09:56:36  willuhn
+ * @N Lifecycle-Annotation aus jameica.webadmin in util verschoben
+ *
  * Revision 1.1  2009/09/15 17:00:17  willuhn
  * @N Konfigurierbarkeit aller Module ueber das Webfrontend
  *

@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/web/controller/Charts.java,v $
- * $Revision: 1.3 $
- * $Date: 2009/10/13 17:21:50 $
+ * $Revision: 1.4 $
+ * $Date: 2011/06/28 09:56:36 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -13,8 +13,8 @@
 
 package de.willuhn.jameica.sensors.web.controller;
 
-import de.willuhn.jameica.webadmin.annotation.Lifecycle;
-import de.willuhn.jameica.webadmin.annotation.Lifecycle.Type;
+import de.willuhn.annotation.Lifecycle;
+import de.willuhn.annotation.Lifecycle.Type;
 
 @Lifecycle(Type.REQUEST)
 public class Charts
@@ -90,6 +90,9 @@ public class Charts
 
 /**********************************************************************
  * $Log: Charts.java,v $
+ * Revision 1.4  2011/06/28 09:56:36  willuhn
+ * @N Lifecycle-Annotation aus jameica.webadmin in util verschoben
+ *
  * Revision 1.3  2009/10/13 17:21:50  willuhn
  * @N Graph pro Sensor zeichnen
  *

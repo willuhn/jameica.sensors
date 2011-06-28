@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/web/controller/Status.java,v $
- * $Revision: 1.3 $
- * $Date: 2011/02/14 16:04:51 $
+ * $Revision: 1.4 $
+ * $Date: 2011/06/28 09:56:36 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -16,6 +16,8 @@ package de.willuhn.jameica.sensors.web.controller;
 import java.util.HashMap;
 import java.util.Map;
 
+import de.willuhn.annotation.Lifecycle;
+import de.willuhn.annotation.Lifecycle.Type;
 import de.willuhn.jameica.sensors.devices.Device;
 import de.willuhn.jameica.sensors.devices.Measurement;
 import de.willuhn.jameica.sensors.devices.Sensor;
@@ -23,8 +25,6 @@ import de.willuhn.jameica.sensors.devices.Serializer;
 import de.willuhn.jameica.sensors.devices.StringSerializer;
 import de.willuhn.jameica.sensors.messaging.LimitMessageConsumer;
 import de.willuhn.jameica.sensors.messaging.LiveMeasurement;
-import de.willuhn.jameica.webadmin.annotation.Lifecycle;
-import de.willuhn.jameica.webadmin.annotation.Lifecycle.Type;
 import de.willuhn.logging.Logger;
 
 @Lifecycle(Type.REQUEST)
@@ -84,7 +84,10 @@ public class Status
 
 /**********************************************************************
  * $Log: Status.java,v $
- * Revision 1.3  2011/02/14 16:04:51  willuhn
+ * Revision 1.4  2011/06/28 09:56:36  willuhn
+ * @N Lifecycle-Annotation aus jameica.webadmin in util verschoben
+ *
+ * Revision 1.3  2011-02-14 16:04:51  willuhn
  * @N Messwerte hervorheben, die ausserhalb des Limits liegen
  *
  * Revision 1.2  2009-08-21 13:34:17  willuhn
