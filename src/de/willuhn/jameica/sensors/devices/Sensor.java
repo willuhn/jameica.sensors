@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/devices/Sensor.java,v $
- * $Revision: 1.3 $
- * $Date: 2009/09/28 14:26:47 $
+ * $Revision: 1.4 $
+ * $Date: 2011/09/13 09:08:34 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -15,6 +15,7 @@ package de.willuhn.jameica.sensors.devices;
 
 /**
  * Interface eines einzelnen Sensors.
+ * @param <T> der Typ des Sensors.
  */
 public class Sensor<T> implements UniqueItem
 {
@@ -130,6 +131,7 @@ public class Sensor<T> implements UniqueItem
    * Speichert die eindeutige ID fuer das Objekt.
    * Diese ID sollte sich niemals aendern, da sich sonst bereits
    * archivierte Messwerte nicht mehr diesem Objekt zuordnen lassen.
+   * @param uuid die eindeutige ID fuer das Objekt.
    */
   public void setUuid(String uuid)
   {
@@ -159,6 +161,9 @@ public class Sensor<T> implements UniqueItem
 
 /**********************************************************************
  * $Log: Sensor.java,v $
+ * Revision 1.4  2011/09/13 09:08:34  willuhn
+ * @C Code-Cleanup
+ *
  * Revision 1.3  2009/09/28 14:26:47  willuhn
  * @N Unterstuetzung fuer die anderen Sensor-Typen von RRD
  *

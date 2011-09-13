@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/web/controller/Config.java,v $
- * $Revision: 1.2 $
- * $Date: 2011/06/28 09:56:36 $
+ * $Revision: 1.3 $
+ * $Date: 2011/09/13 09:08:34 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -28,6 +28,9 @@ import de.willuhn.jameica.webadmin.annotation.Request;
 import de.willuhn.logging.Logger;
 import de.willuhn.util.ClassFinder;
 
+/**
+ * Controller-Bean fuer die Konfiguration.
+ */
 @Lifecycle(Type.REQUEST)
 public class Config
 {
@@ -102,7 +105,10 @@ public class Config
 
 /**********************************************************************
  * $Log: Config.java,v $
- * Revision 1.2  2011/06/28 09:56:36  willuhn
+ * Revision 1.3  2011/09/13 09:08:34  willuhn
+ * @C Code-Cleanup
+ *
+ * Revision 1.2  2011-06-28 09:56:36  willuhn
  * @N Lifecycle-Annotation aus jameica.webadmin in util verschoben
  *
  * Revision 1.1  2009/09/15 17:00:17  willuhn

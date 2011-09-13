@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/service/impl/RRDImpl.java,v $
- * $Revision: 1.14 $
- * $Date: 2010/09/27 17:22:18 $
+ * $Revision: 1.15 $
+ * $Date: 2011/09/13 09:08:34 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -181,7 +181,8 @@ public class RRDImpl implements RRD
       }
       finally
       {
-        db.close();
+        if (db != null)
+          db.close();
       }
       //////////////////////////////////////////////////////////////////////////
       
@@ -202,7 +203,7 @@ public class RRDImpl implements RRD
     }
     catch (Throwable t) // Faengt auch NoClassDefFoundError falls die X11-Libs nicht installiert sind (dann geht das Rendern (ueber AWT) nicht)
     {
-      if (t instanceof NoClassDefFoundError)
+      if ((t instanceof NoClassDefFoundError) || (t instanceof NullPointerException))
         Logger.warn("unable to render image, perhaps the X11 libs are not installed (required for rendering charts): " + t.getMessage());
       else if (t instanceof ApplicationException)
         Logger.warn(t.getMessage());
@@ -505,7 +506,10 @@ public class RRDImpl implements RRD
 
 /**********************************************************************
  * $Log: RRDImpl.java,v $
- * Revision 1.14  2010/09/27 17:22:18  willuhn
+ * Revision 1.15  2011/09/13 09:08:34  willuhn
+ * @C Code-Cleanup
+ *
+ * Revision 1.14  2010-09-27 17:22:18  willuhn
  * @C Generell Fallback-Grafik liefern, wenn keine erzeugt werden kann
  *
  * Revision 1.13  2010-09-13 17:03:28  willuhn

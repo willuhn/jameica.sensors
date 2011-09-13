@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/web/rest/Measurement.java,v $
- * $Revision: 1.3 $
- * $Date: 2011/02/15 16:56:10 $
+ * $Revision: 1.4 $
+ * $Date: 2011/09/13 09:08:34 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -40,7 +40,7 @@ import de.willuhn.logging.Logger;
 @Doc("jameica.sensors: Bietet Zugriff auf alle Messwerte einer Messung")
 public class Measurement implements AutoRestBean
 {
-  public static DateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+  private static DateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
   /**
    * Liefert alle Messwerte aller Devices.
@@ -139,7 +139,10 @@ public class Measurement implements AutoRestBean
 
 /**********************************************************************
  * $Log: Measurement.java,v $
- * Revision 1.3  2011/02/15 16:56:10  willuhn
+ * Revision 1.4  2011/09/13 09:08:34  willuhn
+ * @C Code-Cleanup
+ *
+ * Revision 1.3  2011-02-15 16:56:10  willuhn
  * @N Vermerken, ob Sensor ausserhalb Limit
  *
  * Revision 1.2  2011-02-15 16:35:28  willuhn

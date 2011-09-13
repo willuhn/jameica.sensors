@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/devices/waterkotte/ai1/wpcu/TempSerializer.java,v $
- * $Revision: 1.1 $
- * $Date: 2009/08/21 13:34:17 $
+ * $Revision: 1.2 $
+ * $Date: 2011/09/13 09:08:34 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -23,6 +23,9 @@ import de.willuhn.jameica.system.Application;
  */
 public class TempSerializer extends StringSerializer
 {
+  /**
+   * Dezimal-Format fuer Temperatur-Angaben.
+   */
   public static DecimalFormat DECIMALFORMAT = (DecimalFormat) DecimalFormat.getInstance(Application.getConfig().getLocale());
   
   static
@@ -53,6 +56,9 @@ public class TempSerializer extends StringSerializer
 
 /**********************************************************************
  * $Log: TempSerializer.java,v $
+ * Revision 1.2  2011/09/13 09:08:34  willuhn
+ * @C Code-Cleanup
+ *
  * Revision 1.1  2009/08/21 13:34:17  willuhn
  * @N Redesign der Device-API
  * @N Cleanup in Persistierung

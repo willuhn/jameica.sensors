@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/devices/Sensorgroup.java,v $
- * $Revision: 1.4 $
- * $Date: 2009/10/13 15:51:04 $
+ * $Revision: 1.5 $
+ * $Date: 2011/09/13 09:08:34 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -109,6 +109,7 @@ public class Sensorgroup implements UniqueItem
    * Speichert die eindeutige ID fuer das Objekt.
    * Diese ID sollte sich niemals aendern, da sich sonst bereits
    * archivierte Messwerte nicht mehr diesem Objekt zuordnen lassen.
+   * @param uuid die eindeutige ID fuer das Objekt.
    */
   public void setUuid(String uuid)
   {
@@ -137,6 +138,9 @@ public class Sensorgroup implements UniqueItem
 
 /**********************************************************************
  * $Log: Sensorgroup.java,v $
+ * Revision 1.5  2011/09/13 09:08:34  willuhn
+ * @C Code-Cleanup
+ *
  * Revision 1.4  2009/10/13 15:51:04  willuhn
  * @N Sensor-API um Konsolidierungsfunktion erweitert
  *

@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/web/controller/Charts.java,v $
- * $Revision: 1.4 $
- * $Date: 2011/06/28 09:56:36 $
+ * $Revision: 1.5 $
+ * $Date: 2011/09/13 09:08:34 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -16,6 +16,9 @@ package de.willuhn.jameica.sensors.web.controller;
 import de.willuhn.annotation.Lifecycle;
 import de.willuhn.annotation.Lifecycle.Type;
 
+/**
+ * Controller-Bean fuer die Charts.
+ */
 @Lifecycle(Type.REQUEST)
 public class Charts
 {
@@ -90,7 +93,10 @@ public class Charts
 
 /**********************************************************************
  * $Log: Charts.java,v $
- * Revision 1.4  2011/06/28 09:56:36  willuhn
+ * Revision 1.5  2011/09/13 09:08:34  willuhn
+ * @C Code-Cleanup
+ *
+ * Revision 1.4  2011-06-28 09:56:36  willuhn
  * @N Lifecycle-Annotation aus jameica.webadmin in util verschoben
  *
  * Revision 1.3  2009/10/13 17:21:50  willuhn

@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/web/controller/Status.java,v $
- * $Revision: 1.4 $
- * $Date: 2011/06/28 09:56:36 $
+ * $Revision: 1.5 $
+ * $Date: 2011/09/13 09:08:34 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -27,6 +27,9 @@ import de.willuhn.jameica.sensors.messaging.LimitMessageConsumer;
 import de.willuhn.jameica.sensors.messaging.LiveMeasurement;
 import de.willuhn.logging.Logger;
 
+/**
+ * Controller-Bean fuer einen Sensor-Status.
+ */
 @Lifecycle(Type.REQUEST)
 public class Status
 {
@@ -84,7 +87,10 @@ public class Status
 
 /**********************************************************************
  * $Log: Status.java,v $
- * Revision 1.4  2011/06/28 09:56:36  willuhn
+ * Revision 1.5  2011/09/13 09:08:34  willuhn
+ * @C Code-Cleanup
+ *
+ * Revision 1.4  2011-06-28 09:56:36  willuhn
  * @N Lifecycle-Annotation aus jameica.webadmin in util verschoben
  *
  * Revision 1.3  2011-02-14 16:04:51  willuhn

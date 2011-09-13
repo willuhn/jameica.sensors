@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/test/JPATest.java,v $
- * $Revision: 1.3 $
- * $Date: 2009/08/21 13:34:17 $
+ * $Revision: 1.4 $
+ * $Date: 2011/09/13 09:08:34 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -41,6 +41,10 @@ public class JPATest
 {
   private static EntityManager em = null;
   
+  /**
+   * Initialisiert den Test.
+   * @throws Exception
+   */
   @BeforeClass
   public static void setUp() throws Exception
   {
@@ -59,6 +63,10 @@ public class JPATest
     em = ef.createEntityManager();
   }
 
+  /**
+   * Beendet den Test.
+   * @throws Exception
+   */
   @AfterClass
   public static void tearDown() throws Exception
   {
@@ -179,6 +187,9 @@ public class JPATest
 
 /**********************************************************************
  * $Log: JPATest.java,v $
+ * Revision 1.4  2011/09/13 09:08:34  willuhn
+ * @C Code-Cleanup
+ *
  * Revision 1.3  2009/08/21 13:34:17  willuhn
  * @N Redesign der Device-API
  * @N Cleanup in Persistierung

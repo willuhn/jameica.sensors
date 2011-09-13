@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/notify/Rule.java,v $
- * $Revision: 1.6 $
- * $Date: 2010/08/31 11:00:59 $
+ * $Revision: 1.7 $
+ * $Date: 2011/09/13 09:08:34 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -47,6 +47,7 @@ public class Rule
    * ct.
    * Liest die Regel-Einstellungen aus dem XML-Element.
    * @param node
+   * @throws Exception 
    */
   public Rule(IXMLElement node) throws Exception
   {
@@ -352,7 +353,10 @@ public class Rule
 
 /**********************************************************************
  * $Log: Rule.java,v $
- * Revision 1.6  2010/08/31 11:00:59  willuhn
+ * Revision 1.7  2011/09/13 09:08:34  willuhn
+ * @C Code-Cleanup
+ *
+ * Revision 1.6  2010-08-31 11:00:59  willuhn
  * @D javadoc
  *
  * Revision 1.5  2010/03/23 18:35:45  willuhn
