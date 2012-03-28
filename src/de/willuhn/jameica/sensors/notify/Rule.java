@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/notify/Rule.java,v $
- * $Revision: 1.7 $
- * $Date: 2011/09/13 09:08:34 $
+ * $Revision: 1.8 $
+ * $Date: 2012/03/28 22:28:18 $
  * $Author: willuhn $
  *
  * Copyright (c) by willuhn - software & services
@@ -18,6 +18,7 @@ import java.util.Map;
 import de.willuhn.jameica.sensors.Plugin;
 import de.willuhn.jameica.sensors.notify.notifier.Notifier;
 import de.willuhn.jameica.sensors.notify.operator.Operator;
+import de.willuhn.jameica.services.BeanService;
 import de.willuhn.jameica.system.Application;
 import de.willuhn.jameica.util.XPathEmu;
 import net.n3.nanoxml.IXMLElement;
@@ -334,8 +335,11 @@ public class Rule
   {
     try
     {
-      ClassLoader l = Application.getPluginLoader().getPlugin(Plugin.class).getResources().getClassLoader();
-      return l.loadClass(classname).newInstance();
+      ClassLoader l = Application.getPluginLoader().getManifest(Plugin.class).getClassLoader();
+      Class c = l.loadClass(classname);
+      
+      BeanService service = Application.getBootLoader().getBootable(BeanService.class);
+      return service.get(c);
     }
     catch (Exception e)
     {
@@ -353,7 +357,11 @@ public class Rule
 
 /**********************************************************************
  * $Log: Rule.java,v $
- * Revision 1.7  2011/09/13 09:08:34  willuhn
+ * Revision 1.8  2012/03/28 22:28:18  willuhn
+ * @N Einfuehrung eines neuen Interfaces "Plugin", welches von "AbstractPlugin" implementiert wird. Es dient dazu, kuenftig auch Jameica-Plugins zu unterstuetzen, die selbst gar keinen eigenen Java-Code mitbringen sondern nur ein Manifest ("plugin.xml") und z.Bsp. Jars oder JS-Dateien. Plugin-Autoren muessen lediglich darauf achten, dass die Jameica-Funktionen, die bisher ein Object vom Typ "AbstractPlugin" zuruecklieferten, jetzt eines vom Typ "Plugin" liefern.
+ * @C "getClassloader()" verschoben von "plugin.getRessources().getClassloader()" zu "manifest.getClassloader()" - der Zugriffsweg ist kuerzer. Die alte Variante existiert weiterhin, ist jedoch als deprecated markiert.
+ *
+ * Revision 1.7  2011-09-13 09:08:34  willuhn
  * @C Code-Cleanup
  *
  * Revision 1.6  2010-08-31 11:00:59  willuhn

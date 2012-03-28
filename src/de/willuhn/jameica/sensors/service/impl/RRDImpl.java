@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/service/impl/RRDImpl.java,v $
- * $Revision: 1.15 $
- * $Date: 2011/09/13 09:08:34 $
+ * $Revision: 1.16 $
+ * $Date: 2012/03/28 22:28:18 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -225,7 +225,7 @@ public class RRDImpl implements RRD
     InputStream is = null;
     try
     {
-      is = Application.getPluginLoader().getPlugin(Plugin.class).getResources().getClassLoader().getResourceAsStream("img/nochart.png");
+      is = Application.getPluginLoader().getManifest(Plugin.class).getClassLoader().getResourceAsStream("img/nochart.png");
       ByteArrayOutputStream bos = new ByteArrayOutputStream();
       byte[] buf = new byte[4096];
       int count = 0;
@@ -506,7 +506,11 @@ public class RRDImpl implements RRD
 
 /**********************************************************************
  * $Log: RRDImpl.java,v $
- * Revision 1.15  2011/09/13 09:08:34  willuhn
+ * Revision 1.16  2012/03/28 22:28:18  willuhn
+ * @N Einfuehrung eines neuen Interfaces "Plugin", welches von "AbstractPlugin" implementiert wird. Es dient dazu, kuenftig auch Jameica-Plugins zu unterstuetzen, die selbst gar keinen eigenen Java-Code mitbringen sondern nur ein Manifest ("plugin.xml") und z.Bsp. Jars oder JS-Dateien. Plugin-Autoren muessen lediglich darauf achten, dass die Jameica-Funktionen, die bisher ein Object vom Typ "AbstractPlugin" zuruecklieferten, jetzt eines vom Typ "Plugin" liefern.
+ * @C "getClassloader()" verschoben von "plugin.getRessources().getClassloader()" zu "manifest.getClassloader()" - der Zugriffsweg ist kuerzer. Die alte Variante existiert weiterhin, ist jedoch als deprecated markiert.
+ *
+ * Revision 1.15  2011-09-13 09:08:34  willuhn
  * @C Code-Cleanup
  *
  * Revision 1.14  2010-09-27 17:22:18  willuhn

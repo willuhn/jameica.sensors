@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/service/impl/ArchiveImpl.java,v $
- * $Revision: 1.12 $
- * $Date: 2010/03/01 00:19:04 $
+ * $Revision: 1.13 $
+ * $Date: 2012/03/28 22:28:18 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -157,7 +157,7 @@ public class ArchiveImpl implements Archive, Configurable
    */
   private void archive(String uuid, Measurement m)
   {
-    ClassLoader cl = Application.getPluginLoader().getPlugin(Plugin.class).getResources().getClassLoader();
+    ClassLoader cl = Application.getPluginLoader().getPlugin(Plugin.class).getManifest().getClassLoader();
     
     EntityTransaction tx = null;
     EntityManager em     = this.getEntityManager();
@@ -368,6 +368,10 @@ public class ArchiveImpl implements Archive, Configurable
 
 /**********************************************************************
  * $Log: ArchiveImpl.java,v $
+ * Revision 1.13  2012/03/28 22:28:18  willuhn
+ * @N Einfuehrung eines neuen Interfaces "Plugin", welches von "AbstractPlugin" implementiert wird. Es dient dazu, kuenftig auch Jameica-Plugins zu unterstuetzen, die selbst gar keinen eigenen Java-Code mitbringen sondern nur ein Manifest ("plugin.xml") und z.Bsp. Jars oder JS-Dateien. Plugin-Autoren muessen lediglich darauf achten, dass die Jameica-Funktionen, die bisher ein Object vom Typ "AbstractPlugin" zuruecklieferten, jetzt eines vom Typ "Plugin" liefern.
+ * @C "getClassloader()" verschoben von "plugin.getRessources().getClassloader()" zu "manifest.getClassloader()" - der Zugriffsweg ist kuerzer. Die alte Variante existiert weiterhin, ist jedoch als deprecated markiert.
+ *
  * Revision 1.12  2010/03/01 00:19:04  willuhn
  * *** empty log message ***
  *

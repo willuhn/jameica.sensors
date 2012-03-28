@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/web/controller/Config.java,v $
- * $Revision: 1.3 $
- * $Date: 2011/09/13 09:08:34 $
+ * $Revision: 1.4 $
+ * $Date: 2012/03/28 22:28:18 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -53,7 +53,7 @@ public class Config
     this.configs = new ArrayList<Configurable>();
     try
     {
-      ClassFinder finder = Application.getPluginLoader().getPlugin(Plugin.class).getResources().getClassLoader().getClassFinder();
+      ClassFinder finder = Application.getPluginLoader().getManifest(Plugin.class).getClassLoader().getClassFinder();
       Class<Configurable>[] found = finder.findImplementors(Configurable.class);
       for (Class<Configurable> c:found)
       {
@@ -105,7 +105,11 @@ public class Config
 
 /**********************************************************************
  * $Log: Config.java,v $
- * Revision 1.3  2011/09/13 09:08:34  willuhn
+ * Revision 1.4  2012/03/28 22:28:18  willuhn
+ * @N Einfuehrung eines neuen Interfaces "Plugin", welches von "AbstractPlugin" implementiert wird. Es dient dazu, kuenftig auch Jameica-Plugins zu unterstuetzen, die selbst gar keinen eigenen Java-Code mitbringen sondern nur ein Manifest ("plugin.xml") und z.Bsp. Jars oder JS-Dateien. Plugin-Autoren muessen lediglich darauf achten, dass die Jameica-Funktionen, die bisher ein Object vom Typ "AbstractPlugin" zuruecklieferten, jetzt eines vom Typ "Plugin" liefern.
+ * @C "getClassloader()" verschoben von "plugin.getRessources().getClassloader()" zu "manifest.getClassloader()" - der Zugriffsweg ist kuerzer. Die alte Variante existiert weiterhin, ist jedoch als deprecated markiert.
+ *
+ * Revision 1.3  2011-09-13 09:08:34  willuhn
  * @C Code-Cleanup
  *
  * Revision 1.2  2011-06-28 09:56:36  willuhn
