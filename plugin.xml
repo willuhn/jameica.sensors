@@ -10,7 +10,7 @@
   <homepage>http://www.willuhn.de/products/jameica/extensions.php#jameica.sensors</homepage>
   <license>GPL - http://www.gnu.org/copyleft/gpl.html</license>
 
-  <requires jameica="1.9+">
+  <requires jameica="2.3.0+">
     <import plugin="jameica.webadmin"  version="1.1+" required="true" />
   </requires>
 
