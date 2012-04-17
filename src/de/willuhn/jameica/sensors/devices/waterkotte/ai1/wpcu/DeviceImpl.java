@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/devices/waterkotte/ai1/wpcu/DeviceImpl.java,v $
- * $Revision: 1.10 $
- * $Date: 2012/04/17 22:25:05 $
+ * $Revision: 1.11 $
+ * $Date: 2012/04/17 22:32:25 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -388,7 +388,7 @@ public class DeviceImpl implements Device, Configurable
     private Extreme(Sensor<Float> sensor, Type type)
     {
       this.sensor = (Sensor<Float>) sensor.clone();
-      this.sensor.setUuid(sensor + "." + type.key);
+      this.sensor.setUuid(sensor.getUuid() + "." + type.key);
       this.sensor.setName(i18n.tr("{0} ({1})",sensor.getName(),type.title));
       this.type = type;
     }
@@ -444,6 +444,9 @@ public class DeviceImpl implements Device, Configurable
 
 /**********************************************************************
  * $Log: DeviceImpl.java,v $
+ * Revision 1.11  2012/04/17 22:32:25  willuhn
+ * @B wrong uuid
+ *
  * Revision 1.10  2012/04/17 22:25:05  willuhn
  * @N 24h-Maximal- und -Minimal-Werte
  *
