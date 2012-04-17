@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/devices/Sensor.java,v $
- * $Revision: 1.4 $
- * $Date: 2011/09/13 09:08:34 $
+ * $Revision: 1.5 $
+ * $Date: 2012/04/17 22:25:05 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -17,7 +17,7 @@ package de.willuhn.jameica.sensors.devices;
  * Interface eines einzelnen Sensors.
  * @param <T> der Typ des Sensors.
  */
-public class Sensor<T> implements UniqueItem
+public class Sensor<T> implements UniqueItem, Cloneable
 {
   /**
    * Default-Typ von Messwerten.
@@ -156,12 +156,34 @@ public class Sensor<T> implements UniqueItem
     this.type = type;
   }
 
+  /**
+   * @see java.lang.Object#clone()
+   */
+  @SuppressWarnings("javadoc")
+  public Object clone()
+  {
+    try
+    {
+      Sensor clone = (Sensor) super.clone();
+      // Da alle properties primitiv bzw. immutable sind, muessen wir
+      // nichts manuell clonen - das macht alles Java selbst
+      return clone;
+    }
+    catch (CloneNotSupportedException e)
+    {
+      throw new RuntimeException(e);
+    }
+  }
+
 }
 
 
 /**********************************************************************
  * $Log: Sensor.java,v $
- * Revision 1.4  2011/09/13 09:08:34  willuhn
+ * Revision 1.5  2012/04/17 22:25:05  willuhn
+ * @N 24h-Maximal- und -Minimal-Werte
+ *
+ * Revision 1.4  2011-09-13 09:08:34  willuhn
  * @C Code-Cleanup
  *
  * Revision 1.3  2009/09/28 14:26:47  willuhn

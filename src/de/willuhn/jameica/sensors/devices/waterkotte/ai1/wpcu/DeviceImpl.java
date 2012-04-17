@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/devices/waterkotte/ai1/wpcu/DeviceImpl.java,v $
- * $Revision: 1.9 $
- * $Date: 2009/09/16 11:26:14 $
+ * $Revision: 1.10 $
+ * $Date: 2012/04/17 22:25:05 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -20,7 +20,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.wimpi.modbus.Modbus;
 import net.wimpi.modbus.io.ModbusSerialTransaction;
@@ -49,6 +51,11 @@ public class DeviceImpl implements Device, Configurable
   private final static I18N i18n         = Application.getPluginLoader().getPlugin(Plugin.class).getResources().getI18N();
   private final static Settings settings = new Settings(DeviceImpl.class);
   private static boolean msgPrinted = false;
+  
+  private final static long TIMEOUT = 24 * 60 * 60 * 1000L; // Das Timeout fuer die Extrem-Werte
+
+  // Cache fuer die Hoechst- und Tiefs-Werte der letzten 24h.
+  private final Map<String,Extreme> extremes  = new HashMap<String,Extreme>();
   
   /**
    * @see de.willuhn.jameica.sensors.devices.Device#collect()
@@ -117,7 +124,12 @@ public class DeviceImpl implements Device, Configurable
         Sensorgroup g = new Sensorgroup();
         g.setUuid(this.getUuid() + ".temp.outdoor");
         g.setName(i18n.tr("Außentemperaturen"));
-        g.getSensors().add(createSensor(dis,56,"temp.outdoor.current",i18n.tr("Aktuell")));
+        
+        Sensor<Float> current = createSensor(dis,56,"temp.outdoor.current",i18n.tr("Aktuell"));
+        g.getSensors().add(current);
+        g.getSensors().add(this.createExtreme(current,Extreme.Type.MAX));
+        g.getSensors().add(this.createExtreme(current,Extreme.Type.MIN));
+        
         g.getSensors().add(createSensor(dis,60,"temp.outdoor.1h",i18n.tr("Mittelwert 1h")));
         g.getSensors().add(createSensor(dis,64,"temp.outdoor.24h",i18n.tr("Mittelwert 24h")));
         m.getSensorgroups().add(g);
@@ -131,8 +143,21 @@ public class DeviceImpl implements Device, Configurable
         g.setUuid(this.getUuid() + ".temp.heater");
         g.setName(i18n.tr("Heizungstemperaturen"));
         g.getSensors().add(createSensor(dis,68,"temp.heater.return.target",i18n.tr("Rücklauf Soll")));
-        g.getSensors().add(createSensor(dis,72,"temp.heater.return.real",i18n.tr("Rücklauf Ist")));
-        g.getSensors().add(createSensor(dis,76,"temp.heater.out.real",i18n.tr("Vorlauf Ist")));
+
+        {
+          Sensor<Float> current = createSensor(dis,72,"temp.heater.return.real",i18n.tr("Rücklauf Ist"));
+          g.getSensors().add(current);
+          g.getSensors().add(this.createExtreme(current,Extreme.Type.MAX));
+          g.getSensors().add(this.createExtreme(current,Extreme.Type.MIN));
+        }
+        
+        {
+          Sensor<Float> current = createSensor(dis,76,"temp.heater.out.real",i18n.tr("Vorlauf Ist"));
+          g.getSensors().add(current);
+          g.getSensors().add(this.createExtreme(current,Extreme.Type.MAX));
+          g.getSensors().add(this.createExtreme(current,Extreme.Type.MIN));
+        }
+        
         m.getSensorgroups().add(g);
       }
       //////////////////////////////////////////////////////////////////////////
@@ -144,7 +169,12 @@ public class DeviceImpl implements Device, Configurable
         g.setUuid(this.getUuid() + ".temp.water");
         g.setName(i18n.tr("Warmwassertemperaturen"));
         g.getSensors().add(createSensor(dis,80,"temp.water.target",i18n.tr("Soll")));
-        g.getSensors().add(createSensor(dis,84,"temp.water.real",i18n.tr("Ist")));
+        
+        Sensor<Float> current = createSensor(dis,84,"temp.water.real",i18n.tr("Ist"));
+        g.getSensors().add(current);
+        g.getSensors().add(this.createExtreme(current,Extreme.Type.MAX));
+        g.getSensors().add(this.createExtreme(current,Extreme.Type.MIN));
+        
         m.getSensorgroups().add(g);
       }
       //////////////////////////////////////////////////////////////////////////
@@ -155,7 +185,12 @@ public class DeviceImpl implements Device, Configurable
         Sensorgroup g = new Sensorgroup();
         g.setUuid(this.getUuid() + ".temp.system");
         g.setName(i18n.tr("System-Temperaturen"));
-        g.getSensors().add(createSensor(dis,96,"temp.system.source.in",i18n.tr("Wärmequelle Eingang")));
+
+        Sensor<Float> current = createSensor(dis,96,"temp.system.source.in",i18n.tr("Wärmequelle Eingang"));
+        g.getSensors().add(current);
+        g.getSensors().add(this.createExtreme(current,Extreme.Type.MAX));
+        g.getSensors().add(this.createExtreme(current,Extreme.Type.MIN));
+        
         g.getSensors().add(createSensor(dis,100,"temp.system.source.out",i18n.tr("Wärmequelle Ausgang")));
         g.getSensors().add(createSensor(dis,104,"temp.system.evaporator",i18n.tr("Verdampfer")));
         g.getSensors().add(createSensor(dis,108,"temp.system.condenser",i18n.tr("Kondensator")));
@@ -199,7 +234,7 @@ public class DeviceImpl implements Device, Configurable
    * @return der erzeugte Sensor.
    * @throws IOException
    */
-  private Sensor createSensor(DataInputStream data, int offset, String id, String name) throws IOException
+  private Sensor<Float> createSensor(DataInputStream data, int offset, String id, String name) throws IOException
   {
     try
     {
@@ -222,7 +257,32 @@ public class DeviceImpl implements Device, Configurable
       data.reset();
     }
   }
-  
+
+  /**
+   * Erzeut eine Kopie des Sensors - jedoch mit dem 24h-Extrem des Sensors.
+   * @param sensor der Sensor.
+   * @return die Kopie des Sensors - jedoch mit dem 24h-Extrem.
+   */
+  private Sensor<Float> createExtreme(Sensor<Float> sensor, Extreme.Type type)
+  {
+    String key = sensor.getUuid() + "." + type.key;
+    Extreme extreme = extremes.get(key);
+
+    // Es gibt noch gar keinen Maximal-Wert. Dann legen wir einen neuen an
+    if (extreme == null)
+    {
+      extreme = new Extreme(sensor,type);
+      extremes.put(key,extreme);
+    }
+    else
+    {
+      // Ansonsten ggf. aktualisierten Wert uebernehmen
+      extreme.update(sensor.getValue());
+    }
+
+    return extreme.sensor;
+  }
+
   /**
    * @see de.willuhn.jameica.sensors.devices.Device#getName()
    */
@@ -287,49 +347,106 @@ public class DeviceImpl implements Device, Configurable
       }
     }
   }
-  
+
+  /**
+   * Haelt die Extrem-Werte der letzten 24h.
+   */
+  private static class Extreme
+  {
+    /**
+     * Der Typ des Extems.
+     */
+    private static enum Type
+    {
+      MAX("max",i18n.tr("24h Maximum")),
+      MIN("min",i18n.tr("24h Minimum"));
+      
+      private String key   = null;
+      private String title = null;
+      
+      /**
+       * ct.
+       * @param key
+       * @param title
+       */
+      private Type(String key, String title)
+      {
+        this.key   = key;
+        this.title = title;
+      }
+    }
+    
+    private Sensor<Float> sensor = null;
+    private Type type            = null;
+    private long timestamp       = System.currentTimeMillis();
+    
+    /**
+     * ct.
+     * @param sensor der Sensor, fuer den der Extrem-Wert gebildet werden soll (wird gecloned).
+     * @param type die Art des Extrems.
+     */
+    private Extreme(Sensor<Float> sensor, Type type)
+    {
+      this.sensor = (Sensor<Float>) sensor.clone();
+      this.sensor.setUuid(sensor + "." + type.key);
+      this.sensor.setName(i18n.tr("{0} ({1})",sensor.getName(),type.title));
+      this.type = type;
+    }
+    
+    /**
+     * Prueft, ob der Extrem-Wert abgelaufen ist.
+     * @return true, wenn er abgelaufen ist.
+     */
+    private boolean isExpired()
+    {
+      long now = System.currentTimeMillis();
+      return (now - this.timestamp) > TIMEOUT;
+    }
+    
+    /**
+     * Prueft, ob der uebergebene Wert im Vergleich zum aktuellen ein neues Extrem ist.
+     * @param extreme der zu pruefende Wert,
+     * @return true, wenn es ein neues Extrem ist.
+     */
+    private boolean isExtreme(Float extreme)
+    {
+      Float old = this.sensor.getValue();
+      
+      if (this.type == Type.MAX)
+        return (extreme.compareTo(old) > 0);
+      
+      // Minimum
+      return (extreme.compareTo(old) < 0);
+    }
+    
+    /**
+     * Prueft, ob der uebergebene Wert ein neuer Extrem-Wert innerhalb der letzten 24h ist.
+     * Wenn es ein neuer Extrem-Wert ist, wird er uebernommen, sonst ignoriert.
+     * @param extreme das potentielle neue Extrem.
+     */
+    private void update(Float extreme)
+    {
+      // a) Wert ist aelter als 24h -> der alte ist abgelaufen, wir nehmen den neuen
+      // b) oder Wert ist neues Extrem -> der alte ist kein Extrem mehr, wir uebernehmen den neuen
+      if (this.isExpired() || (this.isExtreme(extreme)))
+      {
+        // Zeitstempel aktualisieren
+        this.timestamp = System.currentTimeMillis();
+        
+        // Neuen Wert uebernehmen
+        this.sensor.setValue(extreme);
+      }
+    }
+  }
   
 }
 
 
 /**********************************************************************
  * $Log: DeviceImpl.java,v $
+ * Revision 1.10  2012/04/17 22:25:05  willuhn
+ * @N 24h-Maximal- und -Minimal-Werte
+ *
  * Revision 1.9  2009/09/16 11:26:14  willuhn
  * @C Auth fuer /sensors von /webadmin wiederverwenden
- *
- * Revision 1.8  2009/09/15 17:00:17  willuhn
- * @N Konfigurierbarkeit aller Module ueber das Webfrontend
- *
- * Revision 1.7  2009/08/21 17:27:37  willuhn
- * @N RRD-Service
- *
- * Revision 1.6  2009/08/21 14:26:00  willuhn
- * @N null als Rueckgabewert tolerieren
- *
- * Revision 1.5  2009/08/21 13:34:17  willuhn
- * @N Redesign der Device-API
- * @N Cleanup in Persistierung
- * @B Bugfixing beim Initialisieren des EntityManagers
- *
- * Revision 1.4  2009/08/20 22:08:42  willuhn
- * @N Erste komplett funktionierende Version der Persistierung
- *
- * Revision 1.3  2009/08/20 18:07:43  willuhn
- * @N Persistierung funktioniert rudimentaer
- *
- * Revision 1.2  2009/08/19 23:46:29  willuhn
- * @N Erster Code fuer die JPA-Persistierung
- *
- * Revision 1.1  2009/08/19 10:34:43  willuhn
- * @N initial import
- *
- * Revision 1.3  2009/08/18 23:27:33  willuhn
- * *** empty log message ***
- *
- * Revision 1.2  2009/08/18 23:00:25  willuhn
- * @N Erste Version mit Web-Frontend
- *
- * Revision 1.1  2009/08/18 16:29:19  willuhn
- * @N DIE SCHEISSE GEHT! ;)
- *
  **********************************************************************/
