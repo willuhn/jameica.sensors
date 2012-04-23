@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/service/impl/RRDImpl.java,v $
- * $Revision: 1.16 $
- * $Date: 2012/03/28 22:28:18 $
+ * $Revision: 1.17 $
+ * $Date: 2012/04/23 22:06:14 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -47,6 +47,7 @@ import de.willuhn.jameica.sensors.messaging.MeasureMessage;
 import de.willuhn.jameica.sensors.service.RRD;
 import de.willuhn.jameica.system.Application;
 import de.willuhn.jameica.system.Settings;
+import de.willuhn.logging.Level;
 import de.willuhn.logging.Logger;
 import de.willuhn.util.ApplicationException;
 import de.willuhn.util.ColorGenerator;
@@ -126,30 +127,38 @@ public class RRDImpl implements RRD
       
       String basedir = Application.getPluginLoader().getPlugin(Plugin.class).getResources().getWorkPath();
       File deviceDir = new File(basedir,device.getUuid());
-      File rrd = new File(deviceDir,group.getUuid() + ".rrd");
-      if (!rrd.exists())
-        throw new ApplicationException("no rrd data found for device " + device.getName() + " [uuid: " + device.getUuid() + "], sensor group " + group.getName() + "[uuid: " + group.getUuid() + "]");
+      // Wenn ein Sensor angegeben ist, nehmen wir die RRD-Datei des Sensors, sonst die der Gruppe
 
       // In RRD werden ja die UUIDs der Sensoren als Datasource-Name
       // verwendet - jedoch verkuerzt, wenn sie mehr als 20 Zeichen
       // haben. Damit wir das rueckwaerts wieder aufloesen zu koennen,
       // um in der Chartgrafik ordentliche Labels anzuzeigen, bauen
       // wir uns hier eine Map fuers Reverse-Lookup
-      Map<String,Sensor> sensorMap = new HashMap<String,Sensor>();
+      
       List<Sensor> sensors = new ArrayList<Sensor>();
+      File rrd = null;
       if (sensor != null)
+      {
+        rrd = new File(deviceDir,sensor.getUuid() + ".rrd");
+        if (!rrd.exists())
+          throw new ApplicationException("no rrd data found for device " + device.getName() + " [uuid: " + device.getUuid() + "], sensor group " + group.getName() + " [uuid: " + group.getUuid() + "], sensor " + sensor.getName() + " [uuid: " + sensor.getUuid() + "]");
         sensors.add(sensor);
+      }
       else
+      {
+        rrd = new File(deviceDir,group.getUuid() + ".rrd");
+        if (!rrd.exists())
+          throw new ApplicationException("no rrd data found for device " + device.getName() + " [uuid: " + device.getUuid() + "], sensor group " + group.getName() + " [uuid: " + group.getUuid() + "]");
         sensors.addAll(group.getSensors());
+      }
 
+      Map<String,Sensor> sensorMap = new HashMap<String,Sensor>();
       for (Sensor s:sensors)
       {
         sensorMap.put(createRrdName(s.getUuid()),s);
       }
       
       RrdGraphDef gd = new RrdGraphDef();
-
-      // Fuer jeden Sensor eine Datasource mit der UUID als Name.
 
       //////////////////////////////////////////////////////////////////////////
       // Wir holen uns aus der RRD-Datei die Datasources, um die Plotter
@@ -209,6 +218,8 @@ public class RRDImpl implements RRD
         Logger.warn(t.getMessage());
       else
         Logger.error("unable to create image",t);
+      
+      Logger.write(Level.DEBUG,"unable to render image",t);
       return getFallback();
     }
   }
@@ -318,14 +329,15 @@ public class RRDImpl implements RRD
 
     ConsolFun fun = map(con);
     
+    // Wir holen uns den Heartbeat-Wert basierend auf dem Scheduler-Intervall
+    Settings settings = Application.getPluginLoader().getPlugin(Plugin.class).getResources().getSettings();
+    int minutes = settings.getInt("scheduler.interval.minutes",5);
+
     if (!rrdFile.exists())
     {
       Logger.info("creating new rrd file " + rrdFile.getAbsolutePath());
       RrdDef def = new RrdDef(rrdFile.getAbsolutePath());
       
-      // Wir holen uns den Heartbeat-Wert basierend auf dem Scheduler-Intervall
-      Settings settings = Application.getPluginLoader().getPlugin(Plugin.class).getResources().getSettings();
-      int minutes = settings.getInt("scheduler.interval.minutes",5);
 
       // Absolute Werte (also nicht bereits als Durchschnittswert gemittelt) bewahren wir
       // einen Tag lang auf. Damit haben wir ueber die letzten 24h die volle Messwert-
@@ -366,6 +378,34 @@ public class RRDImpl implements RRD
     else
     {
       db = new RrdDb(rrdFile.getAbsolutePath());
+
+// Funktioniert leider noch nicht - sollte eigentlich das unten stehende todo loesen
+//      //////////////////////////////////////
+//      // Checken, ob alle Sensoren in der DB vorhanden sind.
+//      // Ggf fehlende nachtragen.
+//      String[] names = db.getDsNames();
+//      for (Sensor sensor:sensors)
+//      {
+//        boolean found = false;
+//        for (String name:names)
+//        {
+//          if (name.equals(createRrdName(sensor.getUuid())))
+//          {
+//            found = true;
+//            break;
+//          }
+//        }
+//        if (!found)
+//        {
+//          Logger.info("adding sensor [uuid: " + sensor.getUuid() + "] to existing " + rrdFile.getAbsolutePath());
+//          db.close(); // close
+//          RrdDef def = new RrdDef(rrdFile.getAbsolutePath());
+//          def.addDatasource(createRrdName(sensor.getUuid()),map(sensor.getType()), 2 * minutes * 60,Double.NaN,Double.NaN);
+//          db = new RrdDb(def); // reopen
+//        }
+//      }
+//      //
+//      //////////////////////////////////////
     }
     
     try
@@ -506,6 +546,9 @@ public class RRDImpl implements RRD
 
 /**********************************************************************
  * $Log: RRDImpl.java,v $
+ * Revision 1.17  2012/04/23 22:06:14  willuhn
+ * @B Sensoren wurden nicht geplottet, wenn sie nachtraeglich hinzugefuegt wurden. In die Sensor-Gruppe gehen sie aber trotzdem nicht rein - muss ich noch weiterprobieren
+ *
  * Revision 1.16  2012/03/28 22:28:18  willuhn
  * @N Einfuehrung eines neuen Interfaces "Plugin", welches von "AbstractPlugin" implementiert wird. Es dient dazu, kuenftig auch Jameica-Plugins zu unterstuetzen, die selbst gar keinen eigenen Java-Code mitbringen sondern nur ein Manifest ("plugin.xml") und z.Bsp. Jars oder JS-Dateien. Plugin-Autoren muessen lediglich darauf achten, dass die Jameica-Funktionen, die bisher ein Object vom Typ "AbstractPlugin" zuruecklieferten, jetzt eines vom Typ "Plugin" liefern.
  * @C "getClassloader()" verschoben von "plugin.getRessources().getClassloader()" zu "manifest.getClassloader()" - der Zugriffsweg ist kuerzer. Die alte Variante existiert weiterhin, ist jedoch als deprecated markiert.
