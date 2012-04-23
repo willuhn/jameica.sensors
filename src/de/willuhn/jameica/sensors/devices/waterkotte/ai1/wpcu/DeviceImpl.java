@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/devices/waterkotte/ai1/wpcu/DeviceImpl.java,v $
- * $Revision: 1.11 $
- * $Date: 2012/04/17 22:32:25 $
+ * $Revision: 1.12 $
+ * $Date: 2012/04/23 22:26:54 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -41,6 +41,7 @@ import de.willuhn.jameica.sensors.devices.Sensorgroup;
 import de.willuhn.jameica.system.Application;
 import de.willuhn.jameica.system.Settings;
 import de.willuhn.logging.Logger;
+import de.willuhn.util.History;
 import de.willuhn.util.I18N;
 
 /**
@@ -52,10 +53,8 @@ public class DeviceImpl implements Device, Configurable
   private final static Settings settings = new Settings(DeviceImpl.class);
   private static boolean msgPrinted = false;
   
-  private final static long TIMEOUT = 24 * 60 * 60 * 1000L; // Das Timeout fuer die Extrem-Werte
-
   // Cache fuer die Hoechst- und Tiefs-Werte der letzten 24h.
-  private final Map<String,Extreme> extremes  = new HashMap<String,Extreme>();
+  private final Map<String,History> extremes = new HashMap<String,History>();
   
   /**
    * @see de.willuhn.jameica.sensors.devices.Device#collect()
@@ -127,8 +126,8 @@ public class DeviceImpl implements Device, Configurable
         
         Sensor<Float> current = createSensor(dis,56,"temp.outdoor.current",i18n.tr("Aktuell"));
         g.getSensors().add(current);
-        g.getSensors().add(this.createExtreme(current,Extreme.Type.MAX));
-        g.getSensors().add(this.createExtreme(current,Extreme.Type.MIN));
+        g.getSensors().add(this.createExtreme(current,Extreme.MAX));
+        g.getSensors().add(this.createExtreme(current,Extreme.MIN));
         
         g.getSensors().add(createSensor(dis,60,"temp.outdoor.1h",i18n.tr("Mittelwert 1h")));
         g.getSensors().add(createSensor(dis,64,"temp.outdoor.24h",i18n.tr("Mittelwert 24h")));
@@ -147,15 +146,15 @@ public class DeviceImpl implements Device, Configurable
         {
           Sensor<Float> current = createSensor(dis,72,"temp.heater.return.real",i18n.tr("Rücklauf Ist"));
           g.getSensors().add(current);
-          g.getSensors().add(this.createExtreme(current,Extreme.Type.MAX));
-          g.getSensors().add(this.createExtreme(current,Extreme.Type.MIN));
+          g.getSensors().add(this.createExtreme(current,Extreme.MAX));
+          g.getSensors().add(this.createExtreme(current,Extreme.MIN));
         }
         
         {
           Sensor<Float> current = createSensor(dis,76,"temp.heater.out.real",i18n.tr("Vorlauf Ist"));
           g.getSensors().add(current);
-          g.getSensors().add(this.createExtreme(current,Extreme.Type.MAX));
-          g.getSensors().add(this.createExtreme(current,Extreme.Type.MIN));
+          g.getSensors().add(this.createExtreme(current,Extreme.MAX));
+          g.getSensors().add(this.createExtreme(current,Extreme.MIN));
         }
         
         m.getSensorgroups().add(g);
@@ -172,8 +171,8 @@ public class DeviceImpl implements Device, Configurable
         
         Sensor<Float> current = createSensor(dis,84,"temp.water.real",i18n.tr("Ist"));
         g.getSensors().add(current);
-        g.getSensors().add(this.createExtreme(current,Extreme.Type.MAX));
-        g.getSensors().add(this.createExtreme(current,Extreme.Type.MIN));
+        g.getSensors().add(this.createExtreme(current,Extreme.MAX));
+        g.getSensors().add(this.createExtreme(current,Extreme.MIN));
         
         m.getSensorgroups().add(g);
       }
@@ -188,8 +187,8 @@ public class DeviceImpl implements Device, Configurable
 
         Sensor<Float> current = createSensor(dis,96,"temp.system.source.in",i18n.tr("Wärmequelle Eingang"));
         g.getSensors().add(current);
-        g.getSensors().add(this.createExtreme(current,Extreme.Type.MAX));
-        g.getSensors().add(this.createExtreme(current,Extreme.Type.MIN));
+        g.getSensors().add(this.createExtreme(current,Extreme.MAX));
+        g.getSensors().add(this.createExtreme(current,Extreme.MIN));
         
         g.getSensors().add(createSensor(dis,100,"temp.system.source.out",i18n.tr("Wärmequelle Ausgang")));
         g.getSensors().add(createSensor(dis,104,"temp.system.evaporator",i18n.tr("Verdampfer")));
@@ -263,24 +262,46 @@ public class DeviceImpl implements Device, Configurable
    * @param sensor der Sensor.
    * @return die Kopie des Sensors - jedoch mit dem 24h-Extrem.
    */
-  private Sensor<Float> createExtreme(Sensor<Float> sensor, Extreme.Type type)
+  private Sensor<Float> createExtreme(Sensor<Float> sensor, Extreme type)
   {
     String key = sensor.getUuid() + "." + type.key;
-    Extreme extreme = extremes.get(key);
+    History history = extremes.get(key);
 
-    // Es gibt noch gar keinen Maximal-Wert. Dann legen wir einen neuen an
-    if (extreme == null)
+    // Es gibt noch gar keine Queue fuer die Werte. Dann legen wir eine an
+    if (history == null)
     {
-      extreme = new Extreme(sensor,type);
-      extremes.put(key,extreme);
-    }
-    else
-    {
-      // Ansonsten ggf. aktualisierten Wert uebernehmen
-      extreme.update(sensor.getValue());
+      int minutes = settings.getInt("scheduler.interval.minutes",5);
+      int size = 24 * 60 / minutes;
+      history = new History(size);
+      extremes.put(key,history);
     }
 
-    return extreme.sensor;
+    Float value = sensor.getValue();
+
+    // Wert hinzufuegen
+    history.push(value);
+    
+    // Extrem-Wert ermitteln
+    List<Float> values = history.elements();
+    for (Float f:values)
+    {
+      if (type == Extreme.MAX && value.compareTo(f) > 0)
+      {
+        value = f;
+        continue;
+      }
+      if (type == Extreme.MIN && value.compareTo(f) < 0)
+      {
+        value = f;
+        continue;
+      }
+    }
+
+    Sensor clone = (Sensor<Float>) sensor.clone();
+    clone.setUuid(key);
+    clone.setValue(value);
+    clone.setName(i18n.tr("{0} ({1})",sensor.getName(),type.title));
+    return clone;
   }
 
   /**
@@ -349,101 +370,35 @@ public class DeviceImpl implements Device, Configurable
   }
 
   /**
-   * Haelt die Extrem-Werte der letzten 24h.
+   * Der Typ des Extems.
    */
-  private static class Extreme
+  private static enum Extreme
   {
-    /**
-     * Der Typ des Extems.
-     */
-    private static enum Type
-    {
-      MAX("max",i18n.tr("24h Maximum")),
-      MIN("min",i18n.tr("24h Minimum"));
-      
-      private String key   = null;
-      private String title = null;
-      
-      /**
-       * ct.
-       * @param key
-       * @param title
-       */
-      private Type(String key, String title)
-      {
-        this.key   = key;
-        this.title = title;
-      }
-    }
+    MAX("max",i18n.tr("24h Maximum")),
+    MIN("min",i18n.tr("24h Minimum"));
     
-    private Sensor<Float> sensor = null;
-    private Type type            = null;
-    private long timestamp       = System.currentTimeMillis();
+    private String key   = null;
+    private String title = null;
     
     /**
      * ct.
-     * @param sensor der Sensor, fuer den der Extrem-Wert gebildet werden soll (wird gecloned).
-     * @param type die Art des Extrems.
+     * @param key
+     * @param title
      */
-    private Extreme(Sensor<Float> sensor, Type type)
+    private Extreme(String key, String title)
     {
-      this.sensor = (Sensor<Float>) sensor.clone();
-      this.sensor.setUuid(sensor.getUuid() + "." + type.key);
-      this.sensor.setName(i18n.tr("{0} ({1})",sensor.getName(),type.title));
-      this.type = type;
-    }
-    
-    /**
-     * Prueft, ob der Extrem-Wert abgelaufen ist.
-     * @return true, wenn er abgelaufen ist.
-     */
-    private boolean isExpired()
-    {
-      long now = System.currentTimeMillis();
-      return (now - this.timestamp) > TIMEOUT;
-    }
-    
-    /**
-     * Prueft, ob der uebergebene Wert im Vergleich zum aktuellen ein neues Extrem ist.
-     * @param extreme der zu pruefende Wert,
-     * @return true, wenn es ein neues Extrem ist.
-     */
-    private boolean isExtreme(Float extreme)
-    {
-      Float old = this.sensor.getValue();
-      
-      if (this.type == Type.MAX)
-        return (extreme.compareTo(old) > 0);
-      
-      // Minimum
-      return (extreme.compareTo(old) < 0);
-    }
-    
-    /**
-     * Prueft, ob der uebergebene Wert ein neuer Extrem-Wert innerhalb der letzten 24h ist.
-     * Wenn es ein neuer Extrem-Wert ist, wird er uebernommen, sonst ignoriert.
-     * @param extreme das potentielle neue Extrem.
-     */
-    private void update(Float extreme)
-    {
-      // a) Wert ist aelter als 24h -> der alte ist abgelaufen, wir nehmen den neuen
-      // b) oder Wert ist neues Extrem -> der alte ist kein Extrem mehr, wir uebernehmen den neuen
-      if (this.isExpired() || (this.isExtreme(extreme)))
-      {
-        // Zeitstempel aktualisieren
-        this.timestamp = System.currentTimeMillis();
-        
-        // Neuen Wert uebernehmen
-        this.sensor.setValue(extreme);
-      }
+      this.key   = key;
+      this.title = title;
     }
   }
-  
 }
 
 
 /**********************************************************************
  * $Log: DeviceImpl.java,v $
+ * Revision 1.12  2012/04/23 22:26:54  willuhn
+ * @N Extremwert-Berechnung gefixt
+ *
  * Revision 1.11  2012/04/17 22:32:25  willuhn
  * @B wrong uuid
  *
