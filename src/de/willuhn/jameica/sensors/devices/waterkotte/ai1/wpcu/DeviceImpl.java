@@ -1,7 +1,7 @@
 /**********************************************************************
  * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/devices/waterkotte/ai1/wpcu/DeviceImpl.java,v $
- * $Revision: 1.13 $
- * $Date: 2012/04/23 22:37:08 $
+ * $Revision: 1.14 $
+ * $Date: 2012/04/23 22:38:34 $
  * $Author: willuhn $
  * $Locker:  $
  * $State: Exp $
@@ -285,12 +285,12 @@ public class DeviceImpl implements Device, Configurable
     List<Float> values = history.elements();
     for (Float f:values)
     {
-      if (type == Extreme.MAX && value.compareTo(f) < 0)
+      if (type == Extreme.MAX && f.compareTo(value) > 0)
       {
         value = f;
         continue;
       }
-      if (type == Extreme.MIN && value.compareTo(f) > 0)
+      if (type == Extreme.MIN && f.compareTo(value) < 0)
       {
         value = f;
         continue;
@@ -396,6 +396,9 @@ public class DeviceImpl implements Device, Configurable
 
 /**********************************************************************
  * $Log: DeviceImpl.java,v $
+ * Revision 1.14  2012/04/23 22:38:34  willuhn
+ * *** empty log message ***
+ *
  * Revision 1.13  2012/04/23 22:37:08  willuhn
  * @B verkehrtrum ;)
  *
