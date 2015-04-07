@@ -3,24 +3,24 @@
 
 1) System-Voraussetzungen
 
-  - Betriebssystem: Linux oder Windows (32Bit)
+  - Betriebssystem: Linux oder Windows
   - Java: SUN Java 1.6 oder hoeher
   
 2) Installation
-  - Jameica 1.10 (oder 1.11 Nightly) herunterladen und entpacken
-    http://www.willuhn.de/products/jameica/releases/nightly/jameica-1.10.0-nightly-[linux|win32].zip
+  - Jameica herunterladen und entpacken
+    http://willuhn.de/products/jameica/download.php
     
   - jameica.webadmin herunterladen und im Ordner "plugins" von Jameica entpacken
-    http://www.willuhn.de/products/jameica/releases/nightly/jameica.webadmin-1.1-nightly.zip
+    http://willuhn.de/products/jameica/download_ext.php
     
   - jameica.sensors herunterladen und im Ordner "plugins" von Jameica entpacken
-    http://www.willuhn.de/products/jameica/releases/nightly/jameica.sensors-1.0-nightly.zip
+    http://willuhn.de/products/jameica/download_ext.php
     
 3) Start-Script anpassen
 
    Fuer den Zugriff auf den seriellen Port (fuer die Waterkotte Ai1 WPCU) muss eine
    native Bibliothek geladen werden, die sich im Unterverzeichnis
-   plugins/jameica.sensors/lib/rxtx befindet. Hierzu muss das Startscript von
+   plugins/jameica.sensors/lib/rxtx/[lib32/lib64] befindet. Hierzu muss das Startscript von
    Jameica angepasst werden.
    
    Linux: Oeffne jameica.sh in einem Texteditor, aendere die Zeile
@@ -29,7 +29,7 @@
           
           in
           
-          java -Djava.library.path=/opt/jameica/plugins/jameica.sensors/lib/rxtx -Xmx256m $_JCONSOLE -jar jameica-linux.jar $@
+          java -Djava.library.path=/opt/jameica/plugins/jameica.sensors/lib/rxtx/lib64 -Xmx256m $_JCONSOLE -jar jameica-linux64.jar $@
           
           
    Windows: Oeffne jameica.bat in einem Texteditor, aendere die Zeile
@@ -38,7 +38,7 @@
           
           in
              
-          start javaw.exe  -Djava.library.path=C:/Programme/jameica/plugins/jameica.sensors/lib/rxtx  -Xmx256m -jar jameica-win32.jar %1 %2 %3 %4 %5 %6 %7
+          start javaw.exe  -Djava.library.path=C:/Programme/jameica/plugins/jameica.sensors/lib/rxtx/lib32  -Xmx256m -jar jameica-win32.jar %1 %2 %3 %4 %5 %6 %7
 
           Hinweis: Keine Backslashes "\" sondern tatsaechlich Slash "/" verwenden!
    
