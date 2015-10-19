@@ -1,17 +1,11 @@
 /**********************************************************************
- * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/devices/waterkotte/ai1/wpcu/TempSerializer.java,v $
- * $Revision: 1.2 $
- * $Date: 2011/09/13 09:08:34 $
- * $Author: willuhn $
- * $Locker:  $
- * $State: Exp $
  *
- * Copyright (c) by willuhn software & services
+ * Copyright (c) by Olaf Willuhn
  * All rights reserved
  *
  **********************************************************************/
 
-package de.willuhn.jameica.sensors.devices.waterkotte.ai1.wpcu;
+package de.willuhn.jameica.sensors.devices.waterkotte.ai1;
 
 import java.text.DecimalFormat;
 
@@ -52,16 +46,3 @@ public class TempSerializer extends StringSerializer
     return Float.parseFloat(s);
   }
 }
-
-
-/**********************************************************************
- * $Log: TempSerializer.java,v $
- * Revision 1.2  2011/09/13 09:08:34  willuhn
- * @C Code-Cleanup
- *
- * Revision 1.1  2009/08/21 13:34:17  willuhn
- * @N Redesign der Device-API
- * @N Cleanup in Persistierung
- * @B Bugfixing beim Initialisieren des EntityManagers
- *
- **********************************************************************/

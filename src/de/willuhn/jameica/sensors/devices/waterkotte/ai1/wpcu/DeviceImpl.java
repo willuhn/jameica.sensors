@@ -1,12 +1,6 @@
 /**********************************************************************
- * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/devices/waterkotte/ai1/wpcu/DeviceImpl.java,v $
- * $Revision: 1.14 $
- * $Date: 2012/04/23 22:38:34 $
- * $Author: willuhn $
- * $Locker:  $
- * $State: Exp $
  *
- * Copyright (c) by willuhn software & services
+ * Copyright (c) by Olaf Willuhn
  * All rights reserved
  *
  **********************************************************************/
@@ -20,9 +14,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import net.wimpi.modbus.Modbus;
 import net.wimpi.modbus.io.ModbusSerialTransaction;
@@ -31,30 +23,22 @@ import net.wimpi.modbus.msg.ReadMultipleRegistersResponse;
 import net.wimpi.modbus.net.SerialConnection;
 import net.wimpi.modbus.procimg.Register;
 import net.wimpi.modbus.util.SerialParameters;
-import de.willuhn.jameica.sensors.Plugin;
-import de.willuhn.jameica.sensors.config.Configurable;
 import de.willuhn.jameica.sensors.config.Parameter;
-import de.willuhn.jameica.sensors.devices.Device;
 import de.willuhn.jameica.sensors.devices.Measurement;
 import de.willuhn.jameica.sensors.devices.Sensor;
 import de.willuhn.jameica.sensors.devices.Sensorgroup;
-import de.willuhn.jameica.system.Application;
+import de.willuhn.jameica.sensors.devices.waterkotte.ai1.AbstractDevice;
+import de.willuhn.jameica.sensors.devices.waterkotte.ai1.TempSerializer;
 import de.willuhn.jameica.system.Settings;
 import de.willuhn.logging.Logger;
-import de.willuhn.util.History;
-import de.willuhn.util.I18N;
 
 /**
  * Implementierung der Waterkotte Ai1 mit dem WPCU-Steuergeraet.
  */
-public class DeviceImpl implements Device, Configurable
+public class DeviceImpl extends AbstractDevice
 {
-  private final static I18N i18n         = Application.getPluginLoader().getPlugin(Plugin.class).getResources().getI18N();
   private final static Settings settings = new Settings(DeviceImpl.class);
   private static boolean msgPrinted = false;
-  
-  // Cache fuer die Hoechst- und Tiefs-Werte der letzten 24h.
-  private final Map<String,History> extremes = new HashMap<String,History>();
   
   /**
    * @see de.willuhn.jameica.sensors.devices.Device#collect()
@@ -258,53 +242,6 @@ public class DeviceImpl implements Device, Configurable
   }
 
   /**
-   * Erzeut eine Kopie des Sensors - jedoch mit dem 24h-Extrem des Sensors.
-   * @param sensor der Sensor.
-   * @return die Kopie des Sensors - jedoch mit dem 24h-Extrem.
-   */
-  private Sensor<Float> createExtreme(Sensor<Float> sensor, Extreme type)
-  {
-    String key = sensor.getUuid() + "." + type.key;
-    History history = extremes.get(key);
-
-    // Es gibt noch gar keine Queue fuer die Werte. Dann legen wir eine an
-    if (history == null)
-    {
-      int minutes = settings.getInt("scheduler.interval.minutes",5);
-      int size = 24 * 60 / minutes;
-      history = new History(size);
-      extremes.put(key,history);
-    }
-
-    Float value = sensor.getValue();
-
-    // Wert hinzufuegen
-    history.push(value);
-    
-    // Extrem-Wert ermitteln
-    List<Float> values = history.elements();
-    for (Float f:values)
-    {
-      if (type == Extreme.MAX && f.compareTo(value) > 0)
-      {
-        value = f;
-        continue;
-      }
-      if (type == Extreme.MIN && f.compareTo(value) < 0)
-      {
-        value = f;
-        continue;
-      }
-    }
-
-    Sensor clone = (Sensor<Float>) sensor.clone();
-    clone.setUuid(key);
-    clone.setValue(value);
-    clone.setName(i18n.tr("{0} ({1})",sensor.getName(),type.title));
-    return clone;
-  }
-
-  /**
    * @see de.willuhn.jameica.sensors.devices.Device#getName()
    */
   public String getName()
@@ -369,48 +306,4 @@ public class DeviceImpl implements Device, Configurable
     }
   }
 
-  /**
-   * Der Typ des Extems.
-   */
-  private static enum Extreme
-  {
-    MAX("max",i18n.tr("24h Maximum")),
-    MIN("min",i18n.tr("24h Minimum"));
-    
-    private String key   = null;
-    private String title = null;
-    
-    /**
-     * ct.
-     * @param key
-     * @param title
-     */
-    private Extreme(String key, String title)
-    {
-      this.key   = key;
-      this.title = title;
-    }
-  }
 }
-
-
-/**********************************************************************
- * $Log: DeviceImpl.java,v $
- * Revision 1.14  2012/04/23 22:38:34  willuhn
- * *** empty log message ***
- *
- * Revision 1.13  2012/04/23 22:37:08  willuhn
- * @B verkehrtrum ;)
- *
- * Revision 1.12  2012/04/23 22:26:54  willuhn
- * @N Extremwert-Berechnung gefixt
- *
- * Revision 1.11  2012/04/17 22:32:25  willuhn
- * @B wrong uuid
- *
- * Revision 1.10  2012/04/17 22:25:05  willuhn
- * @N 24h-Maximal- und -Minimal-Werte
- *
- * Revision 1.9  2009/09/16 11:26:14  willuhn
- * @C Auth fuer /sensors von /webadmin wiederverwenden
- **********************************************************************/
