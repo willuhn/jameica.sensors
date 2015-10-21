@@ -22,10 +22,13 @@ import java.util.regex.Pattern;
 
 import de.willuhn.io.IOUtil;
 import de.willuhn.jameica.sensors.config.Parameter;
+import de.willuhn.jameica.sensors.devices.DecimalSerializer;
 import de.willuhn.jameica.sensors.devices.Measurement;
 import de.willuhn.jameica.sensors.devices.Sensor;
 import de.willuhn.jameica.sensors.devices.Sensorgroup;
+import de.willuhn.jameica.sensors.devices.Serializer;
 import de.willuhn.jameica.sensors.devices.waterkotte.ai1.AbstractDevice;
+import de.willuhn.jameica.sensors.devices.waterkotte.ai1.KwSerializer;
 import de.willuhn.jameica.sensors.devices.waterkotte.ai1.TempSerializer;
 import de.willuhn.jameica.system.Settings;
 import de.willuhn.logging.Level;
@@ -95,13 +98,13 @@ public class DeviceImpl extends AbstractDevice
         g.setUuid(this.getUuid() + ".temp.outdoor");
         g.setName(i18n.tr("Außentemperaturen"));
         
-        Sensor<Float> current = fetch(Tag.TEMP_OUTDOOR);
+        Sensor current = fetch(Tag.TEMP_OUTDOOR, TempSerializer.class);
         g.getSensors().add(current);
         g.getSensors().add(this.createExtreme(current,Extreme.MAX));
         g.getSensors().add(this.createExtreme(current,Extreme.MIN));
         
-        g.getSensors().add(fetch(Tag.TEMP_OUTDOOR_1H));
-        g.getSensors().add(fetch(Tag.TEMP_OUTDOOR_24H));
+        g.getSensors().add(fetch(Tag.TEMP_OUTDOOR_1H, TempSerializer.class));
+        g.getSensors().add(fetch(Tag.TEMP_OUTDOOR_24H, TempSerializer.class));
         m.getSensorgroups().add(g);
       }
       //////////////////////////////////////////////////////////////////////////
@@ -112,17 +115,17 @@ public class DeviceImpl extends AbstractDevice
         Sensorgroup g = new Sensorgroup();
         g.setUuid(this.getUuid() + ".temp.heater");
         g.setName(i18n.tr("Heizungstemperaturen"));
-        g.getSensors().add(fetch(Tag.TEMP_HEATER_RETURN_TARGET));
+        g.getSensors().add(fetch(Tag.TEMP_HEATER_RETURN_TARGET, TempSerializer.class));
 
         {
-          Sensor<Float> current = fetch(Tag.TEMP_HEATER_RETURN_REAL);
+          Sensor current = fetch(Tag.TEMP_HEATER_RETURN_REAL, TempSerializer.class);
           g.getSensors().add(current);
           g.getSensors().add(this.createExtreme(current,Extreme.MAX));
           g.getSensors().add(this.createExtreme(current,Extreme.MIN));
         }
         
         {
-          Sensor<Float> current = fetch(Tag.TEMP_HEATER_OUT_REAL);
+          Sensor current = fetch(Tag.TEMP_HEATER_OUT_REAL, TempSerializer.class);
           g.getSensors().add(current);
           g.getSensors().add(this.createExtreme(current,Extreme.MAX));
           g.getSensors().add(this.createExtreme(current,Extreme.MIN));
@@ -138,9 +141,9 @@ public class DeviceImpl extends AbstractDevice
         Sensorgroup g = new Sensorgroup();
         g.setUuid(this.getUuid() + ".temp.water");
         g.setName(i18n.tr("Warmwassertemperaturen"));
-        g.getSensors().add(fetch(Tag.TEMP_WATER_TARGET));
+        g.getSensors().add(fetch(Tag.TEMP_WATER_TARGET, TempSerializer.class));
         
-        Sensor<Float> current = fetch(Tag.TEMP_WATER_REAL);
+        Sensor current = fetch(Tag.TEMP_WATER_REAL, TempSerializer.class);
         g.getSensors().add(current);
         g.getSensors().add(this.createExtreme(current,Extreme.MAX));
         g.getSensors().add(this.createExtreme(current,Extreme.MIN));
@@ -156,15 +159,15 @@ public class DeviceImpl extends AbstractDevice
         g.setUuid(this.getUuid() + ".temp.system");
         g.setName(i18n.tr("System-Temperaturen"));
 
-        Sensor<Float> current = fetch(Tag.TEMP_SYSTEM_SOURCE_IN);
+        Sensor current = fetch(Tag.TEMP_SYSTEM_SOURCE_IN, TempSerializer.class);
         g.getSensors().add(current);
         g.getSensors().add(this.createExtreme(current,Extreme.MAX));
         g.getSensors().add(this.createExtreme(current,Extreme.MIN));
         
-        g.getSensors().add(fetch(Tag.TEMP_SYSTEM_SOURCE_OUT));
-        g.getSensors().add(fetch(Tag.TEMP_SYSTEM_EVAPORATOR));
-        g.getSensors().add(fetch(Tag.TEMP_SYSTEM_CONDENSER));
-        g.getSensors().add(fetch(Tag.TEMP_SYSTEM_SUCTION));
+        g.getSensors().add(fetch(Tag.TEMP_SYSTEM_SOURCE_OUT, TempSerializer.class));
+        g.getSensors().add(fetch(Tag.TEMP_SYSTEM_EVAPORATOR, TempSerializer.class));
+        g.getSensors().add(fetch(Tag.TEMP_SYSTEM_CONDENSER, TempSerializer.class));
+        g.getSensors().add(fetch(Tag.TEMP_SYSTEM_SUCTION, TempSerializer.class));
         m.getSensorgroups().add(g);
       }
       //////////////////////////////////////////////////////////////////////////
@@ -177,14 +180,14 @@ public class DeviceImpl extends AbstractDevice
         g.setName(i18n.tr("Kennzahlen"));
 
         {
-          Sensor<Float> current = fetch(Tag.COP_HEATING);
+          Sensor current = fetch(Tag.COP_HEATING, DecimalSerializer.class);
           g.getSensors().add(current);
           g.getSensors().add(this.createExtreme(current,Extreme.MAX));
           g.getSensors().add(this.createExtreme(current,Extreme.MIN));
         }
         
         {
-          Sensor<Float> current = fetch(Tag.POWER_COMPRESSOR);
+          Sensor current = fetch(Tag.POWER_COMPRESSOR, KwSerializer.class);
           g.getSensors().add(current);
           g.getSensors().add(this.createExtreme(current,Extreme.MAX));
           g.getSensors().add(this.createExtreme(current,Extreme.MIN));
@@ -210,10 +213,11 @@ public class DeviceImpl extends AbstractDevice
   /**
    * Ruft einen einzelnen Wert ab.
    * @param tag das Tag.
+   * @param serializer der Serializer.
    * @return der Sensor-Wert.
    * @throws Exception
    */
-  private Sensor fetch(Tag tag) throws Exception
+  private Sensor fetch(Tag tag, Class<? extends Serializer> serializer) throws Exception
   {
     final String url = "http://" + settings.getString(PARAM_HOSTNAME,null) + "/cgi/readTags?n=1&t1=" + tag.getTag();
     
@@ -262,6 +266,15 @@ public class DeviceImpl extends AbstractDevice
       }
     }
 
+    Sensor<Float> s = new Sensor<Float>();
+    s.setName(tag.getDescription());
+    s.setUuid(this.getUuid() + "." + tag.getId()); // wir haengen noch die Device-UUID davor, damit es global eindeutig ist
+    s.setSerializer(serializer);
+
+    // Sensor inaktiv
+    if (body != null && body.contains("E_INACTIVETAG"))
+      return s;
+      
     if (body == null || !body.contains("#" + tag.getTag()))
       throw new IOException("got no value for tag " + tag.getId());
 
@@ -273,10 +286,6 @@ public class DeviceImpl extends AbstractDevice
     final int raw = Integer.parseInt(m.group(3));
     final BigDecimal value = new BigDecimal(raw).divide(BigDecimal.TEN);
 
-    Sensor<Float> s = new Sensor<Float>();
-    s.setName(tag.getDescription());
-    s.setUuid(this.getUuid() + "." + tag.getId()); // wir haengen noch die Device-UUID davor, damit es global eindeutig ist
-    s.setSerializer(TempSerializer.class);
     s.setValue(value.floatValue());
     return s;
 
@@ -316,8 +325,8 @@ public class DeviceImpl extends AbstractDevice
     List<Parameter> params = new ArrayList<Parameter>();
     
     params.add(new Parameter(i18n.tr("Hostname"),i18n.tr("Hostname oder IP-Adresse der Anlage"),settings.getString(PARAM_HOSTNAME,null),this.getUuid() + "." + PARAM_HOSTNAME));
-    params.add(new Parameter(i18n.tr("Username"),i18n.tr("Benutzername für die Authentifizierung"),settings.getString(PARAM_USERNAME,null),this.getUuid() + "." + PARAM_USERNAME));
-    params.add(new Parameter(i18n.tr("Passwort"),i18n.tr("Passwort für die Authentifizierung"),settings.getString(PARAM_PASSWORD,null),this.getUuid() + "." + PARAM_PASSWORD));
+    params.add(new Parameter(i18n.tr("Username"),i18n.tr("Benutzername für die Authentifizierung"),settings.getString(PARAM_USERNAME,"waterkotte"),this.getUuid() + "." + PARAM_USERNAME));
+    params.add(new Parameter(i18n.tr("Passwort"),i18n.tr("Passwort für die Authentifizierung"),settings.getString(PARAM_PASSWORD,"waterkotte"),this.getUuid() + "." + PARAM_PASSWORD));
     return params;
   }
 

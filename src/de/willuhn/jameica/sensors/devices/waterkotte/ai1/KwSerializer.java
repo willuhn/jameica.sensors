@@ -9,9 +9,9 @@ package de.willuhn.jameica.sensors.devices.waterkotte.ai1;
 
 
 /**
- * Ein einzelner Temperatur-Wert.
+ * Serializer fuer einen einheitenlosen.
  */
-public class TempSerializer extends DecimalSerializer
+public class KwSerializer extends DecimalSerializer
 {
   /**
    * @see de.willuhn.jameica.sensors.devices.waterkotte.ai1.DecimalSerializer#format(java.lang.Object)
@@ -19,6 +19,6 @@ public class TempSerializer extends DecimalSerializer
   @Override
   public String format(Object value)
   {
-    return value == null ? "-" : (super.format(value) + " °C");
+    return value == null ? "-" : (super.format(value) + " KW");
   }
 }
