@@ -270,6 +270,7 @@ public class DeviceImpl extends AbstractDevice
     s.setName(tag.getDescription());
     s.setUuid(this.getUuid() + "." + tag.getId()); // wir haengen noch die Device-UUID davor, damit es global eindeutig ist
     s.setSerializer(serializer);
+    s.setValue(Float.NaN);
 
     // Sensor inaktiv
     if (body != null && body.contains("E_INACTIVETAG"))
