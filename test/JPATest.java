@@ -52,7 +52,7 @@ public class JPATest
 
     Map params = new HashMap();
 
-    params.put("hibernate.connection.driver_class","com.mysql.jdbc.Driver");
+    params.put("hibernate.connection.driver_class","com.mysql.cj.jdbc.Driver");
     params.put("hibernate.connection.url","jdbc:mysql://server:3306/jameica_sensors?useUnicode=Yes&characterEncoding=ISO8859_1");
     params.put("hibernate.connection.username","jameica_sensors");
     params.put("hibernate.connection.password","jameica_sensors");
