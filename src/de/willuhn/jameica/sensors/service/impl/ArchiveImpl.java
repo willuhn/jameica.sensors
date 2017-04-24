@@ -50,8 +50,7 @@ import de.willuhn.util.I18N;
  */
 public class ArchiveImpl implements Archive, Configurable
 {
-  private final static String DRIVER_OLD = "com.mysql.jdbc.Driver";
-  private final static String DRIVER_NEW = "com.mysql.cj.jdbc.Driver";
+  private final static String DRIVER = "com.mysql.jdbc.Driver";
 
   private EntityManager entityManager = null;
   private MessageConsumer consumer    = null;
@@ -115,15 +114,7 @@ public class ArchiveImpl implements Archive, Configurable
       Settings settings = Application.getPluginLoader().getPlugin(Plugin.class).getResources().getSettings();
       Map params = new HashMap();
       
-      String driver = settings.getString("hibernate.connection.driver_class",DRIVER_NEW);
-      if (DRIVER_OLD.equals(driver))
-      {
-        Logger.info("migrating driver class from " + DRIVER_OLD + " to " + DRIVER_NEW);
-        driver = DRIVER_NEW;
-        settings.setAttribute("hibernate.connection.driver_class",driver);
-      }
-
-      params.put("hibernate.connection.driver_class",driver);
+      params.put("hibernate.connection.driver_class",settings.getString("hibernate.connection.driver_class",DRIVER));
       params.put("hibernate.connection.url",settings.getString("hibernate.connection.url","jdbc:mysql://localhost:3306/jameica_sensors?useUnicode=Yes&characterEncoding=ISO8859_1&serverTimezone=Europe/Paris"));
       params.put("hibernate.connection.username",settings.getString("hibernate.connection.username","jameica_sensors"));
       params.put("hibernate.connection.password",settings.getString("hibernate.connection.password","jameica_sensors"));
@@ -326,7 +317,7 @@ public class ArchiveImpl implements Archive, Configurable
 
     List<Parameter> params = new ArrayList<Parameter>();
     params.add(new Parameter(i18n.tr("Archiv-Service aktiviert"),i18n.tr("Aktiviert/Deaktiviert das Schreiben der Messwerte in die Datenbank. Mögliche Werte: true/false"),settings.getString("hibernate.enabled","false"),"hibernate.enabled"));
-    params.add(new Parameter(i18n.tr("JDBC-Treiber"),i18n.tr("Für MySQL z.Bsp. {0}",DRIVER_NEW),settings.getString("hibernate.connection.driver_class",DRIVER_NEW),"hibernate.connection.driver_class"));
+    params.add(new Parameter(i18n.tr("JDBC-Treiber"),i18n.tr("Für MySQL z.Bsp. {0}",DRIVER),settings.getString("hibernate.connection.driver_class",DRIVER),"hibernate.connection.driver_class"));
     params.add(new Parameter(i18n.tr("JDBC-URL"),i18n.tr("Für MySQL z.Bsp. jdbc:mysql://localhost:3306/jameica_sensors"),settings.getString("hibernate.connection.url","jdbc:mysql://localhost:3306/jameica_sensors?useUnicode=Yes&characterEncoding=ISO8859_1&serverTimezone=Europe/Paris"),"hibernate.connection.url"));
     params.add(new Parameter(i18n.tr("JDBC-Username"),i18n.tr("Name des Datenbank-Benutzers"),settings.getString("hibernate.connection.username","jameica_sensors"),"hibernate.connection.username"));
     params.add(new Parameter(i18n.tr("JDBC-Passwort"),i18n.tr("Passwort des Datenbank-Benutzers"),settings.getString("hibernate.connection.password","jameica_sensors"),"hibernate.connection.password"));
