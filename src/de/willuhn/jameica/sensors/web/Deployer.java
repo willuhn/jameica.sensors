@@ -1,13 +1,8 @@
 /**********************************************************************
- * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/web/Deployer.java,v $
- * $Revision: 1.4 $
- * $Date: 2009/09/16 11:26:14 $
- * $Author: willuhn $
- * $Locker:  $
- * $State: Exp $
  *
- * Copyright (c) by willuhn software & services
+ * Copyright (c) by Olaf Willuhn
  * All rights reserved
+ * GPLv2
  *
  **********************************************************************/
 
@@ -15,13 +10,13 @@ package de.willuhn.jameica.sensors.web;
 
 import java.io.File;
 
-import org.mortbay.jetty.security.UserRealm;
+import org.eclipse.jetty.security.LoginService;
 
 import de.willuhn.jameica.plugin.Manifest;
 import de.willuhn.jameica.sensors.Plugin;
 import de.willuhn.jameica.system.Application;
 import de.willuhn.jameica.webadmin.deploy.AbstractWebAppDeployer;
-import de.willuhn.jameica.webadmin.server.JameicaUserRealm;
+import de.willuhn.jameica.webadmin.server.JameicaLoginService;
 
 /**
  * Deployer fuer das Hibiscus-Webfrontend.
@@ -52,39 +47,13 @@ public class Deployer extends AbstractWebAppDeployer
   {
     return new String[]{"admin"};
   }
-
+  
   /**
-   * @see de.willuhn.jameica.webadmin.deploy.AbstractWebAppDeployer#getUserRealm()
+   * @see de.willuhn.jameica.webadmin.deploy.AbstractWebAppDeployer#getLoginService()
    */
-  protected UserRealm getUserRealm()
+  @Override
+  protected LoginService getLoginService()
   {
-    return de.willuhn.jameica.webadmin.Settings.getUseAuth() ? new JameicaUserRealm() : null;
+    return de.willuhn.jameica.webadmin.Settings.getUseAuth() ? new JameicaLoginService() : null;
   }
-
 }
-
-
-/*********************************************************************
- * $Log: Deployer.java,v $
- * Revision 1.4  2009/09/16 11:26:14  willuhn
- * @C Auth fuer /sensors von /webadmin wiederverwenden
- *
- * Revision 1.3  2009/08/21 14:10:35  willuhn
- * @N Authentifizierung optional
- *
- * Revision 1.2  2009/08/19 23:46:29  willuhn
- * @N Erster Code fuer die JPA-Persistierung
- *
- * Revision 1.1  2009/08/19 10:34:43  willuhn
- * @N initial import
- *
- * Revision 1.3  2009/08/18 23:33:57  willuhn
- * *** empty log message ***
- *
- * Revision 1.2  2009/08/18 23:27:33  willuhn
- * *** empty log message ***
- *
- * Revision 1.1  2009/08/18 23:00:25  willuhn
- * @N Erste Version mit Web-Frontend
- *
- **********************************************************************/
