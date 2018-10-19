@@ -1,0 +1,26 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+sourceCompatibility = 1.7
+compileJava.options.encoding = 'ISO-8859-1'
+
+eclipse {
+  classpath {
+    downloadSources = true
+  }
+}
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  compile 'org.rrd4j:rrd4j:3.3+'
+  compile 'com.sun.mail:javax.mail:1+'
+  compile 'org.hibernate:hibernate-core:5+'
+}
+
+task download(type: Copy) {
+  into "lib"
+  from configurations.runtime
+}

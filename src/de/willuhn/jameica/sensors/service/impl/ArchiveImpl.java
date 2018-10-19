@@ -263,7 +263,7 @@ public class ArchiveImpl implements Archive, Configurable
   {
     try
     {
-      Query q = getEntityManager().createQuery("from " + table + " where uuid = ?");
+      Query q = getEntityManager().createQuery("from " + table + " where uuid = ?1");
       q.setParameter(1,uuid);
       return q.getSingleResult();
     }
