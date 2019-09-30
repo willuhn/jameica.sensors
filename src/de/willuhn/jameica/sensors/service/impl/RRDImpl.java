@@ -432,7 +432,15 @@ public class RRDImpl implements RRD
           }
         }
       }
-      s.update();
+      
+      try
+      {
+        s.update();
+      }
+      catch (IllegalArgumentException e)
+      {
+        Logger.info(e.getMessage());
+      }
     }
     finally
     {
