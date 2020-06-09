@@ -371,7 +371,18 @@ public class RRDImpl implements RRD
       {
         // Fuer jeden Sensor eine Datasource mit der UUID als Name.
         // Type ermitteln
-        def.addDatasource(createRrdName(sensor.getUuid()),map(sensor.getType()), 2 * minutes * 60,Double.NaN,Double.NaN);
+        final String rrdName = createRrdName(sensor.getUuid());
+        try
+        {
+          def.addDatasource(rrdName,map(sensor.getType()), 2 * minutes * 60,Double.NaN,Double.NaN);
+        }
+        catch (IllegalArgumentException e)
+        {
+          // Kommt, wenn der Name dennoch schon vergeben ist.
+          // Siehe https://homebanking-hilfe.de/forum/topic.php?p=155687#real155687
+          // Ich habe keine Ahnung, was man da noch machen koennte. Daher toleriere ich den Fehler jetzt.
+          Logger.warn("rrd name " + rrdName + " already exists, skipping: " + e.getMessage());
+        }
       }
       db = new RrdDb(def);
     }
