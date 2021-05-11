@@ -18,6 +18,7 @@ dependencies {
   compile 'org.rrd4j:rrd4j:3.3+'
   compile 'com.sun.mail:javax.mail:1+'
   compile 'org.hibernate:hibernate-core:5+'
+  compile 'com.fasterxml.jackson.core:jackson-databind:+'
 }
 
 task download(type: Copy) {
