@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
@@ -40,6 +41,7 @@ public class DeviceImpl implements Device, Configurable
   private final static I18N i18n         = Application.getPluginLoader().getPlugin(Plugin.class).getResources().getI18N();
   private final static Settings settings = new Settings(DeviceImpl.class);
 
+  private List<WmbusData> day = new LinkedList<WmbusData>();
   private final ObjectMapper om = new ObjectMapper();
   private WmbusData last = null;
   private Date started = null;
@@ -96,8 +98,44 @@ public class DeviceImpl implements Device, Configurable
         s.setValue(data.max_flow_m3h);
         group.getSensors().add(s);
       }
+
+      // Sensor fuer den Tageszaehler
+      {
+        this.day.add(data);
+        
+        // Wir haben mindestens 2 Messungen. Dann werfen wir alles raus,
+        // was aelter als 24h ist. Die juengste davon nehmen wir als 24h-Vergleichswert
+        // Damit erzeugen wir einen fliessenden 24h-Verbrauch
+        if (this.day.size() > 1)
+        {
+          final List<WmbusData> toRemove = new LinkedList<WmbusData>();
+          for (WmbusData o:this.day)
+          {
+            long millis = data.timestamp.getTime() - o.timestamp.getTime();
+            long hours = millis / 1000 / 60 / 60;
+            if (hours >= 24)
+              toRemove.add(o);
+          }
+          
+          // Wenn wir noch keine Werte haben, die 24h her sind, nehmen wir einfach den letzten
+          // Dann koennen wir auch schon vorher Werte liefern, die im Tagesverlauf dann ansteigen
+          final WmbusData d = toRemove.size() > 0 ? toRemove.get(toRemove.size() - 1) : this.day.get(0);
+          final BigDecimal usage = data.total_m3.subtract(d.total_m3);
+          Sensor<BigDecimal> s = new Sensor();
+          s.setUuid(group.getUuid() + ".daily");
+          s.setName("daily (m³)");
+          s.setType(Type.GAUGE);
+          s.setSerializer(DecimalSerializer.class);
+          s.setValue(usage);
+          group.getSensors().add(s);
+
+          // Alle Werte wegwerfen, die aeltr als 24h sind
+          if (toRemove.size() > 0)
+            this.day.removeAll(toRemove);
+        }
+      }
       
-      
+      // Sensor fuer den Dauerfluss
       {
         long duration = 0L;
         boolean changed = (this.last != null && !Objects.equals(this.last.total_m3,data.total_m3));
