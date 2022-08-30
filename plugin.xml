@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<plugin name="jameica.sensors" version="2.9.0-nightly" class="de.willuhn.jameica.sensors.Plugin"
+<plugin name="jameica.sensors" version="2.11.0-nightly" class="de.willuhn.jameica.sensors.Plugin"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="http://www.willuhn.de/schema/jameica-plugin-1.0.xsd">
 
 
   <description>Jameica sensor framework</description>
-  <url>https://www.willuhn.de/products/jameica/releases/nightly/jameica.sensors-2.9.0-nightly.zip</url>
+  <url>https://www.willuhn.de/products/jameica/releases/nightly/jameica.sensors-2.11.0-nightly.zip</url>
   <homepage>http://www.willuhn.de/products/jameica/extensions.php#jameica.sensors</homepage>
   <license>GPL - http://www.gnu.org/copyleft/gpl.html</license>
 
