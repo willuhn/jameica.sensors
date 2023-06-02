@@ -1,13 +1,10 @@
 /**********************************************************************
- * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/devices/Sensor.java,v $
- * $Revision: 1.5 $
- * $Date: 2012/04/17 22:25:05 $
- * $Author: willuhn $
- * $Locker:  $
- * $State: Exp $
  *
- * Copyright (c) by willuhn software & services
- * All rights reserved
+ * Copyright (c) 2023 Olaf Willuhn
+ * All rights reserved.
+ * 
+ * This software is copyrighted work licensed under the terms of the
+ * Jameica License.  Please consult the file "LICENSE" for details. 
  *
  **********************************************************************/
 
@@ -176,25 +173,3 @@ public class Sensor<T> implements UniqueItem, Cloneable
   }
 
 }
-
-
-/**********************************************************************
- * $Log: Sensor.java,v $
- * Revision 1.5  2012/04/17 22:25:05  willuhn
- * @N 24h-Maximal- und -Minimal-Werte
- *
- * Revision 1.4  2011-09-13 09:08:34  willuhn
- * @C Code-Cleanup
- *
- * Revision 1.3  2009/09/28 14:26:47  willuhn
- * @N Unterstuetzung fuer die anderen Sensor-Typen von RRD
- *
- * Revision 1.2  2009/09/08 10:38:00  willuhn
- * *** empty log message ***
- *
- * Revision 1.1  2009/08/21 13:34:17  willuhn
- * @N Redesign der Device-API
- * @N Cleanup in Persistierung
- * @B Bugfixing beim Initialisieren des EntityManagers
- *
- **********************************************************************/

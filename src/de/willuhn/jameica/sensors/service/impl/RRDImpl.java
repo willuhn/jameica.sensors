@@ -1,13 +1,10 @@
 /**********************************************************************
- * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/service/impl/RRDImpl.java,v $
- * $Revision: 1.17 $
- * $Date: 2012/04/23 22:06:14 $
- * $Author: willuhn $
- * $Locker:  $
- * $State: Exp $
  *
- * Copyright (c) by willuhn software & services
- * All rights reserved
+ * Copyright (c) 2023 Olaf Willuhn
+ * All rights reserved.
+ * 
+ * This software is copyrighted work licensed under the terms of the
+ * Jameica License.  Please consult the file "LICENSE" for details. 
  *
  **********************************************************************/
 
@@ -91,7 +88,7 @@ public class RRDImpl implements RRD
   {
     if (this.isStarted())
     {
-      Logger.warn("service allready started, skipping request");
+      Logger.warn("service already started, skipping request");
       return;
     }
 
@@ -561,60 +558,3 @@ public class RRDImpl implements RRD
     }
   }
 }
-
-
-/**********************************************************************
- * $Log: RRDImpl.java,v $
- * Revision 1.17  2012/04/23 22:06:14  willuhn
- * @B Sensoren wurden nicht geplottet, wenn sie nachtraeglich hinzugefuegt wurden. In die Sensor-Gruppe gehen sie aber trotzdem nicht rein - muss ich noch weiterprobieren
- *
- * Revision 1.16  2012/03/28 22:28:18  willuhn
- * @N Einfuehrung eines neuen Interfaces "Plugin", welches von "AbstractPlugin" implementiert wird. Es dient dazu, kuenftig auch Jameica-Plugins zu unterstuetzen, die selbst gar keinen eigenen Java-Code mitbringen sondern nur ein Manifest ("plugin.xml") und z.Bsp. Jars oder JS-Dateien. Plugin-Autoren muessen lediglich darauf achten, dass die Jameica-Funktionen, die bisher ein Object vom Typ "AbstractPlugin" zuruecklieferten, jetzt eines vom Typ "Plugin" liefern.
- * @C "getClassloader()" verschoben von "plugin.getRessources().getClassloader()" zu "manifest.getClassloader()" - der Zugriffsweg ist kuerzer. Die alte Variante existiert weiterhin, ist jedoch als deprecated markiert.
- *
- * Revision 1.15  2011-09-13 09:08:34  willuhn
- * @C Code-Cleanup
- *
- * Revision 1.14  2010-09-27 17:22:18  willuhn
- * @C Generell Fallback-Grafik liefern, wenn keine erzeugt werden kann
- *
- * Revision 1.13  2010-09-13 17:03:28  willuhn
- * *** empty log message ***
- *
- * Revision 1.12  2010/05/19 10:03:12  willuhn
- * *** empty log message ***
- *
- * Revision 1.11  2010/05/19 09:59:11  willuhn
- * @N Fallback-Image anzeigen, wenn die Charts nicht gerendert werden koennen. Wird z.Bsp. dann genutzt, wenn auf dem Server (Linux) keine X11-Libs installiert sind. RRD braucht unter der Haube AWT zum Rendern.
- *
- * Revision 1.10  2009/10/13 16:57:47  willuhn
- * *** empty log message ***
- *
- * Revision 1.9  2009/10/13 16:46:14  willuhn
- * @N Graph pro Sensor zeichnen
- *
- * Revision 1.8  2009/10/13 15:51:04  willuhn
- * @N Sensor-API um Konsolidierungsfunktion erweitert
- *
- * Revision 1.7  2009/09/28 14:26:46  willuhn
- * @N Unterstuetzung fuer die anderen Sensor-Typen von RRD
- *
- * Revision 1.6  2009/08/25 00:05:22  willuhn
- * *** empty log message ***
- *
- * Revision 1.5  2009/08/24 23:49:17  willuhn
- * @N Bei der Office-Farbpalette beginnen
- *
- * Revision 1.4  2009/08/24 17:22:30  willuhn
- * @N Archiv-Zeitraum verkuerzt
- *
- * Revision 1.3  2009/08/22 00:03:42  willuhn
- * @N Das Zeichnen der Charts funktioniert! ;)
- *
- * Revision 1.2  2009/08/21 18:07:55  willuhn
- * *** empty log message ***
- *
- * Revision 1.1  2009/08/21 17:27:36  willuhn
- * @N RRD-Service
- *
- **********************************************************************/

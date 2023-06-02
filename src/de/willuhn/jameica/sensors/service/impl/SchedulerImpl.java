@@ -1,13 +1,10 @@
 /**********************************************************************
- * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/service/impl/SchedulerImpl.java,v $
- * $Revision: 1.5 $
- * $Date: 2009/08/25 11:47:44 $
- * $Author: willuhn $
- * $Locker:  $
- * $State: Exp $
  *
- * Copyright (c) by willuhn software & services
- * All rights reserved
+ * Copyright (c) 2023 Olaf Willuhn
+ * All rights reserved.
+ * 
+ * This software is copyrighted work licensed under the terms of the
+ * Jameica License.  Please consult the file "LICENSE" for details. 
  *
  **********************************************************************/
 
@@ -69,7 +66,7 @@ public class SchedulerImpl implements Scheduler
   {
     if (this.isStarted())
     {
-      Logger.warn("service allready started, skipping request");
+      Logger.warn("service already started, skipping request");
       return;
     }
 
@@ -188,31 +185,3 @@ public class SchedulerImpl implements Scheduler
     }
   }
 }
-
-
-/**********************************************************************
- * $Log: SchedulerImpl.java,v $
- * Revision 1.5  2009/08/25 11:47:44  willuhn
- * *** empty log message ***
- *
- * Revision 1.4  2009/08/21 14:26:00  willuhn
- * @N null als Rueckgabewert tolerieren
- *
- * Revision 1.3  2009/08/21 13:34:17  willuhn
- * @N Redesign der Device-API
- * @N Cleanup in Persistierung
- * @B Bugfixing beim Initialisieren des EntityManagers
- *
- * Revision 1.2  2009/08/19 23:46:29  willuhn
- * @N Erster Code fuer die JPA-Persistierung
- *
- * Revision 1.1  2009/08/19 10:34:43  willuhn
- * @N initial import
- *
- * Revision 1.2  2009/08/18 23:00:25  willuhn
- * @N Erste Version mit Web-Frontend
- *
- * Revision 1.1  2009/08/18 16:29:19  willuhn
- * @N DIE SCHEISSE GEHT! ;)
- *
- **********************************************************************/

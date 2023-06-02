@@ -22,10 +22,6 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
 
-import net.n3.nanoxml.IXMLElement;
-import net.n3.nanoxml.IXMLParser;
-import net.n3.nanoxml.StdXMLReader;
-import net.n3.nanoxml.XMLParserFactory;
 import de.willuhn.io.FileFinder;
 import de.willuhn.jameica.sensors.Plugin;
 import de.willuhn.jameica.sensors.devices.Measurement;
@@ -39,6 +35,10 @@ import de.willuhn.jameica.sensors.notify.operator.Operator;
 import de.willuhn.jameica.system.Application;
 import de.willuhn.jameica.util.XPathEmu;
 import de.willuhn.logging.Logger;
+import net.n3.nanoxml.IXMLElement;
+import net.n3.nanoxml.IXMLParser;
+import net.n3.nanoxml.StdXMLReader;
+import net.n3.nanoxml.XMLParserFactory;
 
 /**
  * Durchsucht das Workverzeichnis nach Notify-Regeln in Form von XML-Dateien
@@ -123,7 +123,7 @@ public class RuleProcessor
     Class<? extends Serializer> c = s.getSerializer();
     if (c == null)
       c = StringSerializer.class;
-    Serializer serializer = c.newInstance();
+    Serializer serializer = c.getDeclaredConstructor().newInstance();
     //
     ////////////////////////////////////////////////////////////////////////
     
@@ -260,7 +260,7 @@ public class RuleProcessor
       Class<? extends Serializer> c = s.getSerializer();
       if (c == null)
         c = StringSerializer.class;
-      limit = o != null ? c.newInstance().format(o) : null;
+      limit = o != null ? c.getDeclaredConstructor().newInstance().format(o) : null;
     }
     return limit;
   }

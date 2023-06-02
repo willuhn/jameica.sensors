@@ -1,11 +1,10 @@
 /**********************************************************************
- * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/web/rest/Sensor.java,v $
- * $Revision: 1.4 $
- * $Date: 2010/05/12 10:59:11 $
- * $Author: willuhn $
  *
- * Copyright (c) by willuhn - software & services
- * All rights reserved
+ * Copyright (c) 2023 Olaf Willuhn
+ * All rights reserved.
+ * 
+ * This software is copyrighted work licensed under the terms of the
+ * Jameica License.  Please consult the file "LICENSE" for details. 
  *
  **********************************************************************/
 
@@ -69,7 +68,7 @@ public class Sensor implements AutoRestBean
             Class<Serializer> serializer = s.getSerializer();
             if (serializer != null)
             {
-              Serializer sl = serializer.newInstance();
+              Serializer sl = serializer.getDeclaredConstructor().newInstance();
               return sl.format(s.getValue());
             }
             
@@ -82,21 +81,3 @@ public class Sensor implements AutoRestBean
     throw new IOException("no sensor found for uuid: " + uuid);
   }
 }
-
-
-
-/**********************************************************************
- * $Log: Sensor.java,v $
- * Revision 1.4  2010/05/12 10:59:11  willuhn
- * @N Automatische Dokumentations-Seite fuer die REST-Beans basierend auf der Annotation "Doc"
- *
- * Revision 1.3  2010/05/11 16:40:58  willuhn
- * @N Automatisches Deployment von REST-Beans
- *
- * Revision 1.2  2010/05/11 14:59:50  willuhn
- * @N Automatisches Deployment von REST-Beans
- *
- * Revision 1.1  2010/02/10 13:47:56  willuhn
- * @N REST-Support zur Abfrage einzelner Werte
- *
- **********************************************************************/

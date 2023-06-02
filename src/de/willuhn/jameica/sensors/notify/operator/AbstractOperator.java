@@ -1,11 +1,10 @@
 /**********************************************************************
- * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/notify/operator/AbstractOperator.java,v $
- * $Revision: 1.1 $
- * $Date: 2011/02/18 12:29:41 $
- * $Author: willuhn $
  *
- * Copyright (c) by willuhn - software & services
- * All rights reserved
+ * Copyright (c) 2023 Olaf Willuhn
+ * All rights reserved.
+ * 
+ * This software is copyrighted work licensed under the terms of the
+ * Jameica License.  Please consult the file "LICENSE" for details. 
  *
  **********************************************************************/
 
@@ -37,7 +36,7 @@ public abstract class AbstractOperator implements Operator
     
     try
     {
-      Serializer s = serializer.newInstance();
+      Serializer s = serializer.getDeclaredConstructor().newInstance();
       return prepareSensor(s.unserialize(limit.trim()));
     }
     catch (Exception e)
@@ -57,7 +56,7 @@ public abstract class AbstractOperator implements Operator
       return null;
     
     if (value instanceof Number)
-      return new Double(((Number)value).doubleValue());
+      return Double.valueOf(((Number)value).doubleValue());
     
     if (value instanceof Comparable)
       return (Comparable) value;
@@ -84,12 +83,3 @@ public abstract class AbstractOperator implements Operator
       throw new IllegalArgumentException("sensor has no value");
   }
 }
-
-
-
-/**********************************************************************
- * $Log: AbstractOperator.java,v $
- * Revision 1.1  2011/02/18 12:29:41  willuhn
- * @N Regel-Operatoren umgebaut. Es gibt jetzt auch einen "Outside"-Operator mit dessen Hilfe eine Unter- UND Obergrenze in EINER Regel definiert werden kann
- *
- **********************************************************************/

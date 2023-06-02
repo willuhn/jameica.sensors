@@ -1,13 +1,10 @@
 /**********************************************************************
- * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/service/impl/ArchiveImpl.java,v $
- * $Revision: 1.13 $
- * $Date: 2012/03/28 22:28:18 $
- * $Author: willuhn $
- * $Locker:  $
- * $State: Exp $
  *
- * Copyright (c) by willuhn software & services
- * All rights reserved
+ * Copyright (c) 2023 Olaf Willuhn
+ * All rights reserved.
+ * 
+ * This software is copyrighted work licensed under the terms of the
+ * Jameica License.  Please consult the file "LICENSE" for details. 
  *
  **********************************************************************/
 
@@ -86,7 +83,7 @@ public class ArchiveImpl implements Archive, Configurable
   {
     if (this.isStarted())
     {
-      Logger.warn("service allready started, skipping request");
+      Logger.warn("service already started, skipping request");
       return;
     }
 
@@ -223,7 +220,7 @@ public class ArchiveImpl implements Archive, Configurable
           // Messwerte speichern
           try
           {
-            Serializer s = (Serializer) cl.loadClass(archiveSensor.getSerializer()).newInstance();
+            Serializer s = (Serializer) cl.loadClass(archiveSensor.getSerializer()).getDeclaredConstructor().newInstance();
             Value value = new Value();
             value.setDate(m.getDate()); // Datum aus Messung uebernehmen
             value.setValue(s.serialize(sensor.getValue()));
@@ -367,50 +364,3 @@ public class ArchiveImpl implements Archive, Configurable
     }
   }
 }
-
-
-/**********************************************************************
- * $Log: ArchiveImpl.java,v $
- * Revision 1.13  2012/03/28 22:28:18  willuhn
- * @N Einfuehrung eines neuen Interfaces "Plugin", welches von "AbstractPlugin" implementiert wird. Es dient dazu, kuenftig auch Jameica-Plugins zu unterstuetzen, die selbst gar keinen eigenen Java-Code mitbringen sondern nur ein Manifest ("plugin.xml") und z.Bsp. Jars oder JS-Dateien. Plugin-Autoren muessen lediglich darauf achten, dass die Jameica-Funktionen, die bisher ein Object vom Typ "AbstractPlugin" zuruecklieferten, jetzt eines vom Typ "Plugin" liefern.
- * @C "getClassloader()" verschoben von "plugin.getRessources().getClassloader()" zu "manifest.getClassloader()" - der Zugriffsweg ist kuerzer. Die alte Variante existiert weiterhin, ist jedoch als deprecated markiert.
- *
- * Revision 1.12  2010/03/01 00:19:04  willuhn
- * *** empty log message ***
- *
- * Revision 1.11  2009/09/15 17:00:17  willuhn
- * @N Konfigurierbarkeit aller Module ueber das Webfrontend
- *
- * Revision 1.10  2009/08/24 10:34:44  willuhn
- * @N Archiv-Service nur starten, wenn konfiguriert
- *
- * Revision 1.9  2009/08/21 17:27:37  willuhn
- * @N RRD-Service
- *
- * Revision 1.8  2009/08/21 13:40:44  willuhn
- * @N DB-Zugangsdaten konfigurierbar
- *
- * Revision 1.7  2009/08/21 13:34:17  willuhn
- * @N Redesign der Device-API
- * @N Cleanup in Persistierung
- * @B Bugfixing beim Initialisieren des EntityManagers
- *
- * Revision 1.6  2009/08/21 00:43:03  willuhn
- * *** empty log message ***
- *
- * Revision 1.5  2009/08/20 23:26:25  willuhn
- * *** empty log message ***
- *
- * Revision 1.4  2009/08/20 23:26:14  willuhn
- * *** empty log message ***
- *
- * Revision 1.3  2009/08/20 22:08:42  willuhn
- * @N Erste komplett funktionierende Version der Persistierung
- *
- * Revision 1.2  2009/08/20 18:07:43  willuhn
- * @N Persistierung funktioniert rudimentaer
- *
- * Revision 1.1  2009/08/19 23:46:29  willuhn
- * @N Erster Code fuer die JPA-Persistierung
- *
- **********************************************************************/

@@ -1,11 +1,10 @@
 /**********************************************************************
- * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/service/impl/NotifyImpl.java,v $
- * $Revision: 1.4 $
- * $Date: 2010/03/02 12:43:52 $
- * $Author: willuhn $
  *
- * Copyright (c) by willuhn - software & services
- * All rights reserved
+ * Copyright (c) 2023 Olaf Willuhn
+ * All rights reserved.
+ * 
+ * This software is copyrighted work licensed under the terms of the
+ * Jameica License.  Please consult the file "LICENSE" for details. 
  *
  **********************************************************************/
 
@@ -60,7 +59,7 @@ public class NotifyImpl implements Notify
   {
     if (this.isStarted())
     {
-      Logger.warn("service allready started, skipping request");
+      Logger.warn("service already started, skipping request");
       return;
     }
     this.mc = new MyMessageConsumer();
@@ -124,22 +123,3 @@ public class NotifyImpl implements Notify
   }
 
 }
-
-
-
-/**********************************************************************
- * $Log: NotifyImpl.java,v $
- * Revision 1.4  2010/03/02 12:43:52  willuhn
- * @C Ausfall-Log nicht mehr persistieren
- *
- * Revision 1.3  2010/03/01 23:51:07  willuhn
- * @N Benachrichtigung, wenn Sensor zurueck im normalen Bereich ist
- * @N Merken des letzten Notify-Status, sodass nur beim ersten mal eine Mail gesendet wird
- *
- * Revision 1.2  2010/03/01 17:08:17  willuhn
- * @N Mail-Benachrichtigung via javax.mail
- *
- * Revision 1.1  2010/03/01 13:16:12  willuhn
- * @N Erster Code fuer automatische Benachrichtigungen bei Limit-Ueberschreitungen von Sensoren.
- *
- **********************************************************************/

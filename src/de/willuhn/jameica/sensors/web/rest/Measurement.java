@@ -1,11 +1,10 @@
 /**********************************************************************
- * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/web/rest/Measurement.java,v $
- * $Revision: 1.4 $
- * $Date: 2011/09/13 09:08:34 $
- * $Author: willuhn $
  *
- * Copyright (c) by willuhn - software & services
- * All rights reserved
+ * Copyright (c) 2023 Olaf Willuhn
+ * All rights reserved.
+ * 
+ * This software is copyrighted work licensed under the terms of the
+ * Jameica License.  Please consult the file "LICENSE" for details. 
  *
  **********************************************************************/
 
@@ -99,7 +98,7 @@ public class Measurement implements AutoRestBean
                 Class<Serializer> serializer = sensor.getSerializer();
                 if (serializer != null)
                 {
-                  Serializer sl = serializer.newInstance();
+                  Serializer sl = serializer.getDeclaredConstructor().newInstance();
                   text = sl.format(value);
                 }
                 else
@@ -134,19 +133,3 @@ public class Measurement implements AutoRestBean
     }
   }
 }
-
-
-
-/**********************************************************************
- * $Log: Measurement.java,v $
- * Revision 1.4  2011/09/13 09:08:34  willuhn
- * @C Code-Cleanup
- *
- * Revision 1.3  2011-02-15 16:56:10  willuhn
- * @N Vermerken, ob Sensor ausserhalb Limit
- *
- * Revision 1.2  2011-02-15 16:35:28  willuhn
- * @B json.jar fehlte noch im Build-Script
- * @N Datum in Ausgabe
- *
- **********************************************************************/

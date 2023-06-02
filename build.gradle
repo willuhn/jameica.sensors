@@ -19,9 +19,10 @@ dependencies {
   compile 'com.sun.mail:javax.mail:1+'
   compile 'org.hibernate:hibernate-core:5+'
   compile 'com.fasterxml.jackson.core:jackson-databind:+'
+  compile 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:+'
 }
 
 task download(type: Copy) {
-  into "lib"
+  into "lib/download"
   from configurations.runtime
 }

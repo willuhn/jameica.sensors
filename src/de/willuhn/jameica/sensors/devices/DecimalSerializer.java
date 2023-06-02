@@ -1,13 +1,10 @@
 /**********************************************************************
- * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/devices/DecimalSerializer.java,v $
- * $Revision: 1.2 $
- * $Date: 2011/02/17 23:47:56 $
- * $Author: willuhn $
- * $Locker:  $
- * $State: Exp $
  *
- * Copyright (c) by willuhn software & services
- * All rights reserved
+ * Copyright (c) 2023 Olaf Willuhn
+ * All rights reserved.
+ * 
+ * This software is copyrighted work licensed under the terms of the
+ * Jameica License.  Please consult the file "LICENSE" for details. 
  *
  **********************************************************************/
 
@@ -33,7 +30,7 @@ public class DecimalSerializer extends StringSerializer
     try
     {
       // Erstmal mit Punkt als Dezimaltrenner versuchen
-      return new Double(Double.parseDouble(s));
+      return Double.valueOf(Double.parseDouble(s));
     }
     catch (Exception e)
     {
@@ -50,16 +47,3 @@ public class DecimalSerializer extends StringSerializer
   }
 
 }
-
-
-/**********************************************************************
- * $Log: DecimalSerializer.java,v $
- * Revision 1.2  2011/02/17 23:47:56  willuhn
- * *** empty log message ***
- *
- * Revision 1.1  2009/08/21 13:34:17  willuhn
- * @N Redesign der Device-API
- * @N Cleanup in Persistierung
- * @B Bugfixing beim Initialisieren des EntityManagers
- *
- **********************************************************************/

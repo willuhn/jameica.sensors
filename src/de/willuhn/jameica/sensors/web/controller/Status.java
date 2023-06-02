@@ -1,13 +1,10 @@
 /**********************************************************************
- * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/web/controller/Status.java,v $
- * $Revision: 1.5 $
- * $Date: 2011/09/13 09:08:34 $
- * $Author: willuhn $
- * $Locker:  $
- * $State: Exp $
  *
- * Copyright (c) by willuhn software & services
- * All rights reserved
+ * Copyright (c) 2023 Olaf Willuhn
+ * All rights reserved.
+ * 
+ * This software is copyrighted work licensed under the terms of the
+ * Jameica License.  Please consult the file "LICENSE" for details. 
  *
  **********************************************************************/
 
@@ -59,7 +56,7 @@ public class Status
       Serializer si = cache.get(c);
       if (si == null)
       {
-        si = (Serializer) c.newInstance();
+        si = (Serializer) c.getDeclaredConstructor().newInstance();
         cache.put(c,si);
       }
       return si.format(value);
@@ -83,28 +80,3 @@ public class Status
     return LimitMessageConsumer.outsideLimit(s.getUuid());
   }
 }
-
-
-/**********************************************************************
- * $Log: Status.java,v $
- * Revision 1.5  2011/09/13 09:08:34  willuhn
- * @C Code-Cleanup
- *
- * Revision 1.4  2011-06-28 09:56:36  willuhn
- * @N Lifecycle-Annotation aus jameica.webadmin in util verschoben
- *
- * Revision 1.3  2011-02-14 16:04:51  willuhn
- * @N Messwerte hervorheben, die ausserhalb des Limits liegen
- *
- * Revision 1.2  2009-08-21 13:34:17  willuhn
- * @N Redesign der Device-API
- * @N Cleanup in Persistierung
- * @B Bugfixing beim Initialisieren des EntityManagers
- *
- * Revision 1.1  2009/08/19 10:34:43  willuhn
- * @N initial import
- *
- * Revision 1.1  2009/08/18 23:00:25  willuhn
- * @N Erste Version mit Web-Frontend
- *
- **********************************************************************/

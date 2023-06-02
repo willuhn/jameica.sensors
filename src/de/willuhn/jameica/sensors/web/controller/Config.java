@@ -1,13 +1,10 @@
 /**********************************************************************
- * $Source: /cvsroot/jameica/jameica.sensors/src/de/willuhn/jameica/sensors/web/controller/Config.java,v $
- * $Revision: 1.4 $
- * $Date: 2012/03/28 22:28:18 $
- * $Author: willuhn $
- * $Locker:  $
- * $State: Exp $
  *
- * Copyright (c) by willuhn software & services
- * All rights reserved
+ * Copyright (c) 2023 Olaf Willuhn
+ * All rights reserved.
+ * 
+ * This software is copyrighted work licensed under the terms of the
+ * Jameica License.  Please consult the file "LICENSE" for details. 
  *
  **********************************************************************/
 
@@ -59,7 +56,7 @@ public class Config
       {
         try
         {
-          this.configs.add(c.newInstance());
+          this.configs.add(c.getDeclaredConstructor().newInstance());
         }
         catch (Exception e)
         {
@@ -101,21 +98,3 @@ public class Config
     return this.status;
   }
 }
-
-
-/**********************************************************************
- * $Log: Config.java,v $
- * Revision 1.4  2012/03/28 22:28:18  willuhn
- * @N Einfuehrung eines neuen Interfaces "Plugin", welches von "AbstractPlugin" implementiert wird. Es dient dazu, kuenftig auch Jameica-Plugins zu unterstuetzen, die selbst gar keinen eigenen Java-Code mitbringen sondern nur ein Manifest ("plugin.xml") und z.Bsp. Jars oder JS-Dateien. Plugin-Autoren muessen lediglich darauf achten, dass die Jameica-Funktionen, die bisher ein Object vom Typ "AbstractPlugin" zuruecklieferten, jetzt eines vom Typ "Plugin" liefern.
- * @C "getClassloader()" verschoben von "plugin.getRessources().getClassloader()" zu "manifest.getClassloader()" - der Zugriffsweg ist kuerzer. Die alte Variante existiert weiterhin, ist jedoch als deprecated markiert.
- *
- * Revision 1.3  2011-09-13 09:08:34  willuhn
- * @C Code-Cleanup
- *
- * Revision 1.2  2011-06-28 09:56:36  willuhn
- * @N Lifecycle-Annotation aus jameica.webadmin in util verschoben
- *
- * Revision 1.1  2009/09/15 17:00:17  willuhn
- * @N Konfigurierbarkeit aller Module ueber das Webfrontend
- *
- **********************************************************************/
