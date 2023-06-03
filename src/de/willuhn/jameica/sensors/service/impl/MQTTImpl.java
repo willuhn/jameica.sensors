@@ -204,7 +204,7 @@ public class MQTTImpl implements MQTT, Configurable
           if (payload == null || payload.length() == 0)
             continue;
           
-          final String topic = sensor.getUuid();
+          final String topic = sensor.getUuid().replace('.','/');
           final byte[] data = payload.getBytes(StandardCharsets.UTF_8);
 
           final MqttMessage msg = new MqttMessage();
