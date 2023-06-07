@@ -15,10 +15,12 @@ import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * Jackson-Mapping fuer die JSON-Daten von wmbusmeters
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class WmbusData
 {
   /**
