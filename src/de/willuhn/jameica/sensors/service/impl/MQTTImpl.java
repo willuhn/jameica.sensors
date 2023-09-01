@@ -212,7 +212,7 @@ public class MQTTImpl implements MQTT, Configurable
           msg.setRetained(true);
           msg.setPayload(data);
           this.getClient().publish(topic,msg);
-          Logger.info("published " + data.length + " bytes to topic \"" + topic + "\"");
+          Logger.debug("published " + data.length + " bytes to topic \"" + topic + "\"");
           count++;
         }
         catch (Exception e)
