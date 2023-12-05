@@ -14,6 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.eclipse.paho.client.mqttv3.IMqttClient;
 import org.eclipse.paho.client.mqttv3.MqttClient;
@@ -207,13 +208,28 @@ public class MQTTImpl implements MQTT, Configurable
           final String topic = sensor.getUuid().replace('.','/');
           final byte[] data = payload.getBytes(StandardCharsets.UTF_8);
 
-          final MqttMessage msg = new MqttMessage();
-          msg.setQos(0);
-          msg.setRetained(true);
-          msg.setPayload(data);
-          this.getClient().publish(topic,msg);
-          Logger.debug("published " + data.length + " bytes to topic \"" + topic + "\"");
-          count++;
+          // Der formatierte Wert
+          {
+            final MqttMessage msg = new MqttMessage();
+            msg.setQos(0);
+            msg.setRetained(true);
+            msg.setPayload(data);
+            this.getClient().publish(topic,msg);
+            Logger.debug("published " + data.length + " bytes (formatted) to topic \"" + topic + "\"");
+            count++;
+          }
+          
+          // Der Roh-Wert
+          {
+            final String rawTopic = topic + "/raw";
+            final MqttMessage msg = new MqttMessage();
+            msg.setQos(0);
+            msg.setRetained(true);
+            msg.setPayload(Objects.toString(value).getBytes(StandardCharsets.UTF_8));
+            this.getClient().publish(rawTopic,msg);
+            Logger.debug("published " + data.length + " bytes (raw) to topic \"" + rawTopic + "\"");
+            count++;
+          }
         }
         catch (Exception e)
         {
