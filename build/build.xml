@@ -143,7 +143,6 @@
         <attribute name="Built-Date" value="${DSTAMP}" />
         <attribute name="Implementation-Title" value="${plugin.name}" />
         <attribute name="Implementation-Version" value="${plugin.version}" />
-        <attribute name="Implementation-Buildnumber" value="${build.number}" />
       </manifest>
       <fileset dir="${class.dir}">
         <include name="de/willuhn/jameica/sensors/devices/*.class" />
